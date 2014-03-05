@@ -17,12 +17,11 @@
 package org.projectreactor.bench.collection;
 
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.logic.BlackHole;
 import reactor.util.Assert;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,25 +38,27 @@ import java.util.concurrent.TimeUnit;
 public class MapBenchmarks {
 
 	@Param({"1000", "10000", "100000", "1000000"})
-	public int length;
+	public int    length;
+	@Param({
+			       "java.util.HashMap",
+			       "java.util.concurrent.ConcurrentHashMap",
+			       "com.gs.collections.impl.map.mutable.ConcurrentHashMapUnsafe"
+	       })
+	public String mapImpl;
 
-	int[]                hashCodes;
 	int[]                randomKeys;
 	Map<Integer, Object> intMap;
-	Map<Integer, Object> concurrentIntMap;
-	Map<Integer, Object> linkedNodeIntMap;
 	Random               random;
 
 	@SuppressWarnings("unchecked")
 	@Setup
-	public void setup() {
+	public void setup() throws ClassNotFoundException,
+	                           IllegalAccessException,
+	                           InstantiationException {
 		random = new Random(System.nanoTime());
 
-		hashCodes = new int[length];
 		randomKeys = new int[length];
-		intMap = new HashMap<>();
-		concurrentIntMap = new ConcurrentHashMap<>();
-		linkedNodeIntMap = new LinkedNodeMap<>(length / 4);
+		intMap = (Map<Integer, Object>)Class.forName(mapImpl).newInstance();
 
 		for(int i = 0; i < length; i++) {
 			final int hashCode = i;
@@ -68,55 +69,27 @@ public class MapBenchmarks {
 				}
 			};
 
-			hashCodes[i] = i;
 			randomKeys[i] = random.nextInt(length);
-
 			intMap.put(i, obj);
-			linkedNodeIntMap.put(i, obj);
-			concurrentIntMap.put(i, obj);
 		}
 	}
 
 	@GenerateMicroBenchmark
-	public void hashMapIntegerKey() {
+	public void getRandomIntKey(BlackHole bh) {
 		for(int i = 0; i < length; i++) {
 			int key = randomKeys[i];
 			Object obj = intMap.get(key);
 			Assert.notNull(obj, "No object found for key " + key);
+			bh.consume(obj);
 		}
 	}
 
 	@GenerateMicroBenchmark
-	public void hashMapIteration() {
+	public void entrySetIteration(BlackHole bh) {
 		for(Map.Entry<Integer, Object> entry : intMap.entrySet()) {
 			Object obj = entry.getValue();
 			Assert.notNull(obj, "No object found for key " + entry.getKey());
-		}
-	}
-
-	@GenerateMicroBenchmark
-	public void concurrentHashMapIteration() {
-		for(Map.Entry<Integer, Object> entry : concurrentIntMap.entrySet()) {
-			Object obj = entry.getValue();
-			Assert.notNull(obj, "No object found for key " + entry.getKey());
-		}
-	}
-
-	@GenerateMicroBenchmark
-	public void concurrentHashMapIntegerKey() {
-		for(int i = 0; i < length; i++) {
-			int key = randomKeys[i];
-			Object obj = concurrentIntMap.get(key);
-			Assert.notNull(obj, "No object found for key " + key);
-		}
-	}
-
-	@GenerateMicroBenchmark
-	public void linkedNodeMapIntegerKey() {
-		for(int i = 0; i < length; i++) {
-			int key = randomKeys[i];
-			Object obj = linkedNodeIntMap.get(key);
-			Assert.notNull(obj, "No object found for key " + key);
+			bh.consume(obj);
 		}
 	}
 

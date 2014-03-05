@@ -40,6 +40,13 @@
 			<version>1.0.0.BUILD-SNAPSHOT</version>
 		</dependency>
 
+		<!-- gs-collections -->
+		<dependency>
+			<groupId>com.goldmansachs</groupId>
+			<artifactId>gs-collections</artifactId>
+			<version>4.2.0</version>
+		</dependency>
+
 		<!-- JUnit -->
 		<dependency>
 			<groupId>junit</groupId>
