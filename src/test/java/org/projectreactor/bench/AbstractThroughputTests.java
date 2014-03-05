@@ -31,22 +31,20 @@ public abstract class AbstractThroughputTests {
 	protected abstract long getTimeout();
 
 	protected void start(String type) {
+		start = System.currentTimeMillis();
+		log.info("Starting {} throughput test...", type);
 	}
 
-	protected void testThroughput(String type, Runnable runnable) {
-		start = System.currentTimeMillis();
-		//log.info("Starting {} throughput test...", type);
-
-		long timeout = getTimeout();
-		while(System.currentTimeMillis() - start < timeout) {
-			runnable.run();
-		}
-
+	protected void stop(String type) {
 		end = System.currentTimeMillis();
 		elapsed = end - start;
-		throughput = (long)(counter.get() / elapsed);
+		throughput = (long)(counter.get() / (elapsed / 1000));
 
-		log.info("{} throughput: {}/ms in {}ms", type, throughput, (int)elapsed);
+		log.info("{} throughput: {}/s in {}ms", type, throughput, (int)elapsed);
+	}
+
+	protected boolean withinTimeout() {
+		return (System.currentTimeMillis() - start < getTimeout());
 	}
 
 }
