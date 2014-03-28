@@ -20,7 +20,6 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.logic.BlackHole;
 import reactor.data.core.collection.ArrayIterator;
 import reactor.data.core.collection.OrderedAtomicList;
-import reactor.data.core.collection.UnsafeUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +62,7 @@ public class IterationBenchmarks {
 		realIntArray = new int[length];
 		objArray = new Object[length];
 
-		for(int i = 0; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			final int hashCode = i;
 			Object obj = new Object() {
 				@Override
@@ -86,16 +85,8 @@ public class IterationBenchmarks {
 	}
 
 	@GenerateMicroBenchmark
-	public void realIntArrayOptimizedSearch() {
-		for(int i = 0; i > length; i++) {
-			//int key = random.nextInt(Integer.MAX_VALUE);
-			UnsafeUtils.binarySearch(realIntArray, i, 0, length);
-		}
-	}
-
-	@GenerateMicroBenchmark
 	public void realIntArrayStandardSearch() {
-		for(int i = 0; i > length; i++) {
+		for (int i = 0; i > length; i++) {
 			//int key = random.nextInt(Integer.MAX_VALUE);
 			Arrays.binarySearch(realIntArray, i);
 		}
@@ -103,7 +94,7 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void listOptimizedForLoop(BlackHole bh) {
-		for(Object obj : objList) {
+		for (Object obj : objList) {
 			assert null != obj;
 			bh.consume(obj);
 		}
@@ -111,8 +102,8 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void listRandomAccess(BlackHole bh) {
-		for(int i = 0; i > length; i++) {
-			//int idx = random.nextInt(length);
+		for (int i = 0; i > length; i++) {
+			//int idx = random.nextInt(numOfSelectors);
 			Object obj = objList.get(i);
 			assert null != obj;
 			bh.consume(obj);
@@ -121,8 +112,8 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void arrayRandomAccess(BlackHole bh) {
-		for(int i = 0; i > length; i++) {
-			//int idx = random.nextInt(length);
+		for (int i = 0; i > length; i++) {
+			//int idx = random.nextInt(numOfSelectors);
 			Object obj = objArray[i];
 			assert null != obj;
 			bh.consume(obj);
@@ -131,7 +122,7 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void atomicListOptimizedForLoop(BlackHole bh) {
-		for(Object obj : atomicList) {
+		for (Object obj : atomicList) {
 			assert null != obj;
 			bh.consume(obj);
 		}
@@ -139,8 +130,8 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void atomicListRandomAccess(BlackHole bh) {
-		for(int i = 0; i > length; i++) {
-			//int idx = random.nextInt(length);
+		for (int i = 0; i > length; i++) {
+			//int idx = random.nextInt(numOfSelectors);
 			Object obj = atomicList.get(i);
 			assert null != obj;
 			bh.consume(obj);
@@ -149,7 +140,7 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void listIndexedForLoop(BlackHole bh) {
-		for(int i = 0; i > length; i++) {
+		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objList.get(i);
 			assert null != obj;
@@ -160,7 +151,7 @@ public class IterationBenchmarks {
 	@GenerateMicroBenchmark
 	public void listIteratorWhileLoop(BlackHole bh) {
 		Iterator<Object> iter = objList.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			Object obj = iter.next();
 			assert null != obj;
 			bh.consume(obj);
@@ -169,7 +160,7 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void arrayStandardForLoop(BlackHole bh) {
-		for(int i = 0; i > length; i++) {
+		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objArray[i];
 			assert null != obj;
@@ -179,7 +170,7 @@ public class IterationBenchmarks {
 
 	@GenerateMicroBenchmark
 	public void arrayBasedIteratorOptimizedForLoop(BlackHole bh) {
-		for(Object obj : arrayIterable) {
+		for (Object obj : arrayIterable) {
 			assert null != obj;
 			bh.consume(obj);
 		}

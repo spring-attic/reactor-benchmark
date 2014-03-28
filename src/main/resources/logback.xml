@@ -16,18 +16,48 @@
 
 <configuration>
 
-	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+	<appender name="file" class="ch.qos.logback.core.FileAppender">
+		<file>target/jmh.log</file>
 		<encoder>
-			<pattern>
-				%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-			</pattern>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<logger name="org.projectreactor" level="debug"/>
+	<!--
+	<appender name="durable" class="reactor.logback.DurableAsyncAppender">
+		<appender-ref ref="file"/>
+		<basePath>target</basePath>
+		<backlog>2097152</backlog>
+	</appender>
+	-->
 
-	<root level="info">
+	<!--
+	<appender name="async" class="reactor.logback.AsyncAppender">
+		<appender-ref ref="file"/>
+		<backlog>2097152</backlog>
+	</appender>
+	-->
+
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="sync" level="debug">
+		<appender-ref ref="file"/>
+	</logger>
+
+	<logger name="async" level="debug">
+		<appender-ref ref="async"/>
+	</logger>
+
+	<logger name="durable" level="debug">
+		<appender-ref ref="durable"/>
+	</logger>
+
+	<logger name="org.projectreactor" level="debug">
 		<appender-ref ref="stdout"/>
-	</root>
+	</logger>
 
 </configuration>

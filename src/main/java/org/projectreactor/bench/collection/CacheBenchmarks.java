@@ -16,40 +16,41 @@
 
 package org.projectreactor.bench.collection;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.gs.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.logic.BlackHole;
 import reactor.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmarks around various kinds of Map interactions.
- *
  * @author Jon Brisbin
  */
 @Measurement(iterations = 5, time = 3)
 @Warmup(iterations = 5)
-@Fork(1)
+@Fork(3)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Thread)
-public class MapBenchmarks {
+public class CacheBenchmarks {
 
 	@Param({"1000"})
-	public int    length;
-	@Param({
-			       "java.util.HashMap",
-			       "java.util.concurrent.ConcurrentHashMap",
-			       "com.gs.collections.impl.map.mutable.ConcurrentHashMapUnsafe"
-	       })
-	public String mapImpl;
+	public int length;
 
-	int[]                randomKeys;
-	Map<Integer, Object> intMap;
-	Random               random;
-	int                  index;
+	int[]                          randomKeys;
+	Object[]                       objs;
+	Map<Integer, List<Object>>     intMap;
+	IntObjectHashMap<List<Object>> cacheMap;
+	Multimap<Integer, Object>      multiMap;
+	Random                         random;
+	int                            index;
 
 	@SuppressWarnings("unchecked")
 	@Setup
@@ -59,8 +60,11 @@ public class MapBenchmarks {
 		random = new Random(System.nanoTime());
 		index = 0;
 		randomKeys = new int[length];
+		objs = new Object[length];
 
-		intMap = (Map<Integer, Object>) Class.forName(mapImpl).newInstance();
+		intMap = new ConcurrentHashMap<>();
+		cacheMap = IntObjectHashMap.newMap();
+		multiMap = HashMultimap.create();
 
 		for (int i = 0; i < length; i++) {
 			final int hashCode = i;
@@ -70,14 +74,21 @@ public class MapBenchmarks {
 					return hashCode;
 				}
 			};
+			objs[i] = obj;
 
 			randomKeys[i] = random.nextInt(length);
-			intMap.put(i, obj);
+			List<Object> objs = new ArrayList<>();
+			for (int j = 0; j < 100; j++) {
+				objs.add(obj);
+			}
+			intMap.put(i, objs);
+			cacheMap.put(i, objs);
+			multiMap.putAll(i, objs);
 		}
 	}
 
 	@GenerateMicroBenchmark
-	public void getRandomIntKey(BlackHole bh) {
+	public void concurrentHashMap(BlackHole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);
@@ -85,12 +96,19 @@ public class MapBenchmarks {
 	}
 
 	@GenerateMicroBenchmark
-	public void entrySetIteration(BlackHole bh) {
-		for (Map.Entry<Integer, Object> entry : intMap.entrySet()) {
-			Object obj = entry.getValue();
-			Assert.notNull(obj, "No object found for key " + entry.getKey());
-			bh.consume(obj);
-		}
+	public void gsMultimap(BlackHole bh) {
+		int key = randomKeys[index++ % length];
+		Object obj = cacheMap.get(key);
+		Assert.notNull(obj, "No object found for key " + key);
+		bh.consume(obj);
+	}
+
+	@GenerateMicroBenchmark
+	public void guavaMultimap(BlackHole bh) {
+		int key = randomKeys[index++ % length];
+		Object obj = multiMap.get(key);
+		Assert.notNull(obj, "No object found for key " + key);
+		bh.consume(obj);
 	}
 
 }

@@ -17,11 +17,11 @@
 package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.logic.BlackHole;
 import reactor.core.Environment;
 import reactor.core.Reactor;
 import reactor.core.spec.Reactors;
 import reactor.event.Event;
-import reactor.function.Consumer;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +31,7 @@ import static reactor.event.selector.Selectors.$;
 /**
  * @author Jon Brisbin
  */
-@Measurement(iterations = 5)
+@Measurement(iterations = 5, time = 5)
 @Warmup(iterations = 5)
 @Fork(3)
 @BenchmarkMode(Mode.Throughput)
@@ -39,28 +39,27 @@ import static reactor.event.selector.Selectors.$;
 @State(Scope.Thread)
 public class ReactorBenchmarks {
 
-	@Param({"10", "100", "1000", "10000"})
-	public int    length;
-	@Param({"ringBuffer", "workQueue", "threadPoolExecutor"})
+	@Param({"100", "1000", "10000"})
+	public int    numOfSelectors;
+	@Param({"sync", "ringBuffer", "workQueue", "threadPoolExecutor"})
 	public String dispatcher;
 
 	private Environment    env;
 	private CountDownLatch latch;
 	private Reactor        reactor;
+	private Object[]       keys;
+	private Event<?>       event;
 
 	@Setup
 	public void setup() {
 		env = new Environment();
 		reactor = Reactors.reactor(env, dispatcher);
-
-		latch = new CountDownLatch(length);
-		for(int i = 0; i < length; i++) {
-			reactor.on($(i), new Consumer<Event<?>>() {
-				@Override
-				public void accept(Event<?> event) {
-					latch.countDown();
-				}
-			});
+		event = new Event<>(null);
+		latch = new CountDownLatch(numOfSelectors);
+		keys = new Object[numOfSelectors];
+		for (int i = 0; i < numOfSelectors; i++) {
+			keys[i] = new Object();
+			reactor.on($(keys[i]), event -> latch.countDown());
 		}
 	}
 
@@ -70,12 +69,13 @@ public class ReactorBenchmarks {
 	}
 
 	@GenerateMicroBenchmark
-	public void reactorThroughput() throws InterruptedException {
-		for(int i = 0; i < length; i++) {
-			reactor.notify(i, Event.wrap(i));
+	public void reactorThroughput(BlackHole bh) throws InterruptedException {
+		for (int i = 0; i < numOfSelectors; i++) {
+			reactor.notify(keys[i], event);
+			bh.consume(i);
 		}
 
-		assert latch.await(5, TimeUnit.SECONDS);
+		assert latch.await(30, TimeUnit.SECONDS);
 	}
 
 }
