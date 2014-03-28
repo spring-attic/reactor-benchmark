@@ -18,7 +18,8 @@ package org.projectreactor.bench.collection;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.gs.collections.impl.map.mutable.primitive.IntObjectHashMap;
+import com.gs.collections.api.multimap.list.MutableListMultimap;
+import com.gs.collections.impl.multimap.list.FastListMultimap;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.logic.BlackHole;
 import reactor.util.Assert;
@@ -41,16 +42,16 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Thread)
 public class CacheBenchmarks {
 
-	@Param({"1000"})
+	@Param({"100", "1000", "10000", "100000", "1000000"})
 	public int length;
 
-	int[]                          randomKeys;
-	Object[]                       objs;
-	Map<Integer, List<Object>>     intMap;
-	IntObjectHashMap<List<Object>> cacheMap;
-	Multimap<Integer, Object>      multiMap;
-	Random                         random;
-	int                            index;
+	int[]                                randomKeys;
+	Object[]                             objs;
+	Map<Integer, List<Object>>           intMap;
+	MutableListMultimap<Integer, Object> gsMap;
+	Multimap<Integer, Object>            guavaMap;
+	Random                               random;
+	int                                  index;
 
 	@SuppressWarnings("unchecked")
 	@Setup
@@ -63,8 +64,8 @@ public class CacheBenchmarks {
 		objs = new Object[length];
 
 		intMap = new ConcurrentHashMap<>();
-		cacheMap = IntObjectHashMap.newMap();
-		multiMap = HashMultimap.create();
+		gsMap = FastListMultimap.newMultimap();
+		guavaMap = HashMultimap.create();
 
 		for (int i = 0; i < length; i++) {
 			final int hashCode = i;
@@ -82,8 +83,8 @@ public class CacheBenchmarks {
 				objs.add(obj);
 			}
 			intMap.put(i, objs);
-			cacheMap.put(i, objs);
-			multiMap.putAll(i, objs);
+			gsMap.put(i, objs);
+			guavaMap.putAll(i, objs);
 		}
 	}
 
@@ -98,7 +99,7 @@ public class CacheBenchmarks {
 	@GenerateMicroBenchmark
 	public void gsMultimap(BlackHole bh) {
 		int key = randomKeys[index++ % length];
-		Object obj = cacheMap.get(key);
+		Object obj = gsMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
@@ -106,7 +107,7 @@ public class CacheBenchmarks {
 	@GenerateMicroBenchmark
 	public void guavaMultimap(BlackHole bh) {
 		int key = randomKeys[index++ % length];
-		Object obj = multiMap.get(key);
+		Object obj = guavaMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
