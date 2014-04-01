@@ -10,8 +10,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>4.0.2.RELEASE</spring.version>
-		<reactor.version>1.1.0.BUILD-SNAPSHOT</reactor.version>
+		<spring.version>4.0.3.RELEASE</spring.version>
+		<reactor.version>1.1.0.M3</reactor.version>
 		<reactor.data.version>1.0.0.BUILD-SNAPSHOT</reactor.data.version>
 	</properties>
 
@@ -40,6 +40,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 			<version>${spring.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -69,17 +75,17 @@
 			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.projectreactor.spring</groupId>
+			<artifactId>reactor-spring-context</artifactId>
+			<version>${reactor.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectreactor.data</groupId>
 			<artifactId>data-core</artifactId>
 			<version>${reactor.data.version}</version>
 		</dependency>
 
-		<!-- gs-collections -->
-		<dependency>
-			<groupId>com.goldmansachs</groupId>
-			<artifactId>gs-collections</artifactId>
-			<version>5.0.0</version>
-		</dependency>
+		<!-- Guava -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -109,7 +115,7 @@
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>
-			<url>https://repo.spring.io/libs-milestones</url>
+			<url>https://repo.spring.io/libs-milestone</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>

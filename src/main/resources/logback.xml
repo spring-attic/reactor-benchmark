@@ -23,20 +23,15 @@
 		</encoder>
 	</appender>
 
-	<!--
 	<appender name="durable" class="reactor.logback.DurableAsyncAppender">
-		<appender-ref ref="file"/>
 		<basePath>target</basePath>
 		<backlog>2097152</backlog>
 	</appender>
-	-->
 
-	<!--
 	<appender name="async" class="reactor.logback.AsyncAppender">
 		<appender-ref ref="file"/>
 		<backlog>2097152</backlog>
 	</appender>
-	-->
 
 	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>

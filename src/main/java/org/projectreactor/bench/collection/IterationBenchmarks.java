@@ -18,8 +18,6 @@ package org.projectreactor.bench.collection;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.logic.BlackHole;
-import reactor.data.core.collection.ArrayIterator;
-import reactor.data.core.collection.OrderedAtomicList;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -40,19 +38,10 @@ public class IterationBenchmarks {
 	@Param({"1000", "10000", "100000", "1000000"})
 	public int length;
 
-	List<Object>              objList;
-	OrderedAtomicList<Object> atomicList;
-	int[]                     realIntArray;
-	Object[]                  objArray;
-	ArrayIterator<Object>     objIter;
-	Random                    random;
-
-	Iterable<Object> arrayIterable = new Iterable<Object>() {
-		@Override
-		public Iterator<Object> iterator() {
-			return new ArrayIterator<>(objArray);
-		}
-	};
+	List<Object> objList;
+	int[]        realIntArray;
+	Object[]     objArray;
+	Random       random;
 
 	@Setup
 	public void setup() {
@@ -77,11 +66,8 @@ public class IterationBenchmarks {
 			int key = random.nextInt(Integer.MAX_VALUE);
 			realIntArray[i] = key;
 		}
-		atomicList = new OrderedAtomicList<>(objList);
 
 		Arrays.sort(realIntArray);
-
-		objIter = new ArrayIterator<>(objArray);
 	}
 
 	@GenerateMicroBenchmark
@@ -121,24 +107,6 @@ public class IterationBenchmarks {
 	}
 
 	@GenerateMicroBenchmark
-	public void atomicListOptimizedForLoop(BlackHole bh) {
-		for (Object obj : atomicList) {
-			assert null != obj;
-			bh.consume(obj);
-		}
-	}
-
-	@GenerateMicroBenchmark
-	public void atomicListRandomAccess(BlackHole bh) {
-		for (int i = 0; i > length; i++) {
-			//int idx = random.nextInt(numOfSelectors);
-			Object obj = atomicList.get(i);
-			assert null != obj;
-			bh.consume(obj);
-		}
-	}
-
-	@GenerateMicroBenchmark
 	public void listIndexedForLoop(BlackHole bh) {
 		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(ITEMS);
@@ -163,14 +131,6 @@ public class IterationBenchmarks {
 		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objArray[i];
-			assert null != obj;
-			bh.consume(obj);
-		}
-	}
-
-	@GenerateMicroBenchmark
-	public void arrayBasedIteratorOptimizedForLoop(BlackHole bh) {
-		for (Object obj : arrayIterable) {
 			assert null != obj;
 			bh.consume(obj);
 		}
