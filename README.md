@@ -11,3 +11,5 @@ The benchmarks are [JMH](http://openjdk.java.net/projects/code-tools/jmh/) based
 		> mvn package && java -jar target/microbenchmarks.jar ".*ReactorBenchmarks.*"
 
 Sensible defaults are placed as annotations on the benchmark classes themselves. In many cases, those can be overridden by passing the appropriate CLI parameter. Refer to the JMH documentation for more information on what options are available and what effect they have on the benchmark runs.
+
+Note that we are very sorry to ship this project with a Maven build, assistance welcome for moving to Gradle :)
