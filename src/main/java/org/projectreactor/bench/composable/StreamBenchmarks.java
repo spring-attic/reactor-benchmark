@@ -18,11 +18,10 @@ package org.projectreactor.bench.composable;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
-import reactor.core.composable.Deferred;
-import reactor.core.composable.Promise;
-import reactor.core.composable.Stream;
-import reactor.core.composable.spec.Promises;
-import reactor.core.composable.spec.Streams;
+import reactor.rx.Promise;
+import reactor.rx.Stream;
+import reactor.rx.spec.Promises;
+import reactor.rx.spec.Streams;
 import reactor.tuple.Tuple2;
 
 import java.util.concurrent.CountDownLatch;
@@ -47,8 +46,8 @@ public class StreamBenchmarks {
 	private Environment                        env;
 	private CountDownLatch                     latch;
 	private int[]                              data;
-	private Deferred<Integer, Stream<Integer>> deferred;
-	private Deferred<Integer, Stream<Integer>> mapManydeferred;
+	private Stream<Integer> deferred;
+	private Stream<Integer> mapManydeferred;
 
 	@Setup
 	public void setup() {
@@ -57,7 +56,7 @@ public class StreamBenchmarks {
 		deferred = Streams.defer(env, dispatcher);
 		mapManydeferred = Streams.defer(env, dispatcher);
 
-		deferred.compose()
+		deferred
 		        .map(i -> i)
 		        .reduce((Tuple2<Integer, Integer> tup) -> {
 			        int last = (null != tup.getT2() ? tup.getT2() : 1);
@@ -65,13 +64,13 @@ public class StreamBenchmarks {
 		        })
 		        .consume(i -> latch.countDown());
 
-		mapManydeferred.compose()
+		mapManydeferred
 		               .mapMany(i -> {
-			               Deferred<Integer, Promise<Integer>> deferred = Promises.defer(env, dispatcher);
+			               Promise<Integer> deferred = Promises.defer(env, dispatcher);
 			               try {
-				               return deferred.compose();
+				               return deferred;
 			               } finally {
-				               deferred.accept(i);
+				               deferred.broadcastNext(i);
 			               }
 		               })
 		               .consume(i -> latch.countDown());
@@ -90,7 +89,7 @@ public class StreamBenchmarks {
 	@GenerateMicroBenchmark
 	public void composedStream() throws InterruptedException {
 		for (int i : data) {
-			deferred.accept(i);
+			deferred.broadcastNext(i);
 		}
 
 		assert latch.await(30, TimeUnit.SECONDS);
@@ -99,7 +98,7 @@ public class StreamBenchmarks {
 	@GenerateMicroBenchmark
 	public void composedMapManyStream() throws InterruptedException {
 		for (int i : data) {
-			mapManydeferred.accept(i);
+			mapManydeferred.broadcastNext(i);
 		}
 
 		assert latch.await(30, TimeUnit.SECONDS);
