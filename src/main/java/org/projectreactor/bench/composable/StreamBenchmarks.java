@@ -18,7 +18,6 @@ package org.projectreactor.bench.composable;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
-import reactor.rx.Promise;
 import reactor.rx.Stream;
 import reactor.rx.spec.Promises;
 import reactor.rx.spec.Streams;
@@ -29,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Jon Brisbin
+ * @author Stephane Maldini
  */
 @Measurement(iterations = 5, time = 5)
 @Warmup(iterations = 5)
@@ -53,8 +53,8 @@ public class StreamBenchmarks {
 	public void setup() {
 		env = new Environment();
 		latch = new CountDownLatch(iterations);
-		deferred = Streams.defer(env, dispatcher);
-		mapManydeferred = Streams.defer(env, dispatcher);
+		deferred = Streams.defer(env, env.getDispatcher(dispatcher));
+		mapManydeferred = Streams.defer(env, env.getDispatcher(dispatcher));
 
 		deferred
 		        .map(i -> i)
@@ -65,14 +65,7 @@ public class StreamBenchmarks {
 		        .consume(i -> latch.countDown());
 
 		mapManydeferred
-		               .mapMany(i -> {
-			               Promise<Integer> deferred = Promises.defer(env, dispatcher);
-			               try {
-				               return deferred;
-			               } finally {
-				               deferred.broadcastNext(i);
-			               }
-		               })
+		               .flatMap(i -> Promises.success(i, env, env.getDispatcher(dispatcher)))
 		               .consume(i -> latch.countDown());
 
 		data = new int[iterations];
