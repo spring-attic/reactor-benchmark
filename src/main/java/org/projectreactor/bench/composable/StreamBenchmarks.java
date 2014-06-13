@@ -32,13 +32,13 @@ import java.util.concurrent.TimeUnit;
  */
 @Measurement(iterations = 5, time = 5)
 @Warmup(iterations = 5)
-@Fork(3)
+@Fork(1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
 public class StreamBenchmarks {
 
-	@Param({"100", "1000", "10000"})
+	@Param({"100"})
 	public int    iterations;
 	@Param({"sync", "ringBuffer", "workQueue", "threadPoolExecutor"})
 	public String dispatcher;
@@ -53,8 +53,16 @@ public class StreamBenchmarks {
 	public void setup() {
 		env = new Environment();
 		latch = new CountDownLatch(iterations);
-		deferred = Streams.defer(env, env.getDispatcher(dispatcher));
-		mapManydeferred = Streams.defer(env, env.getDispatcher(dispatcher));
+		switch(dispatcher) {
+			case "workQueue":
+			case "threadPoolExecutor":
+				deferred = Streams.defer(env);
+				mapManydeferred = Streams.defer(env);
+				break;
+			default:
+				deferred = Streams.defer(env, env.getDispatcher(dispatcher));
+				mapManydeferred = Streams.defer(env, env.getDispatcher(dispatcher));
+		}
 
 		deferred
 		        .map(i -> i)
@@ -64,9 +72,20 @@ public class StreamBenchmarks {
 		        })
 		        .consume(i -> latch.countDown());
 
-		mapManydeferred
-		               .flatMap(i -> Promises.success(i, env, env.getDispatcher(dispatcher)))
-		               .consume(i -> latch.countDown());
+		switch(dispatcher){
+			case "workQueue":
+			case "threadPoolExecutor":
+				mapManydeferred
+						.parallel(env.getDispatcher(dispatcher))
+						.map(substream -> substream.consume(i -> latch.countDown()));
+				break;
+
+			default:
+				mapManydeferred
+						.flatMap(i -> Promises.success(i, env, env.getDispatcher(dispatcher)))
+						.consume(i -> latch.countDown());
+
+		}
 
 		data = new int[iterations];
 		for (int i = 0; i < iterations; i++) {
