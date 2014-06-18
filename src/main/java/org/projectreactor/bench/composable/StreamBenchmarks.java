@@ -19,7 +19,6 @@ package org.projectreactor.bench.composable;
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
 import reactor.rx.Stream;
-import reactor.rx.spec.Promises;
 import reactor.rx.spec.Streams;
 import reactor.tuple.Tuple2;
 
@@ -43,9 +42,9 @@ public class StreamBenchmarks {
 	@Param({"sync", "ringBuffer", "workQueue", "threadPoolExecutor"})
 	public String dispatcher;
 
-	private Environment                        env;
-	private CountDownLatch                     latch;
-	private int[]                              data;
+	private Environment     env;
+	private CountDownLatch  latch;
+	private int[]           data;
 	private Stream<Integer> deferred;
 	private Stream<Integer> mapManydeferred;
 
@@ -53,38 +52,40 @@ public class StreamBenchmarks {
 	public void setup() {
 		env = new Environment();
 		latch = new CountDownLatch(iterations);
-		switch(dispatcher) {
+		switch (dispatcher) {
 			case "workQueue":
 			case "threadPoolExecutor":
 				deferred = Streams.defer(env);
+				deferred
+						.parallel(env.getDispatcher(dispatcher))
+						.map(stream -> stream
+								.map(i -> i)
+								.reduce((Tuple2<Integer, Integer> tup) -> {
+									int last = (null != tup.getT2() ? tup.getT2() : 1);
+									return last + tup.getT1();
+								})
+								.consume(i -> latch.countDown())
+						);
+
 				mapManydeferred = Streams.defer(env);
-				break;
-			default:
-				deferred = Streams.defer(env, env.getDispatcher(dispatcher));
-				mapManydeferred = Streams.defer(env, env.getDispatcher(dispatcher));
-		}
-
-		deferred
-		        .map(i -> i)
-		        .reduce((Tuple2<Integer, Integer> tup) -> {
-			        int last = (null != tup.getT2() ? tup.getT2() : 1);
-			        return last + tup.getT1();
-		        })
-		        .consume(i -> latch.countDown());
-
-		switch(dispatcher){
-			case "workQueue":
-			case "threadPoolExecutor":
 				mapManydeferred
 						.parallel(env.getDispatcher(dispatcher))
 						.map(substream -> substream.consume(i -> latch.countDown()));
 				break;
-
 			default:
-				mapManydeferred
-						.flatMap(i -> Promises.success(i, env, env.getDispatcher(dispatcher)))
+				deferred = Streams.defer(env, env.getDispatcher(dispatcher));
+				deferred
+						.map(i -> i)
+						.reduce((Tuple2<Integer, Integer> tup) -> {
+							int last = (null != tup.getT2() ? tup.getT2() : 1);
+							return last + tup.getT1();
+						})
 						.consume(i -> latch.countDown());
 
+				mapManydeferred = Streams.defer(env, env.getDispatcher(dispatcher));
+				mapManydeferred
+						.flatMap(i -> Streams.defer(i, env, env.getDispatcher(dispatcher)))
+						.consume(i -> latch.countDown());
 		}
 
 		data = new int[iterations];
