@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author Stephane Maldini
  */
 @Measurement(iterations = 5, time = 5)
-@Warmup(iterations = 5)
+@Warmup(iterations = 0)
 @Fork(1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -55,7 +55,7 @@ public class StreamBenchmarks {
 		switch (dispatcher) {
 			case "workQueue":
 			case "threadPoolExecutor":
-				deferred = Streams.defer(env);
+				deferred = Streams.<Integer>defer(env);
 				deferred
 						.parallel(env.getDispatcher(dispatcher))
 						.map(stream -> stream
@@ -67,13 +67,13 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown())
 						);
 
-				mapManydeferred = Streams.defer(env);
+				mapManydeferred = Streams.<Integer>defer(env);
 				mapManydeferred
 						.parallel(env.getDispatcher(dispatcher))
 						.map(substream -> substream.consume(i -> latch.countDown()));
 				break;
 			default:
-				deferred = Streams.defer(env, env.getDispatcher(dispatcher));
+				deferred = Streams.<Integer>defer(env, env.getDispatcher(dispatcher));
 				deferred
 						.map(i -> i)
 						.reduce((Tuple2<Integer, Integer> tup) -> {
@@ -82,7 +82,7 @@ public class StreamBenchmarks {
 						})
 						.consume(i -> latch.countDown());
 
-				mapManydeferred = Streams.defer(env, env.getDispatcher(dispatcher));
+				mapManydeferred = Streams.<Integer>defer(env, env.getDispatcher(dispatcher));
 				mapManydeferred
 						.flatMap(i -> Streams.defer(i, env, env.getDispatcher(dispatcher)))
 						.consume(i -> latch.countDown());
