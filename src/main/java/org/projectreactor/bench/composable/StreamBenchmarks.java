@@ -54,28 +54,28 @@ public class StreamBenchmarks {
 		latch = new CountDownLatch(iterations);
 		switch (dispatcher) {
 			case "partitioned":
-				deferred = Streams.<Integer>defer(env);
+				deferred = Streams.<Integer>defer();
 				deferred
 						.parallel()
 						.consume(stream -> stream
 								.map(i -> i)
-								.reduce((Tuple2<Integer, Integer> tup) -> {
+								.scan((Tuple2<Integer, Integer> tup) -> {
 									int last = (null != tup.getT2() ? tup.getT2() : 1);
 									return last + tup.getT1();
 								})
 								.consume(i -> latch.countDown())
 						);
 
-				mapManydeferred = Streams.<Integer>defer(env);
+				mapManydeferred = Streams.<Integer>defer();
 				mapManydeferred
 						.parallel()
-						.map(substream -> substream.consume(i -> latch.countDown()));
+						.map(substream -> substream.consume(i -> latch.countDown())).available();
 				break;
 			default:
 				deferred = Streams.<Integer>defer(env, env.getDispatcher(dispatcher));
 				deferred
 						.map(i -> i)
-						.reduce((Tuple2<Integer, Integer> tup) -> {
+						.scan((Tuple2<Integer, Integer> tup) -> {
 							int last = (null != tup.getT2() ? tup.getT2() : 1);
 							return last + tup.getT1();
 						})
