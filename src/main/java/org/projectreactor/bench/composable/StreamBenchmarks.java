@@ -39,7 +39,7 @@ public class StreamBenchmarks {
 
 	@Param({"100"})
 	public int    iterations;
-	@Param({"sync", "ringBuffer", "workQueue", "threadPoolExecutor"})
+	@Param({"sync", "ringBuffer", "partitioned"})
 	public String dispatcher;
 
 	private Environment     env;
@@ -53,12 +53,11 @@ public class StreamBenchmarks {
 		env = new Environment();
 		latch = new CountDownLatch(iterations);
 		switch (dispatcher) {
-			case "workQueue":
-			case "threadPoolExecutor":
+			case "partitioned":
 				deferred = Streams.<Integer>defer(env);
 				deferred
-						.parallel(env.getDispatcher(dispatcher))
-						.map(stream -> stream
+						.parallel()
+						.consume(stream -> stream
 								.map(i -> i)
 								.reduce((Tuple2<Integer, Integer> tup) -> {
 									int last = (null != tup.getT2() ? tup.getT2() : 1);
@@ -69,7 +68,7 @@ public class StreamBenchmarks {
 
 				mapManydeferred = Streams.<Integer>defer(env);
 				mapManydeferred
-						.parallel(env.getDispatcher(dispatcher))
+						.parallel()
 						.map(substream -> substream.consume(i -> latch.countDown()));
 				break;
 			default:
