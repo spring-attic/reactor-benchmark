@@ -29,16 +29,18 @@ import java.util.concurrent.TimeUnit;
  * @author Jon Brisbin
  * @author Stephane Maldini
  */
-@Measurement(iterations = 5, time = 5)
-@Warmup(iterations = 0)
+@Measurement(iterations = StreamBenchmarks.ITERATIONS, time=5)
+@Warmup(iterations = 5)
 @Fork(1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
 public class StreamBenchmarks {
 
-	@Param({"100"})
-	public int    iterations;
+	public final static int ITERATIONS = 5;
+
+	@Param({"1000"})
+	public int    elements;
 	@Param({"sync", "ringBuffer", "partitioned"})
 	public String dispatcher;
 
@@ -51,22 +53,22 @@ public class StreamBenchmarks {
 	@Setup
 	public void setup() {
 		env = new Environment();
-		latch = new CountDownLatch(iterations);
+		latch = new CountDownLatch(elements * ITERATIONS);
 		switch (dispatcher) {
 			case "partitioned":
-				deferred = Streams.<Integer>defer();
+				deferred = Streams.<Integer>defer(env);
 				deferred
 						.parallel()
 						.consume(stream -> stream
-								.map(i -> i)
-								.scan((Tuple2<Integer, Integer> tup) -> {
-									int last = (null != tup.getT2() ? tup.getT2() : 1);
-									return last + tup.getT1();
-								})
-								.consume(i -> latch.countDown())
+										.map(i -> i)
+										.scan((Tuple2<Integer, Integer> tup) -> {
+											int last = (null != tup.getT2() ? tup.getT2() : 1);
+											return last + tup.getT1();
+										})
+										.consume(i -> latch.countDown())
 						);
 
-				mapManydeferred = Streams.<Integer>defer();
+				mapManydeferred = Streams.<Integer>defer(env);
 				mapManydeferred
 						.parallel()
 						.map(substream -> substream.consume(i -> latch.countDown())).available();
@@ -87,14 +89,15 @@ public class StreamBenchmarks {
 						.consume(i -> latch.countDown());
 		}
 
-		data = new int[iterations];
-		for (int i = 0; i < iterations; i++) {
+		data = new int[elements];
+		for (int i = 0; i < elements; i++) {
 			data[i] = i;
 		}
 	}
 
 	@TearDown
-	public void tearDown() {
+	public void tearDown() throws InterruptedException  {
+		latch.await();
 		env.shutdown();
 	}
 
@@ -103,8 +106,6 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			deferred.broadcastNext(i);
 		}
-
-		assert latch.await(30, TimeUnit.SECONDS);
 	}
 
 	@GenerateMicroBenchmark
@@ -112,8 +113,6 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			mapManydeferred.broadcastNext(i);
 		}
-
-		assert latch.await(30, TimeUnit.SECONDS);
 	}
 
 }
