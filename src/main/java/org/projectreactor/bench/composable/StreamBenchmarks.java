@@ -108,7 +108,7 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			deferred.broadcastNext(i);
 		}
-		latch.await();
+		if(!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug());
 	}
 
 	@GenerateMicroBenchmark
@@ -117,7 +117,7 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			mapManydeferred.broadcastNext(i);
 		}
-		latch.await();
+		if(!latch.await(60, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug());
 	}
 
 }
