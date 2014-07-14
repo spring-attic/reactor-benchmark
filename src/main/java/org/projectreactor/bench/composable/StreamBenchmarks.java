@@ -18,6 +18,7 @@ package org.projectreactor.bench.composable;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
+import reactor.event.dispatch.Dispatcher;
 import reactor.rx.Stream;
 import reactor.rx.spec.Streams;
 import reactor.tuple.Tuple2;
@@ -29,8 +30,8 @@ import java.util.concurrent.TimeUnit;
  * @author Jon Brisbin
  * @author Stephane Maldini
  */
-@Measurement(iterations = StreamBenchmarks.ITERATIONS, time=5)
-@Warmup(iterations = 5)
+@Measurement(iterations = StreamBenchmarks.ITERATIONS, time = 5)
+@Warmup(iterations = 0)
 @Fork(1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -53,7 +54,7 @@ public class StreamBenchmarks {
 	@Setup
 	public void setup() {
 		env = new Environment();
-		latch = new CountDownLatch(elements * ITERATIONS);
+
 		switch (dispatcher) {
 			case "partitioned":
 				deferred = Streams.<Integer>defer(env);
@@ -74,7 +75,8 @@ public class StreamBenchmarks {
 						.map(substream -> substream.consume(i -> latch.countDown())).available();
 				break;
 			default:
-				deferred = Streams.<Integer>defer(env, env.getDispatcher(dispatcher));
+				final Dispatcher deferredDispatcher = env.getDispatcher(dispatcher);
+				deferred = Streams.<Integer>defer(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
 						.scan((Tuple2<Integer, Integer> tup) -> {
@@ -83,9 +85,9 @@ public class StreamBenchmarks {
 						})
 						.consume(i -> latch.countDown());
 
-				mapManydeferred = Streams.<Integer>defer(env, env.getDispatcher(dispatcher));
+				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
 				mapManydeferred
-						.flatMap(i -> Streams.defer(i, env, env.getDispatcher(dispatcher)))
+						.flatMap(i -> Streams.defer(i, env, deferredDispatcher))
 						.consume(i -> latch.countDown());
 		}
 
@@ -96,23 +98,26 @@ public class StreamBenchmarks {
 	}
 
 	@TearDown
-	public void tearDown() throws InterruptedException  {
-		latch.await();
+	public void tearDown() throws InterruptedException {
 		env.shutdown();
 	}
 
 	@GenerateMicroBenchmark
 	public void composedStream() throws InterruptedException {
+		latch = new CountDownLatch(data.length);
 		for (int i : data) {
 			deferred.broadcastNext(i);
 		}
+		latch.await();
 	}
 
 	@GenerateMicroBenchmark
 	public void composedMapManyStream() throws InterruptedException {
+		latch = new CountDownLatch(data.length);
 		for (int i : data) {
 			mapManydeferred.broadcastNext(i);
 		}
+		latch.await();
 	}
 
 }
