@@ -40,7 +40,7 @@ public class StreamBenchmarks {
 
 	public final static int ITERATIONS = 5;
 
-	@Param({"1000"})
+	@Param({"100"})
 	public int    elements;
 	@Param({"sync", "ringBuffer", "partitioned"})
 	public String dispatcher;
@@ -72,7 +72,7 @@ public class StreamBenchmarks {
 				mapManydeferred = Streams.<Integer>defer(env);
 				mapManydeferred
 						.parallel()
-						.map(substream -> substream.consume(i -> latch.countDown())).available();
+						.consume(substream -> substream.consume(i -> latch.countDown()));
 				break;
 			default:
 				final Dispatcher deferredDispatcher = env.getDispatcher(dispatcher);
