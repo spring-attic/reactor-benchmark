@@ -87,7 +87,7 @@ public class StreamBenchmarks {
 
 				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
 				mapManydeferred
-						.flatMap(i -> Streams.defer(i, env, deferredDispatcher))
+						.flatMap(i -> Streams.defer(env, deferredDispatcher, i))
 						.consume(i -> latch.countDown());
 		}
 
