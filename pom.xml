@@ -74,6 +74,16 @@
 			<artifactId>reactor-logback</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectreactor.spring</groupId>
+			<artifactId>reactor-spring-context</artifactId>
+			<version>${reactor.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectreactor.data</groupId>
+			<artifactId>data-core</artifactId>
+			<version>${reactor.data.version}</version>
+		</dependency>
 
 		<!-- Guava -->
 		<dependency>
