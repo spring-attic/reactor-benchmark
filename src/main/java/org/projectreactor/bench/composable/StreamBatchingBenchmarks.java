@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Oleg Iavorskyi
  */
-@Measurement(iterations = StreamBatchingBenchmarks.ITERATIONS, time = 5)
+@Measurement(iterations = StreamBatchingBenchmarks.ITERATIONS, time = 100)
 @Warmup(iterations = 3)
 @Fork(1)
 @BenchmarkMode(Mode.Throughput)
@@ -24,7 +24,7 @@ public class StreamBatchingBenchmarks {
 
 	public final static int ITERATIONS = 5;
 
-	@Param({"100", "1000", "10000"})
+	@Param({"1000000"})
 	public int     elements;
 	@Param({"false", "true"})
 	public boolean filter;
@@ -39,12 +39,16 @@ public class StreamBatchingBenchmarks {
 
 		deferred = Streams.<CountDownLatch>defer(env);
 		deferred
-				.parallel(2)
+				.parallel(8)
 				.consume(stream -> (filter ? (stream
 								.filter(i -> i.hashCode() != 0 ? true : true)) : stream)
-								.buffer(elements/2)
-								.timeout(100)
+								.buffer(elements/8)
 								.consume(batch -> {
+									try {
+										Thread.sleep(150);
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
 									for (CountDownLatch latch : batch) latch.countDown();
 								})
 				);

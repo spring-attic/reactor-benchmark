@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author Jon Brisbin
  * @author Stephane Maldini
  */
-@Measurement(iterations = StreamBenchmarks.ITERATIONS, time = 5)
+@Measurement(iterations = StreamBenchmarks.ITERATIONS, time = 100)
 @Warmup(iterations = 0)
 @Fork(1)
 @BenchmarkMode(Mode.Throughput)
