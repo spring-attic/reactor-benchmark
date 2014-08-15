@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author Jon Brisbin
  * @author Stephane Maldini
  */
-@Measurement(iterations = StreamBenchmarks.ITERATIONS, time = 100)
+@Measurement(iterations = StreamBenchmarks.ITERATIONS, time = 5)
 @Warmup(iterations = 0)
 @Fork(1)
 @BenchmarkMode(Mode.Throughput)
@@ -117,7 +117,7 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			mapManydeferred.broadcastNext(i);
 		}
-		if(!latch.await(60, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug().toString());
+		if(!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug().toString());
 	}
 
 }
