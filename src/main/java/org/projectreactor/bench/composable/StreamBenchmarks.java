@@ -20,6 +20,7 @@ import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
 import reactor.event.dispatch.Dispatcher;
 import reactor.rx.Stream;
+import reactor.rx.action.ParallelAction;
 import reactor.rx.spec.Streams;
 import reactor.tuple.Tuple2;
 
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
+@OperationsPerInvocation(100L)
 public class StreamBenchmarks {
 
 	public final static int ITERATIONS = 5;
@@ -57,9 +59,8 @@ public class StreamBenchmarks {
 
 		switch (dispatcher) {
 			case "partitioned":
-				deferred = Streams.<Integer>defer(env);
-				deferred
-						.parallel()
+				ParallelAction<Integer> parallelStream = Streams.<Integer>parallel(env);
+				parallelStream
 						.consume(stream -> stream
 										.map(i -> i)
 										.scan((Tuple2<Integer, Integer> tup) -> {
@@ -69,13 +70,19 @@ public class StreamBenchmarks {
 										.consume(i -> latch.countDown())
 						);
 
+				deferred = Streams.defer(env);
+				deferred.connect(parallelStream);
+
 				mapManydeferred = Streams.<Integer>defer(env);
 				mapManydeferred
 						.parallel()
 						.consume(substream -> substream.consume(i -> latch.countDown()));
 				break;
 			default:
-				final Dispatcher deferredDispatcher = env.getDispatcher(dispatcher);
+				final Dispatcher deferredDispatcher = dispatcher.equals("ringBuffer") ?
+						env.getDefaultDispatcherFactory().get():
+						env.getDispatcher(dispatcher);
+
 				deferred = Streams.<Integer>defer(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
@@ -85,9 +92,13 @@ public class StreamBenchmarks {
 						})
 						.consume(i -> latch.countDown());
 
+				final Dispatcher flatMapDispatcher = dispatcher.equals("ringBuffer") ?
+						env.getDefaultDispatcher():
+						env.getDispatcher(dispatcher);
+
 				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
 				mapManydeferred
-						.flatMap(i -> Streams.defer(env, deferredDispatcher, i))
+						.flatMap(i -> Streams.defer(env, flatMapDispatcher, i))
 						.consume(i -> latch.countDown());
 		}
 
@@ -108,7 +119,7 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			deferred.broadcastNext(i);
 		}
-		if(!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug().toString());
+		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug().toString());
 	}
 
 	@GenerateMicroBenchmark
@@ -117,7 +128,7 @@ public class StreamBenchmarks {
 		for (int i : data) {
 			mapManydeferred.broadcastNext(i);
 		}
-		if(!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug().toString());
+		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug().toString());
 	}
 
 }
