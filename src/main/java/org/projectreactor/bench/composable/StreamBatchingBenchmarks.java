@@ -2,6 +2,7 @@ package org.projectreactor.bench.composable;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
+import reactor.event.dispatch.wait.WaitingMood;
 import reactor.function.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.spec.Streams;
@@ -41,15 +42,17 @@ public class StreamBatchingBenchmarks {
 		env = new Environment();
 
 		deferred = Streams.<CountDownLatch>defer(env);
+		((WaitingMood)deferred.getDispatcher()).nervous();
 		deferred
 				.parallel(8)
+				.monitorLatency(300)
 				.consume(stream -> (filter ? (stream
 								.filter(i -> i.hashCode() != 0 ? true : true)) : stream)
 								.buffer(elements / 8)
 								.timeout(1000)
 								.consume(batch -> {
 									try {
-										Thread.sleep(150);
+										Thread.sleep(250);
 									} catch (InterruptedException e) {
 										e.printStackTrace();
 									}
