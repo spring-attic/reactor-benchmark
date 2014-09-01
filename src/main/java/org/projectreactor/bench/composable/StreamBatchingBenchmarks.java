@@ -1,12 +1,14 @@
 package org.projectreactor.bench.composable;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.dsl.ProducerType;
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
-import reactor.event.dispatch.wait.WaitingMood;
 import reactor.function.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.spec.Streams;
 
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -41,30 +43,9 @@ public class StreamBatchingBenchmarks {
 	public void setup() {
 		env = new Environment();
 
-		deferred = Streams.<CountDownLatch>defer(env);
-		((WaitingMood)deferred.getDispatcher()).nervous();
-		deferred
-				.parallel(8)
-				.monitorLatency(300)
-				.consume(stream -> (filter ? (stream
-								.filter(i -> i.hashCode() != 0 ? true : true)) : stream)
-								.buffer(elements / 8)
-								.timeout(1000)
-								.consume(batch -> {
-									try {
-										Thread.sleep(250);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-									for (CountDownLatch latch : batch) latch.countDown();
+		generateStream();
 
-								}).finallyDo(new Consumer<Object>() {
-									@Override
-									public void accept(Object o) {
-										latch.countDown();
-									}
-								})
-				);
+		//env.getRootTimer().schedule(i -> System.out.println(deferred.debug()), 200, TimeUnit.MILLISECONDS);
 
 		data = new String[elements];
 		for (int i = 0; i < elements; i++) {
@@ -83,6 +64,9 @@ public class StreamBatchingBenchmarks {
 		if (!latch.await(30, TimeUnit.SECONDS))
 			throw new RuntimeException(data.length + " elements trying to flow in, with latch count " + latch.getCount() +
 					"\n " + deferred.debug().toString());
+
+		generateStream();
+
 	}
 
 	@GenerateMicroBenchmark
@@ -90,6 +74,45 @@ public class StreamBatchingBenchmarks {
 		for (String i : data) {
 			deferred.broadcastNext(latch);
 		}
+	}
+
+	private void generateStream(){
+		final Random random = new Random();
+
+		deferred = Streams.<CountDownLatch>defer(env);
+
+		//((WaitingMood)deferred.getDispatcher()).nervous();
+
+		deferred
+				.parallel(8, Environment.createDispatcherFactory("batch-stream",
+						8,
+						2048,
+						null,
+						ProducerType.SINGLE,
+						new BlockingWaitStrategy()))
+				//.monitorLatency(300)
+				.consume(stream ->
+								(filter ?
+										stream.filter(i -> i.hashCode() != 0 ? true : true) :
+										stream
+								)
+										.buffer(elements / 8)
+										.timeout(1000)
+										.consume(batch -> {
+											try {
+												Thread.sleep(random.nextInt(400) + 100);
+											} catch (InterruptedException e) {
+												e.printStackTrace();
+											}
+											for (CountDownLatch latch : batch) latch.countDown();
+
+										}).finallyDo(new Consumer<Object>() {
+									@Override
+									public void accept(Object o) {
+										latch.countDown();
+									}
+								})
+				);
 	}
 
 }
