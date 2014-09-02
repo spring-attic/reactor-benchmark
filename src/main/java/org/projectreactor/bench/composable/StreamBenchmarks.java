@@ -18,11 +18,10 @@ package org.projectreactor.bench.composable;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
-import reactor.core.composable.Deferred;
-import reactor.core.composable.Promise;
-import reactor.core.composable.Stream;
-import reactor.core.composable.spec.Promises;
-import reactor.core.composable.spec.Streams;
+import reactor.event.dispatch.Dispatcher;
+import reactor.rx.Stream;
+import reactor.rx.action.ParallelAction;
+import reactor.rx.spec.Streams;
 import reactor.tuple.Tuple2;
 
 import java.util.concurrent.CountDownLatch;
@@ -30,79 +29,106 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Jon Brisbin
+ * @author Stephane Maldini
  */
-@Measurement(iterations = 5, time = 5)
-@Warmup(iterations = 5)
-@Fork(3)
+@Measurement(iterations = StreamBenchmarks.ITERATIONS, time = 5)
+@Warmup(iterations = 0)
+@Fork(1)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
+@OperationsPerInvocation(100L)
 public class StreamBenchmarks {
 
-	@Param({"100", "1000", "10000"})
-	public int    iterations;
-	@Param({"sync", "ringBuffer", "workQueue", "threadPoolExecutor"})
+	public final static int ITERATIONS = 5;
+
+	@Param({"100"})
+	public int    elements;
+	@Param({"sync", "ringBuffer", "partitioned"})
 	public String dispatcher;
 
-	private Environment                        env;
-	private CountDownLatch                     latch;
-	private int[]                              data;
-	private Deferred<Integer, Stream<Integer>> deferred;
-	private Deferred<Integer, Stream<Integer>> mapManydeferred;
+	private Environment     env;
+	private CountDownLatch  latch;
+	private int[]           data;
+	private Stream<Integer> deferred;
+	private Stream<Integer> mapManydeferred;
 
 	@Setup
 	public void setup() {
 		env = new Environment();
-		latch = new CountDownLatch(iterations);
-		deferred = Streams.defer(env, dispatcher);
-		mapManydeferred = Streams.defer(env, dispatcher);
 
-		deferred.compose()
-		        .map(i -> i)
-		        .reduce((Tuple2<Integer, Integer> tup) -> {
-			        int last = (null != tup.getT2() ? tup.getT2() : 1);
-			        return last + tup.getT1();
-		        })
-		        .consume(i -> latch.countDown());
+		switch (dispatcher) {
+			case "partitioned":
+				ParallelAction<Integer> parallelStream = Streams.<Integer>parallel(env);
+				parallelStream
+						.consume(stream -> stream
+										.map(i -> i)
+										.scan((Tuple2<Integer, Integer> tup) -> {
+											int last = (null != tup.getT2() ? tup.getT2() : 1);
+											return last + tup.getT1();
+										})
+										.consume(i -> latch.countDown())
+						);
 
-		mapManydeferred.compose()
-		               .mapMany(i -> {
-			               Deferred<Integer, Promise<Integer>> deferred = Promises.defer(env, dispatcher);
-			               try {
-				               return deferred.compose();
-			               } finally {
-				               deferred.accept(i);
-			               }
-		               })
-		               .consume(i -> latch.countDown());
+				deferred = Streams.defer(env);
+				deferred.connect(parallelStream);
 
-		data = new int[iterations];
-		for (int i = 0; i < iterations; i++) {
+				mapManydeferred = Streams.<Integer>defer(env);
+				mapManydeferred
+						.parallel()
+						.consume(substream -> substream.consume(i -> latch.countDown()));
+				break;
+			default:
+				final Dispatcher deferredDispatcher = dispatcher.equals("ringBuffer") ?
+						env.getDefaultDispatcherFactory().get():
+						env.getDispatcher(dispatcher);
+
+				deferred = Streams.<Integer>defer(env, deferredDispatcher);
+				deferred
+						.map(i -> i)
+						.scan((Tuple2<Integer, Integer> tup) -> {
+							int last = (null != tup.getT2() ? tup.getT2() : 1);
+							return last + tup.getT1();
+						})
+						.consume(i -> latch.countDown());
+
+				final Dispatcher flatMapDispatcher = dispatcher.equals("ringBuffer") ?
+						env.getDefaultDispatcher():
+						env.getDispatcher(dispatcher);
+
+				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
+				mapManydeferred
+						.flatMap(i -> Streams.defer(env, flatMapDispatcher, i))
+						.consume(i -> latch.countDown());
+		}
+
+		data = new int[elements];
+		for (int i = 0; i < elements; i++) {
 			data[i] = i;
 		}
 	}
 
 	@TearDown
-	public void tearDown() {
+	public void tearDown() throws InterruptedException {
 		env.shutdown();
 	}
 
 	@GenerateMicroBenchmark
 	public void composedStream() throws InterruptedException {
+		latch = new CountDownLatch(data.length);
 		for (int i : data) {
-			deferred.accept(i);
+			deferred.broadcastNext(i);
 		}
-
-		assert latch.await(30, TimeUnit.SECONDS);
+		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug().toString());
 	}
 
 	@GenerateMicroBenchmark
 	public void composedMapManyStream() throws InterruptedException {
+		latch = new CountDownLatch(data.length);
 		for (int i : data) {
-			mapManydeferred.accept(i);
+			mapManydeferred.broadcastNext(i);
 		}
-
-		assert latch.await(30, TimeUnit.SECONDS);
+		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug().toString());
 	}
 
 }

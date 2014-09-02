@@ -26,8 +26,8 @@ import reactor.event.dispatch.RingBufferDispatcher;
 import reactor.event.dispatch.ThreadPoolExecutorDispatcher;
 import reactor.event.dispatch.WorkQueueDispatcher;
 import reactor.event.routing.ArgumentConvertingConsumerInvoker;
-import reactor.event.routing.ConsumerFilteringEventRouter;
-import reactor.event.routing.EventRouter;
+import reactor.event.routing.ConsumerFilteringRouter;
+import reactor.event.routing.Router;
 import reactor.filter.PassThroughFilter;
 import reactor.function.Consumer;
 
@@ -47,7 +47,7 @@ public class DispatcherBenchmarks {
 
 	static int BACKLOG = 2048;
 
-	EventRouter                  eventRouter;
+	Router                  eventRouter;
 	RingBufferDispatcher         ringBufferDispatcher;
 	WorkQueueDispatcher          workQueueDispatcher;
 	ThreadPoolExecutorDispatcher threadPoolExecutorDispatcher;
@@ -60,7 +60,7 @@ public class DispatcherBenchmarks {
 		event = Event.wrap("Hello World!");
 		counter = new AtomicLong(0);
 
-		eventRouter = new ConsumerFilteringEventRouter(
+		eventRouter = new ConsumerFilteringRouter(
 				new PassThroughFilter(),
 				new ArgumentConvertingConsumerInvoker(null)
 		);
