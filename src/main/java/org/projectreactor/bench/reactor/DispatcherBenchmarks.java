@@ -16,8 +16,6 @@
 
 package org.projectreactor.bench.reactor;
 
-import com.lmax.disruptor.YieldingWaitStrategy;
-import com.lmax.disruptor.dsl.ProducerType;
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
 import reactor.event.Event;
@@ -30,12 +28,15 @@ import reactor.event.routing.ConsumerFilteringRouter;
 import reactor.event.routing.Router;
 import reactor.filter.PassThroughFilter;
 import reactor.function.Consumer;
+import reactor.jarjar.com.lmax.disruptor.YieldingWaitStrategy;
+import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Jon Brisbin
+ * @author Stephane Maldini
  */
 @Measurement(iterations = 5, time = 1)
 @Warmup(iterations = 5, time = 1)

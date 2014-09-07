@@ -1,10 +1,10 @@
 package org.projectreactor.bench.composable;
 
-import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.dsl.ProducerType;
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
 import reactor.function.Consumer;
+import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
+import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
 import reactor.rx.Stream;
 import reactor.rx.spec.Streams;
 
@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
  * issue https://github.com/reactor/reactor/issues/358
  *
  * @author Oleg Iavorskyi
+ * @author Stephane Maldini
+ *
  */
 @Measurement(iterations = StreamBatchingBenchmarks.ITERATIONS, time = 30)
 @Warmup(iterations = 1)
