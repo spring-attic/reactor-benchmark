@@ -6,7 +6,7 @@ import reactor.function.Consumer;
 import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
 import reactor.rx.Stream;
-import reactor.rx.spec.Streams;
+import reactor.rx.Streams;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
