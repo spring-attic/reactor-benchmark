@@ -17,7 +17,7 @@
 package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 import reactor.event.Event;
 import reactor.event.registry.CachingRegistry;
 import reactor.event.registry.Registration;
@@ -64,8 +64,8 @@ public class RegistryBenchmarks {
 	}
 
 	@SuppressWarnings("unchecked")
-	@GenerateMicroBenchmark
-	public void registryThroughput(BlackHole bh) {
+	@Benchmark
+	public void registryThroughput(Blackhole bh) {
 		int j = 0;
 		for (int i = 0; i < length; i++) {
 			if (i % 10 == 0) {

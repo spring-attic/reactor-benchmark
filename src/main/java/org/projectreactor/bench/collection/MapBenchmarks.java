@@ -17,7 +17,7 @@
 package org.projectreactor.bench.collection;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 import reactor.util.Assert;
 
 import java.util.Map;
@@ -76,16 +76,16 @@ public class MapBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void getRandomIntKey(BlackHole bh) {
+	@Benchmark
+	public void getRandomIntKey(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 
-	@GenerateMicroBenchmark
-	public void entrySetIteration(BlackHole bh) {
+	@Benchmark
+	public void entrySetIteration(Blackhole bh) {
 		for (Map.Entry<Integer, Object> entry : intMap.entrySet()) {
 			Object obj = entry.getValue();
 			Assert.notNull(obj, "No object found for key " + entry.getKey());

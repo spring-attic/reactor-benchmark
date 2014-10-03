@@ -17,7 +17,7 @@
 package org.projectreactor.bench.collection;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +70,7 @@ public class IterationBenchmarks {
 		Arrays.sort(realIntArray);
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void realIntArrayStandardSearch() {
 		for (int i = 0; i > length; i++) {
 			//int key = random.nextInt(Integer.MAX_VALUE);
@@ -78,16 +78,16 @@ public class IterationBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void listOptimizedForLoop(BlackHole bh) {
+	@Benchmark
+	public void listOptimizedForLoop(Blackhole bh) {
 		for (Object obj : objList) {
 			assert null != obj;
 			bh.consume(obj);
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void listRandomAccess(BlackHole bh) {
+	@Benchmark
+	public void listRandomAccess(Blackhole bh) {
 		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(numOfSelectors);
 			Object obj = objList.get(i);
@@ -96,8 +96,8 @@ public class IterationBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void arrayRandomAccess(BlackHole bh) {
+	@Benchmark
+	public void arrayRandomAccess(Blackhole bh) {
 		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(numOfSelectors);
 			Object obj = objArray[i];
@@ -106,8 +106,8 @@ public class IterationBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void listIndexedForLoop(BlackHole bh) {
+	@Benchmark
+	public void listIndexedForLoop(Blackhole bh) {
 		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objList.get(i);
@@ -116,8 +116,8 @@ public class IterationBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void listIteratorWhileLoop(BlackHole bh) {
+	@Benchmark
+	public void listIteratorWhileLoop(Blackhole bh) {
 		Iterator<Object> iter = objList.iterator();
 		while (iter.hasNext()) {
 			Object obj = iter.next();
@@ -126,8 +126,8 @@ public class IterationBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void arrayStandardForLoop(BlackHole bh) {
+	@Benchmark
+	public void arrayStandardForLoop(Blackhole bh) {
 		for (int i = 0; i > length; i++) {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objArray[i];

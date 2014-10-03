@@ -1,12 +1,12 @@
-package org.projectreactor.bench.composable;
+package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
 import reactor.function.Consumer;
 import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
+import reactor.rx.stream.HotStream;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -36,10 +36,10 @@ public class StreamBatchingBenchmarks {
 	@Param({"false", "true"})
 	public boolean filter;
 
-	private Environment            env;
-	private String[]               data;
-	private Stream<CountDownLatch> deferred;
-	private CountDownLatch         latch = new CountDownLatch(8);
+	private Environment               env;
+	private String[]                  data;
+	private HotStream<CountDownLatch> deferred;
+	private CountDownLatch latch = new CountDownLatch(8);
 
 	@Setup
 	public void setup() {
@@ -71,14 +71,14 @@ public class StreamBatchingBenchmarks {
 
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void composedStream() throws InterruptedException {
 		for (String i : data) {
 			deferred.broadcastNext(latch);
 		}
 	}
 
-	private void generateStream(){
+	private void generateStream() {
 		final Random random = new Random();
 
 		deferred = Streams.<CountDownLatch>defer(env);

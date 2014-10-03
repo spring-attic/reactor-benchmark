@@ -21,7 +21,7 @@ import com.google.common.collect.Multimap;
 import com.gs.collections.api.multimap.list.MutableListMultimap;
 import com.gs.collections.impl.multimap.list.FastListMultimap;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 import reactor.util.Assert;
 
 import java.util.ArrayList;
@@ -88,24 +88,24 @@ public class CacheBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void concurrentHashMap(BlackHole bh) {
+	@Benchmark
+	public void concurrentHashMap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 
-	@GenerateMicroBenchmark
-	public void gsMultimap(BlackHole bh) {
+	@Benchmark
+	public void gsMultimap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = gsMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 
-	@GenerateMicroBenchmark
-	public void guavaMultimap(BlackHole bh) {
+	@Benchmark
+	public void guavaMultimap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = guavaMap.get(key);
 		Assert.notNull(obj, "No object found for key " + key);

@@ -17,7 +17,7 @@
 package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 import reactor.core.Environment;
 import reactor.core.Reactor;
 import reactor.core.spec.Reactors;
@@ -68,8 +68,8 @@ public class ReactorBenchmarks {
 		env.shutdown();
 	}
 
-	@GenerateMicroBenchmark
-	public void reactorThroughput(BlackHole bh) throws InterruptedException {
+	@Benchmark
+	public void reactorThroughput(Blackhole bh) throws InterruptedException {
 		for (int i = 0; i < numOfSelectors; i++) {
 			reactor.notify(keys[i], event);
 			bh.consume(i);

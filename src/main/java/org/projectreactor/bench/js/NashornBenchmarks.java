@@ -18,7 +18,7 @@ package org.projectreactor.bench.js;
 
 import jdk.nashorn.api.scripting.JSObject;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -55,23 +55,23 @@ public class NashornBenchmarks {
 		hw2 = (JSObject) engine.eval("function() { return 'Hello World!'; }", bindings);
 	}
 
-	@GenerateMicroBenchmark
-	public void javaMethodCallOverhead(BlackHole bh) {
+	@Benchmark
+	public void javaMethodCallOverhead(Blackhole bh) {
 		bh.consume(pojo.helloWorld());
 	}
 
-	@GenerateMicroBenchmark
-	public void javaScriptEvalOverhead(BlackHole bh) throws ScriptException {
+	@Benchmark
+	public void javaScriptEvalOverhead(Blackhole bh) throws ScriptException {
 		bh.consume(engine.eval("pojo.helloWorld()", bindings));
 	}
 
-	@GenerateMicroBenchmark
-	public void wrappedJavaScriptMethodCallOverhead(BlackHole bh) throws ScriptException {
+	@Benchmark
+	public void wrappedJavaScriptMethodCallOverhead(Blackhole bh) throws ScriptException {
 		bh.consume(hw1.call(bindings));
 	}
 
-	@GenerateMicroBenchmark
-	public void directJavaScriptMethodCallOverhead(BlackHole bh) throws ScriptException {
+	@Benchmark
+	public void directJavaScriptMethodCallOverhead(Blackhole bh) throws ScriptException {
 		bh.consume(hw2.call(bindings));
 	}
 

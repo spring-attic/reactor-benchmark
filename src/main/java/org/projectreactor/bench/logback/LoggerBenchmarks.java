@@ -18,7 +18,7 @@ package org.projectreactor.bench.logback;
 
 import ch.qos.logback.classic.Logger;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -57,8 +57,8 @@ public class LoggerBenchmarks {
 		Files.deleteIfExists(Paths.get("target", "durable.index"));
 	}
 
-	@GenerateMicroBenchmark
-	public void asyncAppenderToFile(BlackHole bh) throws InterruptedException {
+	@Benchmark
+	public void asyncAppenderToFile(Blackhole bh) throws InterruptedException {
 		long l = counter.incrementAndGet();
 		logger.info("count: {}", l);
 		bh.consume(l);

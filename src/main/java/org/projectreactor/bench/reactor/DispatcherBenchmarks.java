@@ -95,17 +95,17 @@ public class DispatcherBenchmarks {
 		};
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void ringBuffer() {
 		doTest(ringBufferDispatcher);
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void workQueue() {
 		doTest(workQueueDispatcher);
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void threadPoolExecutor() {
 		doTest(threadPoolExecutorDispatcher);
 	}

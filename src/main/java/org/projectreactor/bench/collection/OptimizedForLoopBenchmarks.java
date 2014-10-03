@@ -17,7 +17,7 @@
 package org.projectreactor.bench.collection;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.logic.BlackHole;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,25 +48,25 @@ public class OptimizedForLoopBenchmarks {
 		}
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void forLoopWithoutSideEffect() {
 		for(Integer i : list) {}
 	}
 
-	@GenerateMicroBenchmark
-	public void forLoopWithSideEffect(BlackHole bh) {
+	@Benchmark
+	public void forLoopWithSideEffect(Blackhole bh) {
 		for(Integer i : list) { bh.consume(i); }
 	}
 
-	@GenerateMicroBenchmark
+	@Benchmark
 	public void arrayForLoopWithAssignment() {
 		for(int i = 0; i < length; i++) {
 			Integer j = array[i];
 		}
 	}
 
-	@GenerateMicroBenchmark
-	public void arrayForLoopWithSideEffect(BlackHole bh) {
+	@Benchmark
+	public void arrayForLoopWithSideEffect(Blackhole bh) {
 		for(int i = 0; i < length; i++) { bh.consume(array[i]); }
 	}
 
