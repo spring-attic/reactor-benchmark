@@ -25,6 +25,7 @@ import reactor.function.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.action.TerminalCallbackAction;
+import reactor.rx.action.support.NonBlocking;
 
 import java.util.Iterator;
 
@@ -88,27 +89,7 @@ public abstract class InputWithIncrementingInteger {
 
 		};
 
-		observer = new Subscriber<Integer>(){
-			@Override
-			public void onSubscribe(Subscription s) {
-				s.request(Long.MAX_VALUE);
-			}
-
-			@Override
-			public void onNext(Integer integer) {
-				bh.consume(integer);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-
-			}
-
-			@Override
-			public void onComplete() {
-
-			}
-		};
+		observer = new IntegerSubscriber(bh);
 
 		postSetup();
 
@@ -132,4 +113,31 @@ public abstract class InputWithIncrementingInteger {
 		}, null, null);
 	}
 
+	private static class IntegerSubscriber implements Subscriber<Integer>, NonBlocking {
+		private final Blackhole bh;
+
+		public IntegerSubscriber(Blackhole bh) {
+			this.bh = bh;
+		}
+
+		@Override
+	public void onSubscribe(Subscription s) {
+		s.request(Long.MAX_VALUE);
+	}
+
+		@Override
+	public void onNext(Integer integer) {
+		bh.consume(integer);
+	}
+
+		@Override
+	public void onError(Throwable t) {
+
+	}
+
+		@Override
+	public void onComplete() {
+
+	}
+	}
 }

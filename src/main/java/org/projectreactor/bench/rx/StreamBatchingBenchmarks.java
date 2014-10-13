@@ -11,6 +11,7 @@ import reactor.rx.stream.HotStream;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d
@@ -98,23 +99,22 @@ public class StreamBatchingBenchmarks {
 										stream.filter(i -> i.hashCode() != 0 ? true : true) :
 										stream
 								)
-										.buffer(elements / 8)
-										.timeout(1000)
-										.consume(batch -> {
-											try {
-												Thread.sleep(random.nextInt(400) + 100);
-											} catch (InterruptedException e) {
-												e.printStackTrace();
-											}
-											for (CountDownLatch latch : batch) latch.countDown();
+										.buffer(elements / 8, 1000, TimeUnit.MILLISECONDS)
+														.consume(batch -> {
+															try {
+																Thread.sleep(random.nextInt(400) + 100);
+															} catch (InterruptedException e) {
+																e.printStackTrace();
+															}
+															for (CountDownLatch latch : batch) latch.countDown();
 
-										}).finallyDo(new Consumer<Object>() {
-									@Override
-									public void accept(Object o) {
-										latch.countDown();
-									}
-								})
-				);
+														}).finallyDo(new Consumer<Stream<Void>>() {
+															@Override
+															public void accept(Stream<Void> o) {
+																latch.countDown();
+															}
+														})
+										);
 	}
 
 }

@@ -76,7 +76,7 @@ public class StreamBenchmarks {
 				mapManydeferred = Streams.<Integer>defer(env);
 				mapManydeferred
 						.parallel()
-						.consume(substream -> substream.consume(i -> latch.countDown()));
+						.consume(substream -> substream.consume(i -> latch.countDown()), Throwable::printStackTrace);
 				break;
 			default:
 				final Dispatcher deferredDispatcher = dispatcher.equals("ringBuffer") ?
@@ -98,7 +98,7 @@ public class StreamBenchmarks {
 
 				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
 				mapManydeferred
-						.flatMap(i -> Streams.just(env, flatMapDispatcher, i))
+						.flatMap(Streams::just)
 						.consume(i -> latch.countDown());
 		}
 
