@@ -92,9 +92,8 @@ public class StreamBatchingBenchmarks {
 						2048,
 						null,
 						ProducerType.SINGLE,
-						new BlockingWaitStrategy()))
-				//.monitorLatency(300)
-				.consume(stream ->
+						new BlockingWaitStrategy()),
+						stream ->
 								(filter ?
 										stream.filter(i -> i.hashCode() != 0 ? true : true) :
 										stream
@@ -114,7 +113,7 @@ public class StreamBatchingBenchmarks {
 																latch.countDown();
 															}
 														})
-										);
+										).drain();
 	}
 
 }

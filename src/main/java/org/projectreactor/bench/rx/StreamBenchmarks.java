@@ -19,6 +19,7 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
 import reactor.event.dispatch.Dispatcher;
+import reactor.event.dispatch.SynchronousDispatcher;
 import reactor.rx.Streams;
 import reactor.rx.action.ConcurrentAction;
 import reactor.rx.stream.HotStream;
@@ -51,7 +52,7 @@ public class StreamBenchmarks {
 	private CountDownLatch     latch;
 	private int[]              data;
 	private HotStream<Integer> deferred;
-	private HotStream<Integer>    mapManydeferred;
+	private HotStream<Integer> mapManydeferred;
 
 	@Setup
 	public void setup() {
@@ -59,24 +60,23 @@ public class StreamBenchmarks {
 
 		switch (dispatcher) {
 			case "partitioned":
-				ConcurrentAction<Integer> parallelStream = Streams.<Integer>parallel(env);
-				parallelStream
-						.consume(stream -> stream
-										.map(i -> i)
-										.scan((Tuple2<Integer, Integer> tup) -> {
-											int last = (null != tup.getT2() ? tup.getT2() : 1);
-											return last + tup.getT1();
-										})
-										.consume(i -> latch.countDown())
-						);
+				ConcurrentAction<Integer, Void> parallelStream = Streams.<Integer, Void>parallel(env,
+						stream -> stream
+								.map(i -> i)
+								.scan((Tuple2<Integer, Integer> tup) -> {
+									int last = (null != tup.getT2() ? tup.getT2() : 1);
+									return last + tup.getT1();
+								})
+								.consume(i -> latch.countDown())
+				);
 
 				deferred = Streams.defer(env);
-				deferred.connect(parallelStream);
+				deferred.connect(parallelStream).drain();
 
-				mapManydeferred = Streams.<Integer>defer(env);
+				mapManydeferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
 				mapManydeferred
-						.parallel()
-						.consume(substream -> substream.consume(i -> latch.countDown()), Throwable::printStackTrace);
+						.parallel(substream -> substream.consume(i -> latch.countDown(), Throwable::printStackTrace))
+						.drain();
 				break;
 			default:
 				final Dispatcher deferredDispatcher = dispatcher.equals("ringBuffer") ?

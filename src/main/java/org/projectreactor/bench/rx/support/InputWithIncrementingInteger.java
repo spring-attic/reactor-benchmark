@@ -20,6 +20,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import reactor.event.dispatch.Dispatcher;
 import reactor.event.dispatch.SynchronousDispatcher;
 import reactor.function.Consumer;
 import reactor.rx.Stream;
@@ -95,7 +96,7 @@ public abstract class InputWithIncrementingInteger {
 
 	}
 
-	protected void postSetup(){
+	protected void postSetup() {
 
 	}
 
@@ -121,23 +122,31 @@ public abstract class InputWithIncrementingInteger {
 		}
 
 		@Override
-	public void onSubscribe(Subscription s) {
-		s.request(Long.MAX_VALUE);
-	}
+		public void onSubscribe(Subscription s) {
+			s.request(Long.MAX_VALUE);
+		}
 
 		@Override
-	public void onNext(Integer integer) {
-		bh.consume(integer);
-	}
+		public void onNext(Integer integer) {
+			bh.consume(integer);
+		}
 
 		@Override
-	public void onError(Throwable t) {
-
-	}
+		public void onError(Throwable t) {
+		}
 
 		@Override
-	public void onComplete() {
+		public void onComplete() {
+		}
 
-	}
+		@Override
+		public Dispatcher getDispatcher() {
+			return SynchronousDispatcher.INSTANCE;
+		}
+
+		@Override
+		public long getCapacity() {
+			return Long.MAX_VALUE;
+		}
 	}
 }
