@@ -21,7 +21,6 @@ import reactor.core.Environment;
 import reactor.event.dispatch.Dispatcher;
 import reactor.event.dispatch.SynchronousDispatcher;
 import reactor.rx.Streams;
-import reactor.rx.action.ConcurrentAction;
 import reactor.rx.stream.HotStream;
 import reactor.tuple.Tuple2;
 
@@ -60,8 +59,10 @@ public class StreamBenchmarks {
 
 		switch (dispatcher) {
 			case "partitioned":
-				ConcurrentAction<Integer, Void> parallelStream = Streams.<Integer, Void>parallel(env,
+				deferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
+				deferred.partition().consume(
 						stream -> stream
+								.dispatchOn(env.getCachedDispatcher())
 								.map(i -> i)
 								.scan((Tuple2<Integer, Integer> tup) -> {
 									int last = (null != tup.getT2() ? tup.getT2() : 1);
@@ -70,17 +71,17 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown())
 				);
 
-				deferred = Streams.defer(env);
-				deferred.connect(parallelStream).drain();
-
 				mapManydeferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
 				mapManydeferred
-						.parallel(substream -> substream.consume(i -> latch.countDown(), Throwable::printStackTrace))
-						.drain();
+						.partition()
+						.consume(substream -> substream
+								.dispatchOn(env.getCachedDispatcher())
+								.consume(i -> latch.countDown(), Throwable::printStackTrace));
+
 				break;
 			default:
 				final Dispatcher deferredDispatcher = dispatcher.equals("ringBuffer") ?
-						env.getDefaultDispatcherFactory().get() :
+						env.getCachedDispatcher() :
 						env.getDispatcher(dispatcher);
 
 				deferred = Streams.<Integer>defer(env, deferredDispatcher);
@@ -91,10 +92,6 @@ public class StreamBenchmarks {
 							return last + tup.getT1();
 						})
 						.consume(i -> latch.countDown());
-
-				final Dispatcher flatMapDispatcher = dispatcher.equals("ringBuffer") ?
-						env.getDefaultDispatcher() :
-						env.getDispatcher(dispatcher);
 
 				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
 				mapManydeferred

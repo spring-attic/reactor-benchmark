@@ -17,6 +17,7 @@ package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
 import org.projectreactor.bench.rx.support.InputWithIncrementingInteger;
+import reactor.event.dispatch.Dispatcher;
 import reactor.event.dispatch.SynchronousDispatcher;
 import reactor.function.Function;
 import reactor.rx.Streams;
@@ -40,11 +41,11 @@ public class MapBenchmarks {
 			return size;
 		}
 
-		public Action<Integer, Integer> map;
+		public Function<Dispatcher, Action<Integer, Integer>> map;
 
 		@Override
 		protected void postSetup() {
-			map = new MapAction<Integer,
+			map = d -> new MapAction<Integer,
 					Integer>(IDENTITY_FUNCTION, SynchronousDispatcher.INSTANCE
 			);
 		}
@@ -52,12 +53,11 @@ public class MapBenchmarks {
 
 	@Benchmark
 	public void mapPassThruViaConnect(Input input) throws InterruptedException {
-		input.observable.connect(input.map).subscribe(input.observer);
-		input.postSetup();
+		input.observable.lift(input.map).subscribe(input.observer);
 	}
 
 	@Benchmark
-	public void mapInstance(Input input){
+	public void mapInstance(Input input) {
 		Streams.just(1).map(IDENTITY_FUNCTION);
 	}
 

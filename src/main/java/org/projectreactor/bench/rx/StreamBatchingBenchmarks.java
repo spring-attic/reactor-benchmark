@@ -2,7 +2,8 @@ package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
-import reactor.function.Consumer;
+import reactor.event.dispatch.Dispatcher;
+import reactor.function.Supplier;
 import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
 import reactor.rx.Streams;
@@ -11,7 +12,6 @@ import reactor.rx.stream.HotStream;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d
@@ -85,18 +85,20 @@ public class StreamBatchingBenchmarks {
 		deferred = Streams.<CountDownLatch>defer(env);
 
 		//((WaitingMood)deferred.getDispatcher()).nervous();
+		Supplier<Dispatcher> dispatcherSupplier = Environment.createDispatcherFactory("batch-stream",
+				8,
+				2048,
+				null,
+				ProducerType.SINGLE,
+				new BlockingWaitStrategy());
 
 		deferred
-				.parallel(8, Environment.createDispatcherFactory("batch-stream",
-						8,
-						2048,
-						null,
-						ProducerType.SINGLE,
-						new BlockingWaitStrategy()),
+				.partition(8)
+				.consume(
 						stream ->
 								(filter ?
-										stream.filter(i -> i.hashCode() != 0 ? true : true) :
-										stream
+										stream.dispatchOn(dispatcherSupplier.get()).filter(i -> i.hashCode() != 0 ? true : true) :
+										stream.dispatchOn(dispatcherSupplier.get())
 								)
 										.buffer(elements / 8, 1000, TimeUnit.MILLISECONDS)
 														.consume(batch -> {
@@ -107,13 +109,8 @@ public class StreamBatchingBenchmarks {
 															}
 															for (CountDownLatch latch : batch) latch.countDown();
 
-														}).finallyDo(new Consumer<Stream<Void>>() {
-															@Override
-															public void accept(Stream<Void> o) {
-																latch.countDown();
-															}
-														})
-										).drain();
+														}, null, nothing -> latch.countDown())
+				);
 	}
 
 }

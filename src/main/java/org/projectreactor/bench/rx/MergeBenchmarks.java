@@ -27,8 +27,6 @@ import reactor.event.dispatch.Dispatcher;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/operators/OperatorMergePerf.java
  *
@@ -44,11 +42,7 @@ public class MergeBenchmarks {
 		);
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
-		stream.connect(latchedCallback);
-
-		if(!latchedCallback.latch.await(10, TimeUnit.SECONDS)){
-			System.out.println(stream.debug());
-		}
+		stream.subscribe(latchedCallback);
 	}
 
 
@@ -56,7 +50,7 @@ public class MergeBenchmarks {
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
 		Stream<Integer> stream = Streams.merge(
 				Streams.just(1)
-						.map(i -> Streams.range(0, input.size).dispatchOn(input.env, input.env.getDefaultDispatcherFactory().get()))
+						.map(i -> Streams.range(0, input.size).dispatchOn(input.env, input.env.getCachedDispatcher()))
 		);
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
