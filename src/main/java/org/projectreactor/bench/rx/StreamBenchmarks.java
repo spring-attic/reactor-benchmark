@@ -55,7 +55,7 @@ public class StreamBenchmarks {
 
 	@Setup
 	public void setup() {
-		env = new Environment();
+		env = Environment.initializeIfEmpty();
 
 		switch (dispatcher) {
 			case "partitioned":
@@ -107,7 +107,7 @@ public class StreamBenchmarks {
 
 	@TearDown
 	public void tearDown() throws InterruptedException {
-		env.shutdown();
+		Environment.terminate();
 	}
 
 	@Benchmark
