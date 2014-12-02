@@ -60,7 +60,7 @@ public class StreamBenchmarks {
 		switch (dispatcher) {
 			case "partitioned":
 				deferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
-				deferred.partition().consume(
+				deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
 								.map(i -> i)
@@ -68,7 +68,7 @@ public class StreamBenchmarks {
 									int last = (null != tup.getT2() ? tup.getT2() : 1);
 									return last + tup.getT1();
 								})
-								.consume(i -> latch.countDown())
+								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 				);
 
 				mapManydeferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
