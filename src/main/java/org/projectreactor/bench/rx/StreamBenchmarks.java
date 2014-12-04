@@ -21,7 +21,7 @@ import reactor.core.Environment;
 import reactor.event.dispatch.Dispatcher;
 import reactor.event.dispatch.SynchronousDispatcher;
 import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.rx.stream.Broadcaster;
 import reactor.tuple.Tuple2;
 
 import java.util.concurrent.CountDownLatch;
@@ -47,11 +47,11 @@ public class StreamBenchmarks {
 	@Param({"sync", "ringBuffer", "partitioned"})
 	public String dispatcher;
 
-	private Environment        env;
-	private CountDownLatch     latch;
-	private int[]              data;
-	private HotStream<Integer> deferred;
-	private HotStream<Integer> mapManydeferred;
+	private Environment          env;
+	private CountDownLatch       latch;
+	private int[]                data;
+	private Broadcaster<Integer>   deferred;
+	private Broadcaster<Integer> mapManydeferred;
 
 	@Setup
 	public void setup() {
@@ -59,7 +59,7 @@ public class StreamBenchmarks {
 
 		switch (dispatcher) {
 			case "partitioned":
-				deferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
+				deferred = Streams.<Integer>broadcast(env, SynchronousDispatcher.INSTANCE);
 				deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
@@ -71,7 +71,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 				);
 
-				mapManydeferred = Streams.<Integer>defer(env, SynchronousDispatcher.INSTANCE);
+				mapManydeferred = Streams.<Integer>broadcast(env, SynchronousDispatcher.INSTANCE);
 				mapManydeferred
 						.partition()
 						.consume(substream -> substream
@@ -84,7 +84,7 @@ public class StreamBenchmarks {
 						env.getCachedDispatcher() :
 						env.getDispatcher(dispatcher);
 
-				deferred = Streams.<Integer>defer(env, deferredDispatcher);
+				deferred = Streams.<Integer>broadcast(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
 						.scan((Tuple2<Integer, Integer> tup) -> {
@@ -93,7 +93,7 @@ public class StreamBenchmarks {
 						})
 						.consume(i -> latch.countDown());
 
-				mapManydeferred = Streams.<Integer>defer(env, deferredDispatcher);
+				mapManydeferred = Streams.<Integer>broadcast(env, deferredDispatcher);
 				mapManydeferred
 						.flatMap(Streams::just)
 						.consume(i -> latch.countDown());

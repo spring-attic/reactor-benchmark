@@ -7,7 +7,7 @@ import reactor.function.Supplier;
 import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
 import reactor.rx.Streams;
-import reactor.rx.stream.HotStream;
+import reactor.rx.stream.Broadcaster;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -37,9 +37,9 @@ public class StreamBatchingBenchmarks {
 	@Param({"false", "true"})
 	public boolean filter;
 
-	private Environment               env;
-	private String[]                  data;
-	private HotStream<CountDownLatch> deferred;
+	private Environment                 env;
+	private String[]                    data;
+	private Broadcaster<CountDownLatch> deferred;
 	private CountDownLatch latch = new CountDownLatch(8);
 
 	@Setup
@@ -82,7 +82,7 @@ public class StreamBatchingBenchmarks {
 	private void generateStream() {
 		final Random random = new Random();
 
-		deferred = Streams.<CountDownLatch>defer(env);
+		deferred = Streams.<CountDownLatch>broadcast(env);
 
 		//((WaitingMood)deferred.getDispatcher()).nervous();
 		Supplier<Dispatcher> dispatcherSupplier = Environment.createDispatcherFactory("batch-stream",
