@@ -19,9 +19,8 @@ package org.projectreactor.bench.reactor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import reactor.core.Environment;
-import reactor.core.Reactor;
-import reactor.core.spec.Reactors;
 import reactor.event.Event;
+import reactor.event.EventBus;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -46,14 +45,14 @@ public class ReactorBenchmarks {
 
 	private Environment    env;
 	private CountDownLatch latch;
-	private Reactor        reactor;
+	private EventBus        reactor;
 	private Object[]       keys;
 	private Event<?>       event;
 
 	@Setup
 	public void setup() {
 		env = new Environment();
-		reactor = Reactors.reactor(env, dispatcher);
+		reactor = EventBus.create(env, dispatcher);
 		event = new Event<>(null);
 		latch = new CountDownLatch(numOfSelectors);
 		keys = new Object[numOfSelectors];
