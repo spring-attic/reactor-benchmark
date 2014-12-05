@@ -36,7 +36,7 @@ import static reactor.event.selector.Selectors.$;
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
-public class ReactorBenchmarks {
+public class EventBusBenchmarks {
 
 	@Param({"100", "1000", "10000"})
 	public int    numOfSelectors;

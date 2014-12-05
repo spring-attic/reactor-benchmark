@@ -17,16 +17,12 @@
 package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
+import reactor.core.Dispatcher;
 import reactor.core.Environment;
+import reactor.core.dispatch.RingBufferDispatcher;
+import reactor.core.dispatch.ThreadPoolExecutorDispatcher;
+import reactor.core.dispatch.WorkQueueDispatcher;
 import reactor.event.Event;
-import reactor.event.dispatch.Dispatcher;
-import reactor.event.dispatch.RingBufferDispatcher;
-import reactor.event.dispatch.ThreadPoolExecutorDispatcher;
-import reactor.event.dispatch.WorkQueueDispatcher;
-import reactor.event.routing.ArgumentConvertingConsumerInvoker;
-import reactor.event.routing.ConsumerFilteringRouter;
-import reactor.event.routing.Router;
-import reactor.filter.PassThroughFilter;
 import reactor.function.Consumer;
 import reactor.jarjar.com.lmax.disruptor.YieldingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
@@ -48,7 +44,6 @@ public class DispatcherBenchmarks {
 
 	static int BACKLOG = 2048;
 
-	Router                  eventRouter;
 	RingBufferDispatcher         ringBufferDispatcher;
 	WorkQueueDispatcher          workQueueDispatcher;
 	ThreadPoolExecutorDispatcher threadPoolExecutorDispatcher;
@@ -60,11 +55,6 @@ public class DispatcherBenchmarks {
 	public void setup() {
 		event = Event.wrap("Hello World!");
 		counter = new AtomicLong(0);
-
-		eventRouter = new ConsumerFilteringRouter(
-				new PassThroughFilter(),
-				new ArgumentConvertingConsumerInvoker(null)
-		);
 
 		ringBufferDispatcher = new RingBufferDispatcher(
 				"ringBufferDispatcher",
@@ -113,7 +103,6 @@ public class DispatcherBenchmarks {
 	private void doTest(Dispatcher dispatcher) {
 		dispatcher.dispatch(
 				event,
-				eventRouter,
 				consumer,
 				null
 		);

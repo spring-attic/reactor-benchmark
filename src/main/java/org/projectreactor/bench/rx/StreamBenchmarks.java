@@ -18,8 +18,8 @@ package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.core.Environment;
-import reactor.event.dispatch.Dispatcher;
-import reactor.event.dispatch.SynchronousDispatcher;
+import reactor.core.dispatch.Dispatcher;
+import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.rx.Streams;
 import reactor.rx.stream.Broadcaster;
 import reactor.tuple.Tuple2;
