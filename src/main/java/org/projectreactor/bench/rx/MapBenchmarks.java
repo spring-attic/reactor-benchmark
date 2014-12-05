@@ -17,7 +17,7 @@ package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
 import org.projectreactor.bench.rx.support.InputWithIncrementingInteger;
-import reactor.core.dispatch.Dispatcher;
+import reactor.core.Dispatcher;
 import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.function.Function;
 import reactor.rx.Streams;

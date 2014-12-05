@@ -22,8 +22,8 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingInteger;
 import org.projectreactor.bench.rx.support.LatchedCallback;
+import reactor.core.Dispatcher;
 import reactor.core.Environment;
-import reactor.core.dispatch.Dispatcher;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 

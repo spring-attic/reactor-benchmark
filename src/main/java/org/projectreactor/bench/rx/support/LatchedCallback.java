@@ -18,7 +18,7 @@ package org.projectreactor.bench.rx.support;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.dispatch.Dispatcher;
+import reactor.core.Dispatcher;
 import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.rx.action.support.NonBlocking;
 
