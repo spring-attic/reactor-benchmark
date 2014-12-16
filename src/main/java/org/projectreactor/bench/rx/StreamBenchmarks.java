@@ -44,7 +44,7 @@ public class StreamBenchmarks {
 
 	@Param({"100"})
 	public int    elements;
-	@Param({"sync", "ringBuffer", "partitioned"})
+	@Param({"sync", "shared", "partitioned"})
 	public String dispatcher;
 
 	private Environment          env;
