@@ -18,17 +18,17 @@ package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.event.Event;
-import reactor.event.registry.CachingRegistry;
-import reactor.event.registry.Registration;
-import reactor.event.registry.Registry;
-import reactor.event.selector.Selector;
+import reactor.bus.Event;
+import reactor.bus.registry.CachingRegistry;
+import reactor.bus.registry.Registration;
+import reactor.bus.registry.Registry;
+import reactor.bus.selector.Selector;
 import reactor.fn.Consumer;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static reactor.event.selector.Selectors.$;
+import static reactor.bus.selector.Selectors.$;
 
 /**
  * @author Jon Brisbin

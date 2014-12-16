@@ -19,13 +19,13 @@ package org.projectreactor.bench.reactor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import reactor.Environment;
-import reactor.event.Event;
-import reactor.event.EventBus;
+import reactor.bus.Event;
+import reactor.bus.EventBus;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static reactor.event.selector.Selectors.$;
+import static reactor.bus.selector.Selectors.$;
 
 /**
  * @author Jon Brisbin

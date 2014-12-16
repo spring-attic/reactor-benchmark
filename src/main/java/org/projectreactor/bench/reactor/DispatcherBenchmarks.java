@@ -18,11 +18,11 @@ package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
+import reactor.bus.Event;
 import reactor.core.Dispatcher;
 import reactor.core.dispatch.RingBufferDispatcher;
 import reactor.core.dispatch.ThreadPoolExecutorDispatcher;
 import reactor.core.dispatch.WorkQueueDispatcher;
-import reactor.event.Event;
 import reactor.fn.Consumer;
 import reactor.jarjar.com.lmax.disruptor.YieldingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;

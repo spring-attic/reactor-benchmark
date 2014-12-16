@@ -20,9 +20,9 @@ import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.dispatch.SynchronousDispatcher;
+import reactor.fn.tuple.Tuple2;
 import reactor.rx.Streams;
 import reactor.rx.stream.Broadcaster;
-import reactor.tuple.Tuple2;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
