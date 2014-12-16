@@ -75,7 +75,7 @@ public class StreamBatchingBenchmarks {
 	@Benchmark
 	public void composedStream() throws InterruptedException {
 		for (String i : data) {
-			deferred.broadcastNext(latch);
+			deferred.onNext(latch);
 		}
 	}
 

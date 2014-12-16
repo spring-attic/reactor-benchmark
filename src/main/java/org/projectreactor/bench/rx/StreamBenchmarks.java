@@ -114,7 +114,7 @@ public class StreamBenchmarks {
 	public void composedStream() throws InterruptedException {
 		latch = new CountDownLatch(data.length);
 		for (int i : data) {
-			deferred.broadcastNext(i);
+			deferred.onNext(i);
 		}
 		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug().toString());
 	}
@@ -123,7 +123,7 @@ public class StreamBenchmarks {
 	public void composedMapManyStream() throws InterruptedException {
 		latch = new CountDownLatch(data.length);
 		for (int i : data) {
-			mapManydeferred.broadcastNext(i);
+			mapManydeferred.onNext(i);
 		}
 		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(mapManydeferred.debug().toString());
 	}
