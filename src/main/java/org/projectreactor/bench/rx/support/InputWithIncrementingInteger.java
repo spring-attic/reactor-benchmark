@@ -140,8 +140,8 @@ public abstract class InputWithIncrementingInteger {
 		}
 
 		@Override
-		public Dispatcher getDispatcher() {
-			return SynchronousDispatcher.INSTANCE;
+		public boolean isReactivePull(Dispatcher dispatcher, long producerCapacity) {
+			return false;
 		}
 
 		@Override

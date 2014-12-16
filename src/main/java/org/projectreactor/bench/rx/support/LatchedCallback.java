@@ -19,7 +19,6 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.Dispatcher;
-import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.rx.action.support.NonBlocking;
 
 import java.util.concurrent.CountDownLatch;
@@ -51,13 +50,13 @@ public class LatchedCallback<T> implements Subscriber<T>, NonBlocking {
 	}
 
 	@Override
-	public void onNext(T t) {
-		bh.consume(t);
+	public boolean isReactivePull(Dispatcher dispatcher, long producerCapacity) {
+		return false;
 	}
 
 	@Override
-	public Dispatcher getDispatcher() {
-		return SynchronousDispatcher.INSTANCE;
+	public void onNext(T t) {
+		bh.consume(t);
 	}
 
 	@Override
