@@ -18,7 +18,7 @@ package org.projectreactor.bench.collection;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.util.Assert;
+import reactor.core.support.Assert;
 
 import java.util.Map;
 import java.util.Random;

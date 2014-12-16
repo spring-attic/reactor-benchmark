@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2013 GoPivotal, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2015 Pivotal Software Inc., Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingInteger;
 import org.projectreactor.bench.rx.support.LatchedCallback;
+import reactor.Environment;
 import reactor.core.Dispatcher;
-import reactor.core.Environment;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 

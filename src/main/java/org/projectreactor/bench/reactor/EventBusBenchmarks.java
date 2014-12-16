@@ -18,7 +18,7 @@ package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.core.Environment;
+import reactor.Environment;
 import reactor.event.Event;
 import reactor.event.EventBus;
 

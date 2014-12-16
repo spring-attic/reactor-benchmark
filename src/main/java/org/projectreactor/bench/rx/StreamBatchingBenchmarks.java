@@ -1,9 +1,9 @@
 package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
+import reactor.Environment;
 import reactor.core.Dispatcher;
-import reactor.core.Environment;
-import reactor.function.Supplier;
+import reactor.fn.Supplier;
 import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
 import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
 import reactor.rx.Streams;

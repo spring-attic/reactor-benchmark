@@ -23,7 +23,7 @@ import reactor.event.registry.CachingRegistry;
 import reactor.event.registry.Registration;
 import reactor.event.registry.Registry;
 import reactor.event.selector.Selector;
-import reactor.function.Consumer;
+import reactor.fn.Consumer;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

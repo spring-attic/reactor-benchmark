@@ -22,7 +22,7 @@ import com.gs.collections.api.multimap.list.MutableListMultimap;
 import com.gs.collections.impl.multimap.list.FastListMultimap;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.util.Assert;
+import reactor.core.support.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
