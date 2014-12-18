@@ -20,7 +20,6 @@ import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.dispatch.SynchronousDispatcher;
-import reactor.fn.tuple.Tuple2;
 import reactor.rx.Streams;
 import reactor.rx.stream.Broadcaster;
 
@@ -64,10 +63,7 @@ public class StreamBenchmarks {
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
 								.map(i -> i)
-								.scan((Tuple2<Integer, Integer> tup) -> {
-									int last = (null != tup.getT2() ? tup.getT2() : 1);
-									return last + tup.getT1();
-								})
+								.scan(1, (last, next) -> last + next)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 				);
 
@@ -87,10 +83,7 @@ public class StreamBenchmarks {
 				deferred = Streams.<Integer>broadcast(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
-						.scan((Tuple2<Integer, Integer> tup) -> {
-							int last = (null != tup.getT2() ? tup.getT2() : 1);
-							return last + tup.getT1();
-						})
+						.scan(1, (last, next) -> last + next)
 						.consume(i -> latch.countDown());
 
 				mapManydeferred = Streams.<Integer>broadcast(env, deferredDispatcher);

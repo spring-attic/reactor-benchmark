@@ -63,7 +63,7 @@ public class StreamBatchingBenchmarks {
 
 	@TearDown(Level.Iteration)
 	public void cleanLatch() throws InterruptedException {
-		deferred.broadcastComplete();
+		deferred.onComplete();
 		if (!latch.await(30, TimeUnit.SECONDS))
 			throw new RuntimeException(data.length + " elements trying to flow in, with latch count " + latch.getCount() +
 					"\n " + deferred.debug().toString());
