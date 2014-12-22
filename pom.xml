@@ -72,22 +72,22 @@
 
 		<!-- Reactor -->
 		<dependency>
-			<groupId>org.projectreactor</groupId>
+			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.projectreactor</groupId>
+			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-logback</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.projectreactor.spring</groupId>
+			<groupId>io.projectreactor.spring</groupId>
 			<artifactId>reactor-spring-context</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.projectreactor.data</groupId>
+			<groupId>io.projectreactor.data</groupId>
 			<artifactId>data-core</artifactId>
 			<version>${reactor.data.version}</version>
 		</dependency>
