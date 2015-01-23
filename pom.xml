@@ -86,11 +86,11 @@
 			<artifactId>reactor-spring-context</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.projectreactor.data</groupId>
+		<!--<dependency>
+			<groupId>org.projectreactor.data</groupId>
 			<artifactId>data-core</artifactId>
 			<version>${reactor.data.version}</version>
-		</dependency>
+		</dependency>-->
 
 
         <!-- Rx -->

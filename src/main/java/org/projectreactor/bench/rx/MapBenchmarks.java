@@ -22,7 +22,7 @@ import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.fn.Function;
 import reactor.rx.Streams;
 import reactor.rx.action.Action;
-import reactor.rx.action.MapAction;
+import reactor.rx.action.transformation.MapAction;
 
 import java.util.concurrent.TimeUnit;
 

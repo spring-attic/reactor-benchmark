@@ -21,7 +21,7 @@ import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.rx.Streams;
-import reactor.rx.stream.Broadcaster;
+import reactor.rx.broadcast.Broadcaster;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +58,7 @@ public class StreamBenchmarks {
 
 		switch (dispatcher) {
 			case "partitioned":
-				deferred = Streams.<Integer>broadcast(env, SynchronousDispatcher.INSTANCE);
+				deferred = Broadcaster.create();
 				deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
@@ -67,11 +67,12 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 				);
 
-				mapManydeferred = Streams.<Integer>broadcast(env, SynchronousDispatcher.INSTANCE);
+				mapManydeferred = Broadcaster.create();
 				mapManydeferred
-						.partition()
+						.partition(4)
 						.consume(substream -> substream
 								.dispatchOn(env.getCachedDispatcher())
+								.map(i -> i)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace));
 
 				break;
@@ -80,13 +81,13 @@ public class StreamBenchmarks {
 						env.getCachedDispatcher() :
 						env.getDispatcher(dispatcher);
 
-				deferred = Streams.<Integer>broadcast(env, deferredDispatcher);
+				deferred = Broadcaster.create(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
 						.scan(1, (last, next) -> last + next)
 						.consume(i -> latch.countDown());
 
-				mapManydeferred = Streams.<Integer>broadcast(env, deferredDispatcher);
+				mapManydeferred = Broadcaster.create(env, deferredDispatcher);
 				mapManydeferred
 						.flatMap(Streams::just)
 						.consume(i -> latch.countDown());

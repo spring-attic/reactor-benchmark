@@ -25,7 +25,7 @@ import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
-import reactor.rx.action.TerminalCallbackAction;
+import reactor.rx.action.terminal.ConsumerAction;
 import reactor.rx.action.support.NonBlocking;
 
 import java.util.Iterator;
@@ -105,7 +105,7 @@ public abstract class InputWithIncrementingInteger {
 	}
 
 	public Subscriber<Integer> newSubscriber() {
-		return new TerminalCallbackAction<Integer>(SynchronousDispatcher.INSTANCE, new Consumer<Integer>() {
+		return new ConsumerAction<>(SynchronousDispatcher.INSTANCE, new Consumer<Integer>() {
 			@Override
 			public void accept(Integer t) {
 				bh.consume(t);
