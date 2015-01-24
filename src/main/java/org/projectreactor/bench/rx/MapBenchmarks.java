@@ -17,9 +17,8 @@ package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
 import org.projectreactor.bench.rx.support.InputWithIncrementingInteger;
-import reactor.core.Dispatcher;
-import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.fn.Function;
+import reactor.fn.Supplier;
 import reactor.rx.Streams;
 import reactor.rx.action.Action;
 import reactor.rx.action.transformation.MapAction;
@@ -41,12 +40,11 @@ public class MapBenchmarks {
 			return size;
 		}
 
-		public Function<Dispatcher, Action<Integer, Integer>> map;
+		public Supplier<Action<Integer, Integer>> map;
 
 		@Override
 		protected void postSetup() {
-			map = d -> new MapAction<Integer,
-					Integer>(IDENTITY_FUNCTION, SynchronousDispatcher.INSTANCE
+			map = () -> new MapAction<Integer, Integer>(IDENTITY_FUNCTION
 			);
 		}
 	}
