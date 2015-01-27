@@ -19,7 +19,6 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
-import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
@@ -77,7 +76,7 @@ public class StreamBenchmarks {
 
 				break;
 			default:
-				final Dispatcher deferredDispatcher = dispatcher.equals("ringBuffer") ?
+				final Dispatcher deferredDispatcher = dispatcher.equals("shared") ?
 						env.getCachedDispatcher() :
 						env.getDispatcher(dispatcher);
 
