@@ -19,8 +19,8 @@ package org.projectreactor.bench.reactor;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import reactor.bus.Event;
-import reactor.bus.registry.CachingRegistry;
 import reactor.bus.registry.Registration;
+import reactor.bus.registry.Registries;
 import reactor.bus.registry.Registry;
 import reactor.bus.selector.Selector;
 import reactor.fn.Consumer;
@@ -32,6 +32,7 @@ import static reactor.bus.selector.Selectors.$;
 
 /**
  * @author Jon Brisbin
+ * @author Stephane Maldini
  */
 @Measurement(iterations = 5)
 @Warmup(iterations = 5)
@@ -50,7 +51,7 @@ public class RegistryBenchmarks {
 	@Setup
 	public void setup() {
 		latch = new CountDownLatch(length);
-		registry = new CachingRegistry<>();
+		registry = Registries.create();
 
 		int j = 0;
 		for (int i = 0; i < length; i++) {
