@@ -73,7 +73,7 @@
 		<!-- Reactor -->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-core</artifactId>
+			<artifactId>reactor-stream</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
