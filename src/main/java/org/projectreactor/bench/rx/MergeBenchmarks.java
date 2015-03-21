@@ -20,7 +20,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
-import org.projectreactor.bench.rx.support.InputWithIncrementingInteger;
+import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import reactor.Environment;
 import reactor.core.Dispatcher;
@@ -36,24 +36,24 @@ public class MergeBenchmarks {
 
 	@Benchmark
 	public void merge1StreamOfN(final Input input) throws InterruptedException {
-		Stream<Integer> stream = Streams.merge(
+		Stream<Long> stream = Streams.merge(
 				Streams.just(1)
 						.map(i -> Streams.range(0, input.size))
 		);
 
-		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
+		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
 	}
 
 
 	@Benchmark
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
-		Stream<Integer> stream = Streams.merge(
+		Stream<Long> stream = Streams.merge(
 				Streams.just(1)
 						.map(i -> Streams.range(0, input.size).dispatchOn(input.env, input.env.getCachedDispatcher()))
 		);
 
-		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
+		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
 
 		latchedCallback.latch.await();
@@ -61,7 +61,7 @@ public class MergeBenchmarks {
 
 
 	@State(Scope.Thread)
-	public static class Input extends InputWithIncrementingInteger {
+	public static class Input extends InputWithIncrementingLong {
 
 		@Param({  "1", "1000", "1000000" })
 		public int size;

@@ -25,8 +25,8 @@ import reactor.core.dispatch.SynchronousDispatcher;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
-import reactor.rx.action.terminal.ConsumerAction;
 import reactor.rx.action.support.NonBlocking;
+import reactor.rx.action.terminal.ConsumerAction;
 
 import java.util.Iterator;
 
@@ -35,13 +35,13 @@ import java.util.Iterator;
  *
  * @author Stephane Maldini
  */
-public abstract class InputWithIncrementingInteger {
+public abstract class InputWithIncrementingLong {
 
-	public Iterable<Integer>   iterable;
-	public Stream<Integer>     observable;
-	public Stream<Integer>     firehose;
+	public Iterable<Long>   iterable;
+	public Stream<Long>     observable;
+	public Stream<Long>     firehose;
 	public Blackhole           bh;
-	public Subscriber<Integer> observer;
+	public Subscriber<Long> observer;
 
 
 	public abstract int getSize();
@@ -51,24 +51,24 @@ public abstract class InputWithIncrementingInteger {
 		this.bh = bh;
 		observable = Streams.range(0, getSize());
 
-		firehose = Streams.create(new Publisher<Integer>() {
+		firehose = Streams.create(new Publisher<Long>() {
 
 			@Override
-			public void subscribe(Subscriber<? super Integer> s) {
-				for (int i = 0; i < getSize(); i++) {
+			public void subscribe(Subscriber<? super Long> s) {
+				for (long i = 0; i < getSize(); i++) {
 					s.onNext(i);
 				}
 				s.onComplete();
 			}
 		});
 
-		iterable = new Iterable<Integer>() {
+		iterable = new Iterable<Long>() {
 
 			@Override
-			public Iterator<Integer> iterator() {
-				return new Iterator<Integer>() {
+			public Iterator<Long> iterator() {
+				return new Iterator<Long>() {
 
-					int i = 0;
+					long i = 0;
 
 					@Override
 					public boolean hasNext() {
@@ -76,7 +76,7 @@ public abstract class InputWithIncrementingInteger {
 					}
 
 					@Override
-					public Integer next() {
+					public Long next() {
 						return i++;
 					}
 
@@ -90,7 +90,7 @@ public abstract class InputWithIncrementingInteger {
 
 		};
 
-		observer = new IntegerSubscriber(bh);
+		observer = new LongSubscriber(bh);
 
 		postSetup();
 
@@ -100,24 +100,24 @@ public abstract class InputWithIncrementingInteger {
 
 	}
 
-	public LatchedCallback<Integer> newLatchedCallback() {
+	public LatchedCallback<Long> newLatchedCallback() {
 		return new LatchedCallback<>(bh);
 	}
 
-	public Subscriber<Integer> newSubscriber() {
-		return new ConsumerAction<>(SynchronousDispatcher.INSTANCE, new Consumer<Integer>() {
+	public Subscriber<Long> newSubscriber() {
+		return new ConsumerAction<>(SynchronousDispatcher.INSTANCE, new Consumer<Long>() {
 			@Override
-			public void accept(Integer t) {
+			public void accept(Long t) {
 				bh.consume(t);
 			}
 
 		}, null, null);
 	}
 
-	private static class IntegerSubscriber implements Subscriber<Integer>, NonBlocking {
+	private static class LongSubscriber implements Subscriber<Long>, NonBlocking {
 		private final Blackhole bh;
 
-		public IntegerSubscriber(Blackhole bh) {
+		public LongSubscriber(Blackhole bh) {
 			this.bh = bh;
 		}
 
@@ -127,7 +127,7 @@ public abstract class InputWithIncrementingInteger {
 		}
 
 		@Override
-		public void onNext(Integer integer) {
+		public void onNext(Long integer) {
 			bh.consume(integer);
 		}
 
