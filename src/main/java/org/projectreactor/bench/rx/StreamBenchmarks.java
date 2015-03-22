@@ -86,7 +86,7 @@ public class StreamBenchmarks {
 						.scan(1, (last, next) -> last + next)
 						.consume(i -> latch.countDown());
 
-				mapManydeferred = Broadcaster.create(env, deferredDispatcher);
+				mapManydeferred = Broadcaster.create();
 				mapManydeferred
 						.flatMap(Streams::just)
 						.consume(i -> latch.countDown());
