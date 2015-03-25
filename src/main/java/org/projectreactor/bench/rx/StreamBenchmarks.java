@@ -19,6 +19,9 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
+import reactor.core.processor.RingBufferProcessor;
+import reactor.core.processor.RingBufferWorkProcessor;
+import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
@@ -58,13 +61,21 @@ public class StreamBenchmarks {
 		switch (dispatcher) {
 			case "partitioned":
 				deferred = Broadcaster.create();
-				deferred.partition(2).consume(
+				/*deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
 								.map(i -> i)
 								.scan(1, (last, next) -> last + next)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
-				);
+								);*/
+				Stream<Integer> s = deferred
+						.process(RingBufferWorkProcessor.create("test", 2048));
+				for(int v = 0; v < 2; v++){
+					s.map(i -> i)
+							.scan(1, (last, next) -> last + next)
+							.consume(i -> latch.countDown(), Throwable::printStackTrace);
+				}
+
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
@@ -80,11 +91,18 @@ public class StreamBenchmarks {
 						env.getCachedDispatcher() :
 						env.getDispatcher(dispatcher);
 
-				deferred = Broadcaster.create(env, deferredDispatcher);
+				deferred = Broadcaster.create();
+				deferred
+						.process(RingBufferProcessor.create("test", 2048))
+						.map(i -> i)
+							.scan(1, (last, next) -> last + next)
+						.consume(i -> latch.countDown());
+
+				/*deferred = Broadcaster.create(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
 						.scan(1, (last, next) -> last + next)
-						.consume(i -> latch.countDown());
+						.consume(i -> latch.countDown());*/
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred

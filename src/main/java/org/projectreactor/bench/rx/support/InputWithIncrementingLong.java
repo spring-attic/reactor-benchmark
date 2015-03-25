@@ -22,10 +22,10 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.Dispatcher;
 import reactor.core.dispatch.SynchronousDispatcher;
+import reactor.core.support.NonBlocking;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
-import reactor.rx.action.support.NonBlocking;
 import reactor.rx.action.terminal.ConsumerAction;
 
 import java.util.Iterator;

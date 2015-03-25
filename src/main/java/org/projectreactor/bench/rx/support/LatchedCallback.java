@@ -19,7 +19,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.Dispatcher;
-import reactor.rx.action.support.NonBlocking;
+import reactor.core.support.NonBlocking;
 
 import java.util.concurrent.CountDownLatch;
 
