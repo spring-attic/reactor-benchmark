@@ -19,7 +19,6 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
-import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
@@ -79,7 +78,7 @@ public class StreamBenchmarks {
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
-						.partition(4)
+						.partition(2)
 						.consume(substream -> substream
 								.dispatchOn(env.getCachedDispatcher())
 								.map(i -> i)
@@ -91,18 +90,11 @@ public class StreamBenchmarks {
 						env.getCachedDispatcher() :
 						env.getDispatcher(dispatcher);
 
-				deferred = Broadcaster.create();
-				deferred
-						.process(RingBufferProcessor.create("test", 2048))
-						.map(i -> i)
-							.scan(1, (last, next) -> last + next)
-						.consume(i -> latch.countDown());
-
-				/*deferred = Broadcaster.create(env, deferredDispatcher);
+				deferred = Broadcaster.create(env, deferredDispatcher);
 				deferred
 						.map(i -> i)
 						.scan(1, (last, next) -> last + next)
-						.consume(i -> latch.countDown());*/
+						.consume(i -> latch.countDown());
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
