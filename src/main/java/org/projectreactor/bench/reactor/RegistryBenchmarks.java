@@ -44,7 +44,7 @@ public class RegistryBenchmarks {
 
 	@Param({"10", "100", "1000", "10000"})
 	public  int                          length;
-	private Registry<Consumer<Event<?>>> registry;
+	private Registry<String, Consumer<Event<?>>> registry;
 	private CountDownLatch               latch;
 
 	@SuppressWarnings("unchecked")
@@ -58,7 +58,7 @@ public class RegistryBenchmarks {
 			if (i % 10 == 0) {
 				j++;
 			}
-			Selector sel = $("i=" + i + ",j=" + j);
+			Selector<String> sel = $("i=" + i + ",j=" + j);
 			Consumer<Event<?>> consumer = ev -> latch.countDown();
 			registry.register(sel, consumer);
 		}
@@ -72,7 +72,7 @@ public class RegistryBenchmarks {
 			if (i % 10 == 0) {
 				j++;
 			}
-			for (Registration<? extends Consumer<Event<?>>> reg : registry.select("i=" + i + ",j=" + j)) {
+			for (Registration<String, ? extends Consumer<Event<?>>> reg : registry.select("i=" + i + ",j=" + j)) {
 				if (!reg.isCancelled()) {
 					reg.getObject().accept(null);
 				}
