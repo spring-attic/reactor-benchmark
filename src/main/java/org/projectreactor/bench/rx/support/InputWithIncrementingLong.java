@@ -105,7 +105,7 @@ public abstract class InputWithIncrementingLong {
 	}
 
 	public Subscriber<Long> newSubscriber() {
-		return new ConsumerAction<>(SynchronousDispatcher.INSTANCE, new Consumer<Long>() {
+		return new ConsumerAction<>(Long.MAX_VALUE, SynchronousDispatcher.INSTANCE, new Consumer<Long>() {
 			@Override
 			public void accept(Long t) {
 				bh.consume(t);

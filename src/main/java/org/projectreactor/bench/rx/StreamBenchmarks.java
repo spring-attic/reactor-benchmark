@@ -25,6 +25,7 @@ import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,7 +69,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 				Stream<Integer> s = deferred
-						.process(RingBufferProcessor.create("test", 2048));
+						.process(RingBufferProcessor.create(Executors.newSingleThreadExecutor(), 2048));
 				for(int v = 0; v < 1; v++){
 					s.map(i -> i)
 							.scan(1, (last, next) -> last + next)
