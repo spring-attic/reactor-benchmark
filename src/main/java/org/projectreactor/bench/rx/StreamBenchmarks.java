@@ -20,6 +20,7 @@ import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.processor.RingBufferProcessor;
+import reactor.jarjar.com.lmax.disruptor.LiteBlockingWaitStrategy;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
@@ -69,7 +70,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 				Stream<Integer> s = deferred
-						.process(RingBufferProcessor.create(Executors.newSingleThreadExecutor(), 2048));
+						.process(RingBufferProcessor.create(Executors.newSingleThreadExecutor(), 2048, new LiteBlockingWaitStrategy()));
 				for(int v = 0; v < 1; v++){
 					s.map(i -> i)
 							.scan(1, (last, next) -> last + next)
