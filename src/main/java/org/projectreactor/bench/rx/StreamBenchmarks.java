@@ -19,14 +19,12 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
-import reactor.core.processor.RingBufferProcessor;
-import reactor.jarjar.com.lmax.disruptor.LiteBlockingWaitStrategy;
+import reactor.core.processor.RingBufferWorkProcessor;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,7 +68,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 				Stream<Integer> s = deferred
-						.process(RingBufferProcessor.create(Executors.newSingleThreadExecutor(), 2048, new LiteBlockingWaitStrategy()));
+						.process(RingBufferWorkProcessor.create("test", 2048));
 				for(int v = 0; v < 1; v++){
 					s.map(i -> i)
 							.scan(1, (last, next) -> last + next)
