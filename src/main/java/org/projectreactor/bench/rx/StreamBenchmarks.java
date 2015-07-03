@@ -20,7 +20,6 @@ import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.processor.RingBufferProcessor;
-import reactor.core.reactivestreams.SubscriberFactory;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
@@ -53,7 +52,6 @@ public class StreamBenchmarks {
 	private int[]                data;
 	private Broadcaster<Integer>   deferred;
 	private Broadcaster<Integer> mapManydeferred;
-	private RingBufferProcessor<Integer> processor;
 
 	@Setup
 	public void setup() {
@@ -69,42 +67,39 @@ public class StreamBenchmarks {
 								.scan(1, (last, next) -> last + next)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
+				Stream<Integer> s = deferred
+				  .process(RingBufferProcessor.create("test", 2048));
+				for(int v = 0; v < 1; v++){
+					s.map(i -> i)
+					  .scan(1, (last, next) -> last + next)
+					  .consume(i -> latch.countDown(), Throwable::printStackTrace);
+				}
 
-				processor = RingBufferProcessor.create("test", 2048);
-
-				//Stream<Integer> s = deferred.process(processor);
-				Stream<Integer> s = Streams.wrap(processor);
-
-					s
-							.scan(1, (last, next) -> last + next)
-							.consume(i -> latch.countDown(), Throwable::printStackTrace);
-
-				processor.writeWith(deferred.keepAlive()).subscribe(SubscriberFactory.unbounded());
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
-						.partition(2)
-						.consume(substream -> substream
-								.dispatchOn(env.getCachedDispatcher())
-								.map(i -> i)
-								.consume(i -> latch.countDown(), Throwable::printStackTrace));
+				  .partition(2)
+				  .consume(substream -> substream
+					.dispatchOn(env.getCachedDispatcher())
+					.map(i -> i)
+					.consume(i -> latch.countDown(), Throwable::printStackTrace));
 
 				break;
 			default:
 				final Dispatcher deferredDispatcher = dispatcher.equals("shared") ?
-						env.getCachedDispatcher() :
-						env.getDispatcher(dispatcher);
+				  env.getCachedDispatcher() :
+				  env.getDispatcher(dispatcher);
 
 				deferred = Broadcaster.create(env, deferredDispatcher);
 				deferred
-						.map(i -> i)
-						.scan(1, (last, next) -> last + next)
-						.consume(i -> latch.countDown());
+				  .map(i -> i)
+				  .scan(1, (last, next) -> last + next)
+				  .consume(i -> latch.countDown());
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
-						.flatMap(Streams::just)
-						.consume(i -> latch.countDown());
+				  .flatMap(Streams::just)
+				  .consume(i -> latch.countDown());
 		}
 
 		data = new int[elements];
@@ -115,21 +110,16 @@ public class StreamBenchmarks {
 
 	@TearDown
 	public void tearDown() throws InterruptedException {
-		if(processor != null) {
-			processor.onComplete();
-			processor = null;
-		}
 		Environment.terminate();
 	}
 
 	@Benchmark
 	public void composedStream() throws InterruptedException {
 		latch = new CountDownLatch(data.length);
-	/*	for (int i : data) {
+		for (int i : data) {
 			deferred.onNext(i);
-		}*/
-		Streams.range(0, elements).map(l -> (Integer)l).subscribe(deferred);
-		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException("latch: "+latch.getCount()+deferred.debug().toString());
+		}
+		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug().toString());
 	}
 
 	@Benchmark
