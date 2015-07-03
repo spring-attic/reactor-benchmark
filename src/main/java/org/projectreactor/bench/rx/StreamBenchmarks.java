@@ -20,6 +20,7 @@ import org.openjdk.jmh.annotations.*;
 import reactor.Environment;
 import reactor.core.Dispatcher;
 import reactor.core.processor.RingBufferProcessor;
+import reactor.core.reactivestreams.SubscriberFactory;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
@@ -52,6 +53,7 @@ public class StreamBenchmarks {
 	private int[]                data;
 	private Broadcaster<Integer>   deferred;
 	private Broadcaster<Integer> mapManydeferred;
+	private RingBufferProcessor<Integer> processor;
 
 	@Setup
 	public void setup() {
@@ -67,14 +69,17 @@ public class StreamBenchmarks {
 								.scan(1, (last, next) -> last + next)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
-				Stream<Integer> s = deferred
-						.process(RingBufferProcessor.create("test", 2048));
-				for(int v = 0; v < 1; v++){
-					s.map(i -> i)
+
+				processor = RingBufferProcessor.create("test", 2048);
+
+				//Stream<Integer> s = deferred.process(processor);
+				Stream<Integer> s = Streams.wrap(processor);
+
+					s
 							.scan(1, (last, next) -> last + next)
 							.consume(i -> latch.countDown(), Throwable::printStackTrace);
-				}
 
+				processor.writeWith(deferred.keepAlive()).subscribe(SubscriberFactory.unbounded());
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
@@ -110,16 +115,21 @@ public class StreamBenchmarks {
 
 	@TearDown
 	public void tearDown() throws InterruptedException {
+		if(processor != null) {
+			processor.onComplete();
+			processor = null;
+		}
 		Environment.terminate();
 	}
 
 	@Benchmark
 	public void composedStream() throws InterruptedException {
 		latch = new CountDownLatch(data.length);
-		for (int i : data) {
+	/*	for (int i : data) {
 			deferred.onNext(i);
-		}
-		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException(deferred.debug().toString());
+		}*/
+		Streams.range(0, elements).map(l -> (Integer)l).subscribe(deferred);
+		if (!latch.await(30, TimeUnit.SECONDS)) throw new RuntimeException("latch: "+latch.getCount()+deferred.debug().toString());
 	}
 
 	@Benchmark
