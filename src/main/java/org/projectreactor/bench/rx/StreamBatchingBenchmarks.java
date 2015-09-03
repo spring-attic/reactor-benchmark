@@ -1,11 +1,9 @@
 package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
-import reactor.Environment;
-import reactor.core.Dispatcher;
-import reactor.fn.Supplier;
-import reactor.jarjar.com.lmax.disruptor.BlockingWaitStrategy;
-import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
+import reactor.Processors;
+import reactor.Timers;
+import reactor.core.processor.ProcessorService;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.util.Random;
@@ -36,15 +34,13 @@ public class StreamBatchingBenchmarks {
 	@Param({"false", "true"})
 	public boolean filter;
 
-	private Environment                 env;
 	private String[]                    data;
 	private Broadcaster<CountDownLatch> deferred;
 	private CountDownLatch latch = new CountDownLatch(8);
 
 	@Setup
 	public void setup() {
-		env = new Environment();
-
+		Timers.global();
 		generateStream();
 
 		//env.getRootTimer().schedule(i -> System.out.println(deferred.debug()), 200, TimeUnit.MILLISECONDS);
@@ -53,11 +49,6 @@ public class StreamBatchingBenchmarks {
 		for (int i = 0; i < elements; i++) {
 			data[i] = Integer.toString(i);
 		}
-	}
-
-	@TearDown
-	public void tearDown() throws InterruptedException {
-		env.shutdown();
 	}
 
 	@TearDown(Level.Iteration)
@@ -81,34 +72,30 @@ public class StreamBatchingBenchmarks {
 	private void generateStream() {
 		final Random random = new Random();
 
-		deferred = Broadcaster.<CountDownLatch>create(env);
 
 		//((WaitingMood)deferred.getDispatcher()).nervous();
-		Supplier<Dispatcher> dispatcherSupplier = Environment.createDispatcherFactory("batch-stream",
-				8,
-				2048,
-				null,
-				ProducerType.SINGLE,
-				new BlockingWaitStrategy());
+		ProcessorService<CountDownLatch> dispatcherSupplier = Processors.asyncService("batch-stream", 2048, 9);
 
+		deferred = Broadcaster.<CountDownLatch>create();
 		deferred
+		        .run(dispatcherSupplier)
 				.partition(8)
 				.consume(
-						stream ->
-								(filter ?
-										stream.dispatchOn(dispatcherSupplier.get()).filter(i -> i.hashCode() != 0 ? true : true) :
-										stream.dispatchOn(dispatcherSupplier.get())
-								)
-										.buffer(elements / 8, 1000, TimeUnit.MILLISECONDS)
-														.consume(batch -> {
-															try {
-																Thread.sleep(random.nextInt(400) + 100);
-															} catch (InterruptedException e) {
-																e.printStackTrace();
-															}
-															for (CountDownLatch latch : batch) latch.countDown();
+				  stream ->
+					(filter ?
+					  stream.run(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
+					  stream.run(dispatcherSupplier)
+					)
+					  .buffer(elements / 8, 1000, TimeUnit.MILLISECONDS)
+					  .consume(batch -> {
+						  try {
+							  Thread.sleep(random.nextInt(400) + 100);
+						  } catch (InterruptedException e) {
+							  e.printStackTrace();
+						  }
+						  for (CountDownLatch latch : batch) latch.countDown();
 
-														}, null, nothing -> latch.countDown())
+					  }, null, nothing -> latch.countDown())
 				);
 	}
 

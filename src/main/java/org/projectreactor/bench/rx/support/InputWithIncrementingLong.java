@@ -20,9 +20,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.Dispatcher;
-import reactor.core.dispatch.SynchronousDispatcher;
-import reactor.core.support.NonBlocking;
+import reactor.core.support.Bounded;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
@@ -105,7 +103,7 @@ public abstract class InputWithIncrementingLong {
 	}
 
 	public Subscriber<Long> newSubscriber() {
-		return new ConsumerAction<>(Long.MAX_VALUE, SynchronousDispatcher.INSTANCE, new Consumer<Long>() {
+		return new ConsumerAction<>(Long.MAX_VALUE, new Consumer<Long>() {
 			@Override
 			public void accept(Long t) {
 				bh.consume(t);
@@ -114,7 +112,7 @@ public abstract class InputWithIncrementingLong {
 		}, null, null);
 	}
 
-	private static class LongSubscriber implements Subscriber<Long>, NonBlocking {
+	private static class LongSubscriber implements Subscriber<Long>, Bounded {
 		private final Blackhole bh;
 
 		public LongSubscriber(Blackhole bh) {
@@ -140,7 +138,7 @@ public abstract class InputWithIncrementingLong {
 		}
 
 		@Override
-		public boolean isReactivePull(Dispatcher dispatcher, long producerCapacity) {
+		public boolean isExposedToOverflow(Bounded b) {
 			return false;
 		}
 

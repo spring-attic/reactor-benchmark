@@ -51,7 +51,7 @@ public class MapBenchmarks {
 
 	@Benchmark
 	public void mapPassThruViaConnect(Input input) throws InterruptedException {
-		input.observable.lift(input.map).subscribe(input.observer);
+		input.observable.liftAction(input.map).subscribe(input.observer);
 	}
 
 	@Benchmark

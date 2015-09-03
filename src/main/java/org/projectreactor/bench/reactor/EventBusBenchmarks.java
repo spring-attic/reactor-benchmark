@@ -18,9 +18,11 @@ package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.Environment;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
+import reactor.core.processor.RingBufferProcessor;
+import reactor.core.processor.RingBufferWorkProcessor;
+import reactor.core.processor.SimpleWorkProcessor;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +45,6 @@ public class EventBusBenchmarks {
 	@Param({"sync", "ringBuffer", "workQueue", "threadPoolExecutor"})
 	public String dispatcher;
 
-	private Environment    env;
 	private CountDownLatch latch;
 	private EventBus        reactor;
 	private Object[]       keys;
@@ -51,8 +52,19 @@ public class EventBusBenchmarks {
 
 	@Setup
 	public void setup() {
-		env = new Environment();
-		reactor = EventBus.create(env, dispatcher);
+		switch(dispatcher){
+			case "ringBuffer":
+				reactor = EventBus.create(RingBufferProcessor.create());
+				break;
+			case "workQueue":
+				reactor = EventBus.create(RingBufferWorkProcessor.create(), 4);
+				break;
+			case "threadPoolExecutor":
+				reactor = EventBus.create(SimpleWorkProcessor.create(), 4);
+				break;
+			default:
+				reactor = EventBus.create();
+		}
 		event = new Event<>(null);
 		latch = new CountDownLatch(numOfSelectors);
 		keys = new Object[numOfSelectors];
@@ -64,7 +76,7 @@ public class EventBusBenchmarks {
 
 	@TearDown
 	public void tearDown() {
-		env.shutdown();
+		reactor.getProcessor().onComplete();
 	}
 
 	@Benchmark

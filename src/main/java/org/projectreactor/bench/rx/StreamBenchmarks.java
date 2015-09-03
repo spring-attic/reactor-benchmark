@@ -17,9 +17,10 @@
 package org.projectreactor.bench.rx;
 
 import org.openjdk.jmh.annotations.*;
-import reactor.Environment;
-import reactor.core.Dispatcher;
+import reactor.Processors;
+import reactor.core.processor.ProcessorService;
 import reactor.core.processor.RingBufferProcessor;
+import reactor.core.processor.RingBufferWorkProcessor;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
@@ -44,10 +45,9 @@ public class StreamBenchmarks {
 
 	@Param({"100"})
 	public int    elements;
-	@Param({"sync", "shared", "partitioned"})
+	@Param({"sync", "shared", "raw"})
 	public String dispatcher;
 
-	private Environment          env;
 	private CountDownLatch       latch;
 	private int[]                data;
 	private Broadcaster<Integer>   deferred;
@@ -55,10 +55,8 @@ public class StreamBenchmarks {
 
 	@Setup
 	public void setup() {
-		env = Environment.initializeIfEmpty();
-
 		switch (dispatcher) {
-			case "partitioned":
+			case "raw":
 				deferred = Broadcaster.create();
 				/*deferred.partition(2).consume(
 						stream -> stream
@@ -67,37 +65,39 @@ public class StreamBenchmarks {
 								.scan(1, (last, next) -> last + next)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
-				Stream<Integer> s = deferred
-				  .process(RingBufferProcessor.create("test", 2048));
-				for(int v = 0; v < 1; v++){
-					s.map(i -> i)
+				deferred
+				  .process(RingBufferWorkProcessor.create("test-w", 2048))
+					  .map(i -> i)
 					  .scan(1, (last, next) -> last + next)
-					  .consume(i -> latch.countDown(), Throwable::printStackTrace);
-				}
+					  .multiConsume(2, i -> latch.countDown(), Throwable::printStackTrace);
 
+				final ProcessorService<Integer> partitionRunner = Processors.asyncService("test", 1024, 2);
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
 				  .partition(2)
 				  .consume(substream -> substream
-					.dispatchOn(env.getCachedDispatcher())
+					.run(partitionRunner)
 					.map(i -> i)
 					.consume(i -> latch.countDown(), Throwable::printStackTrace));
 
 				break;
-			default:
-				final Dispatcher deferredDispatcher = dispatcher.equals("shared") ?
-				  env.getCachedDispatcher() :
-				  env.getDispatcher(dispatcher);
 
-				deferred = Broadcaster.create(env, deferredDispatcher);
+			default:
+				final ProcessorService<Integer> deferredDispatcher = dispatcher.equals("shared") ?
+				  Processors.asyncService() :
+				  ProcessorService.sync() ;
+
+				deferred = Broadcaster.create();
 				deferred
+				  .run(deferredDispatcher)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown());
 
 				mapManydeferred = Broadcaster.create();
 				mapManydeferred
+				  .run(deferredDispatcher)
 				  .flatMap(Streams::just)
 				  .consume(i -> latch.countDown());
 		}
@@ -110,7 +110,8 @@ public class StreamBenchmarks {
 
 	@TearDown
 	public void tearDown() throws InterruptedException {
-		Environment.terminate();
+		deferred.onComplete();
+		mapManydeferred.onComplete();
 	}
 
 	@Benchmark

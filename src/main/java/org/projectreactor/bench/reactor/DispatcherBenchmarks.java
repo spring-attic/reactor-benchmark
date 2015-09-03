@@ -17,15 +17,15 @@
 package org.projectreactor.bench.reactor;
 
 import org.openjdk.jmh.annotations.*;
-import reactor.Environment;
+import org.reactivestreams.Processor;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+import reactor.Processors;
 import reactor.bus.Event;
-import reactor.core.Dispatcher;
-import reactor.core.dispatch.RingBufferDispatcher;
-import reactor.core.dispatch.ThreadPoolExecutorDispatcher;
-import reactor.core.dispatch.WorkQueueDispatcher;
-import reactor.fn.Consumer;
-import reactor.jarjar.com.lmax.disruptor.YieldingWaitStrategy;
-import reactor.jarjar.com.lmax.disruptor.dsl.ProducerType;
+import reactor.core.processor.RingBufferProcessor;
+import reactor.core.processor.RingBufferWorkProcessor;
+import reactor.core.processor.SimpleWorkProcessor;
+import reactor.core.processor.rb.disruptor.YieldingWaitStrategy;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,45 +44,68 @@ public class DispatcherBenchmarks {
 
 	static int BACKLOG = 2048;
 
-	RingBufferDispatcher         ringBufferDispatcher;
-	WorkQueueDispatcher          workQueueDispatcher;
-	ThreadPoolExecutorDispatcher threadPoolExecutorDispatcher;
-	Event<?>                     event;
-	AtomicLong                   counter;
-	Consumer<Event<?>>           consumer;
+	RingBufferProcessor<Event<?>>     ringBufferDispatcher;
+	RingBufferWorkProcessor<Event<?>> workQueueDispatcher;
+	SimpleWorkProcessor<Event<?>>     threadPoolExecutorDispatcher;
+	Event<?>                          event;
+	AtomicLong                        counter;
 
 	@Setup
 	public void setup() {
 		event = Event.wrap("Hello World!");
 		counter = new AtomicLong(0);
 
-		ringBufferDispatcher = new RingBufferDispatcher(
-				"ringBufferDispatcher",
-				BACKLOG,
-				null,
-				ProducerType.SINGLE,
-				new YieldingWaitStrategy()
-		);
-		workQueueDispatcher = new WorkQueueDispatcher(
-				"workQueueDispatcher",
-				Environment.PROCESSORS,
-				BACKLOG,
-				null,
-				ProducerType.SINGLE,
-				new YieldingWaitStrategy()
-		);
-		threadPoolExecutorDispatcher = new ThreadPoolExecutorDispatcher(
-				Environment.PROCESSORS,
-				BACKLOG,
-				"threadPoolExecutorDispatcher"
+		ringBufferDispatcher = RingBufferProcessor.create(
+		  "ringBufferDispatcher",
+		  BACKLOG,
+		  new YieldingWaitStrategy()
 		);
 
-		consumer = new Consumer<Event<?>>() {
+		workQueueDispatcher = RingBufferWorkProcessor.create(
+		  "workQueueDispatcher",
+		  BACKLOG,
+		  new YieldingWaitStrategy()
+		);
+
+		threadPoolExecutorDispatcher = SimpleWorkProcessor.create(
+		  "threadPoolExecutorDispatcher",
+		  BACKLOG
+		);
+
+		Subscriber<Event<?>> sharedCounter = new Subscriber<Event<?>>() {
 			@Override
-			public void accept(Event<?> event) {
+			public void onNext(Event<?> event) {
 				counter.incrementAndGet();
 			}
+
+			@Override
+			public void onSubscribe(Subscription s) {
+				s.request(Long.MAX_VALUE);
+			}
+
+			@Override
+			public void onError(Throwable t) {
+
+			}
+
+			@Override
+			public void onComplete() {
+
+			}
 		};
+
+		ringBufferDispatcher.subscribe(sharedCounter);
+		for(int i = 0 ; i < Processors.DEFAULT_POOL_SIZE ; i++){
+			workQueueDispatcher.subscribe(sharedCounter);
+			threadPoolExecutorDispatcher.subscribe(sharedCounter);
+		}
+	}
+
+	@TearDown
+	public void tearDown() throws InterruptedException {
+		ringBufferDispatcher.onComplete();
+		workQueueDispatcher.onComplete();
+		threadPoolExecutorDispatcher.onComplete();
 	}
 
 	@Benchmark
@@ -100,11 +123,9 @@ public class DispatcherBenchmarks {
 		doTest(threadPoolExecutorDispatcher);
 	}
 
-	private void doTest(Dispatcher dispatcher) {
-		dispatcher.dispatch(
-				event,
-				consumer,
-				null
+	private void doTest(Processor<Event<?>, Event<?>> dispatcher) {
+		dispatcher.onNext(
+		  event
 		);
 	}
 

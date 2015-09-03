@@ -18,15 +18,14 @@ package org.projectreactor.bench.rx.support;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.Dispatcher;
-import reactor.core.support.NonBlocking;
+import reactor.core.support.Bounded;
 
 import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Stephane Maldini
  */
-public class LatchedCallback<T> implements Subscriber<T>, NonBlocking {
+public class LatchedCallback<T> implements Subscriber<T>, Bounded {
 
 	public final CountDownLatch latch = new CountDownLatch(1);
 	private final Blackhole bh;
@@ -50,7 +49,7 @@ public class LatchedCallback<T> implements Subscriber<T>, NonBlocking {
 	}
 
 	@Override
-	public boolean isReactivePull(Dispatcher dispatcher, long producerCapacity) {
+	public boolean isExposedToOverflow(Bounded bounded) {
 		return false;
 	}
 
