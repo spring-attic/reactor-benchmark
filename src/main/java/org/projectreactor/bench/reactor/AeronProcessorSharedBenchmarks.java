@@ -28,12 +28,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Measurement(iterations = 5, time = 1)
 @Warmup(iterations = 5, time = 1)
-@Fork(value = 3, jvmArgs = { "-Xmx4g" })
+@Fork(value = 3, jvmArgs = { "-Xmx2g" })
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
-@Threads(2)
-@State(Scope.Group)
-public class AeronProcessorMultiThreadedBenchmarks {
+@State(Scope.Thread)
+public class AeronProcessorSharedBenchmarks {
 
 	private static final int N = 10000000;
 
@@ -43,21 +42,18 @@ public class AeronProcessorMultiThreadedBenchmarks {
 
 	private AeronProcessor processor;
 
-	private Buffer[] buffers1;
-
-	private Buffer[] buffers2;
+	private Buffer[] buffers;
 
 	private SubscriberForBenchmark subscriber;
 
-	private int i1, i2;
+	private int i = 0;
 
 	@Setup
 	public void setup() throws InterruptedException {
-		buffers1 = populateBuffers();
-		buffers2 = populateBuffers();
+		populateBuffers();
 
 		processor = AeronProcessor.builder()
-				.name("aeron-multi")
+				.name("aeron-shared")
 				.launchEmbeddedMediaDriver(true)
 				.channel(CHANNEL)
 				.streamId(STREAM_ID)
@@ -70,7 +66,6 @@ public class AeronProcessorMultiThreadedBenchmarks {
 
 		processor.onSubscribe(new SubscriptionForBenchmark());
 		subscriber = new SubscriberForBenchmark();
-		processor.subscribe(subscriber);
 
 		processor.subscribe(subscriber);
 		processor.onNext(Buffer.wrap("Event"));
@@ -78,23 +73,21 @@ public class AeronProcessorMultiThreadedBenchmarks {
 		subscriber.awaitNextSignal(1000);
 	}
 
-	private Buffer[] populateBuffers() {
-		Buffer[] buffers = new Buffer[N];
+	private void populateBuffers() {
+		buffers = new Buffer[N];
 		for (int i = 0; i < N; i++) {
 			buffers[i] = Buffer.wrap("M");
 		}
-		return buffers;
 	}
 
 	@TearDown
-	public void teardown() {
-		processor.shutdown();
+	public void tearDown() {
+		processor.awaitAndShutdown();
 	}
 
 	@TearDown(Level.Iteration)
 	public void afterIteration() throws InterruptedException {
-		i1 = 0;
-		i2 = 0;
+		i = 0;
 
 		System.out.println("Events received: " + subscriber.getAndResetNextSignalCounter());
 
@@ -104,15 +97,8 @@ public class AeronProcessorMultiThreadedBenchmarks {
 	}
 
 	@Benchmark
-	@Group("onNext")
-	public void first() {
-		processor.onNext(buffers1[i1++]);
-	}
-
-	@Benchmark
-	@Group("onNext")
-	public void second() {
-		processor.onNext(buffers2[i2++]);
+	public void onNext() {
+		processor.onNext(buffers[i++]);
 	}
 
 }
