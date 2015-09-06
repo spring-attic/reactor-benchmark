@@ -66,10 +66,10 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 				deferred
-				  .process(RingBufferWorkProcessor.create("test-w", 2048))
+				  .process(RingBufferProcessor.create("test-w", 2048))
 					  .map(i -> i)
 					  .scan(1, (last, next) -> last + next)
-					  .multiConsume(2, i -> latch.countDown(), Throwable::printStackTrace);
+					  .consume(i -> latch.countDown(), Throwable::printStackTrace);
 
 				final ProcessorService<Integer> partitionRunner = Processors.asyncService("test", 1024, 2);
 

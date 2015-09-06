@@ -49,7 +49,7 @@ public abstract class InputWithIncrementingLong {
 		this.bh = bh;
 		observable = Streams.range(0, getSize());
 
-		firehose = Streams.create(new Publisher<Long>() {
+		firehose = Streams.withOverflowSupport(new Publisher<Long>() {
 
 			@Override
 			public void subscribe(Subscriber<? super Long> s) {
