@@ -21,6 +21,7 @@ import reactor.Processors;
 import reactor.core.processor.ProcessorService;
 import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
+import reactor.core.processor.rb.disruptor.PhasedBackoffWaitStrategy;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
@@ -66,7 +67,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 				deferred
-				  .process(RingBufferProcessor.create("test-w", 2048))
+				  .process(RingBufferProcessor.create("test-w", 2048, PhasedBackoffWaitStrategy.withLiteLock(500, 1000, TimeUnit.MILLISECONDS)))
 					  .map(i -> i)
 					  .scan(1, (last, next) -> last + next)
 					  .consume(i -> latch.countDown(), Throwable::printStackTrace);
