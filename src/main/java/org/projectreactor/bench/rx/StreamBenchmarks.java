@@ -69,8 +69,7 @@ public class StreamBenchmarks {
 								);*/
 
 				Streams.wrap(deferred)
-				  .process(RingBufferProcessor.create("test-w", 2048, PhasedBackoffWaitStrategy.withLiteLock(500,
-				    1000, TimeUnit.MILLISECONDS)))
+				  .process(RingBufferProcessor.create("test-w", 2048))
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace);
