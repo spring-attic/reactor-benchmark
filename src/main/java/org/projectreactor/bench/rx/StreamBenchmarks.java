@@ -19,7 +19,7 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import org.reactivestreams.Processor;
 import reactor.Processors;
-import reactor.core.processor.ProcessorService;
+import reactor.core.processor.ProcessorGroup;
 import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
 import reactor.core.processor.rb.disruptor.PhasedBackoffWaitStrategy;
@@ -74,33 +74,33 @@ public class StreamBenchmarks {
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace);
 
-				final ProcessorService<Integer> partitionRunner = Processors.asyncService("test", 1024, 2);
+				final ProcessorGroup<Integer> partitionRunner = Processors.asyncGroup("test", 1024, 2);
 
 				mapManydeferred = Broadcaster.create();
 				Streams.wrap(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
-					.run(partitionRunner)
+					.dispatchOn(partitionRunner)
 					.map(i -> i)
 					.consume(i -> latch.countDown(), Throwable::printStackTrace));
 
 				break;
 
 			default:
-				final ProcessorService<Integer> deferredDispatcher = dispatcher.equals("shared") ?
-				  Processors.asyncService() :
-				  ProcessorService.sync();
+				final ProcessorGroup<Integer> deferredDispatcher = dispatcher.equals("shared") ?
+				  Processors.asyncGroup() :
+				  ProcessorGroup.sync();
 
 				deferred = Broadcaster.create();
 				Streams.wrap(deferred)
-				  .run(deferredDispatcher)
+				  .dispatchOn(deferredDispatcher)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown());
 
 				mapManydeferred = Broadcaster.create();
 				Streams.wrap(mapManydeferred)
-				  .run(deferredDispatcher)
+				  .dispatchOn(deferredDispatcher)
 				  .flatMap(Streams::just)
 				  .consume(i -> latch.countDown());
 		}

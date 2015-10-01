@@ -23,7 +23,7 @@ import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import reactor.Processors;
-import reactor.core.processor.ProcessorService;
+import reactor.core.processor.ProcessorGroup;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 
@@ -50,7 +50,7 @@ public class MergeBenchmarks {
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
 		Stream<Long> stream = Streams.merge(
 				Streams.just(1)
-						.map(i -> Streams.range(0, input.size).run(input.processor))
+						.map(i -> Streams.range(0, input.size).dispatchOn(input.processor))
 		);
 
 		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
@@ -71,14 +71,14 @@ public class MergeBenchmarks {
 			return size;
 		}
 
-		public ProcessorService<Long> processor;
+		public ProcessorGroup<Long> processor;
 
 		@Param({"sync", "ringBuffer"})
 		public String dispatcherName;
 
 		@Override
 		protected void postSetup() {
-			processor = "sync".equalsIgnoreCase(dispatcherName) ? ProcessorService.sync() : Processors.asyncService();
+			processor = "sync".equalsIgnoreCase(dispatcherName) ? ProcessorGroup.sync() : Processors.asyncGroup();
 		}
 	}
 }

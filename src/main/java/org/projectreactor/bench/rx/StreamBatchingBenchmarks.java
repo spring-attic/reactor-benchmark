@@ -3,7 +3,7 @@ package org.projectreactor.bench.rx;
 import org.openjdk.jmh.annotations.*;
 import reactor.Processors;
 import reactor.Timers;
-import reactor.core.processor.ProcessorService;
+import reactor.core.processor.ProcessorGroup;
 import reactor.rx.broadcast.Broadcaster;
 
 import java.util.Random;
@@ -74,17 +74,17 @@ public class StreamBatchingBenchmarks {
 
 
 		//((WaitingMood)deferred.getDispatcher()).nervous();
-		ProcessorService<CountDownLatch> dispatcherSupplier = Processors.asyncService("batch-stream", 2048, 9);
+		ProcessorGroup<CountDownLatch> dispatcherSupplier = Processors.asyncGroup("batch-stream", 2048, 9);
 
 		deferred = Broadcaster.<CountDownLatch>create();
 		deferred
-		        .run(dispatcherSupplier)
+		        .dispatchOn(dispatcherSupplier)
 				.partition(8)
 				.consume(
 				  stream ->
 					(filter ?
-					  stream.run(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
-					  stream.run(dispatcherSupplier)
+					  stream.dispatchOn(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
+					  stream.dispatchOn(dispatcherSupplier)
 					)
 					  .buffer(elements / 8, 1000, TimeUnit.MILLISECONDS)
 					  .consume(batch -> {
