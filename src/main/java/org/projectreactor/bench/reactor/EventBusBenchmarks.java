@@ -22,7 +22,6 @@ import reactor.bus.Event;
 import reactor.bus.EventBus;
 import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
-import reactor.core.processor.SimpleWorkProcessor;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -58,9 +57,6 @@ public class EventBusBenchmarks {
 				break;
 			case "workQueue":
 				reactor = EventBus.create(RingBufferWorkProcessor.create(), 4);
-				break;
-			case "threadPoolExecutor":
-				reactor = EventBus.create(SimpleWorkProcessor.create(), 4);
 				break;
 			default:
 				reactor = EventBus.create();

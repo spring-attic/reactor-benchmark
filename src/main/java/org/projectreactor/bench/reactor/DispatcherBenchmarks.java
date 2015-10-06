@@ -24,7 +24,6 @@ import reactor.Processors;
 import reactor.bus.Event;
 import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
-import reactor.core.processor.SimpleWorkProcessor;
 import reactor.core.processor.rb.disruptor.YieldingWaitStrategy;
 
 import java.util.concurrent.TimeUnit;
@@ -46,7 +45,6 @@ public class DispatcherBenchmarks {
 
 	RingBufferProcessor<Event<?>>     ringBufferDispatcher;
 	RingBufferWorkProcessor<Event<?>> workQueueDispatcher;
-	SimpleWorkProcessor<Event<?>>     threadPoolExecutorDispatcher;
 	Event<?>                          event;
 	AtomicLong                        counter;
 
@@ -65,11 +63,6 @@ public class DispatcherBenchmarks {
 		  "workQueueDispatcher",
 		  BACKLOG,
 		  new YieldingWaitStrategy()
-		);
-
-		threadPoolExecutorDispatcher = SimpleWorkProcessor.create(
-		  "threadPoolExecutorDispatcher",
-		  BACKLOG
 		);
 
 		Subscriber<Event<?>> sharedCounter = new Subscriber<Event<?>>() {
@@ -97,7 +90,6 @@ public class DispatcherBenchmarks {
 		ringBufferDispatcher.subscribe(sharedCounter);
 		for(int i = 0 ; i < Processors.DEFAULT_POOL_SIZE ; i++){
 			workQueueDispatcher.subscribe(sharedCounter);
-			threadPoolExecutorDispatcher.subscribe(sharedCounter);
 		}
 	}
 
@@ -105,7 +97,6 @@ public class DispatcherBenchmarks {
 	public void tearDown() throws InterruptedException {
 		ringBufferDispatcher.onComplete();
 		workQueueDispatcher.onComplete();
-		threadPoolExecutorDispatcher.onComplete();
 	}
 
 	@Benchmark
@@ -116,11 +107,6 @@ public class DispatcherBenchmarks {
 	@Benchmark
 	public void workQueue() {
 		doTest(workQueueDispatcher);
-	}
-
-	@Benchmark
-	public void threadPoolExecutor() {
-		doTest(threadPoolExecutorDispatcher);
 	}
 
 	private void doTest(Processor<Event<?>, Event<?>> dispatcher) {

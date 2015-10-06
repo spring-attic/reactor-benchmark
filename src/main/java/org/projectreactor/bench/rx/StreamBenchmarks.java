@@ -69,7 +69,7 @@ public class StreamBenchmarks {
 								);*/
 
 				Streams.wrap(deferred)
-				  .process(RingBufferProcessor.create("test-w", 2048))
+				  .process(RingBufferProcessor.create("test-w", 2040))
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace);
