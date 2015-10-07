@@ -22,7 +22,9 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
+import org.reactivestreams.Publisher;
 import reactor.Processors;
+import reactor.Publishers;
 import reactor.core.processor.ProcessorGroup;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
@@ -36,10 +38,9 @@ public class MergeBenchmarks {
 
 	@Benchmark
 	public void merge1StreamOfN(final Input input) throws InterruptedException {
-		Stream<Long> stream = Streams.merge(
+		Publisher<Long> stream =
 				Streams.just(1)
-						.map(i -> Streams.range(0, input.size))
-		);
+						.flatMap(i -> Streams.range(0, input.size));
 
 		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
@@ -48,10 +49,10 @@ public class MergeBenchmarks {
 
 	@Benchmark
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
-		Stream<Long> stream = Streams.merge(
-				Streams.just(1)
-						.map(i -> Streams.range(0, input.size).dispatchOn(input.processor))
-		);
+		Publisher<Long> stream =
+		  Streams.just(1)
+			.flatMap(i -> Streams.range(0, input.size).dispatchOn(input.processor))
+		;
 
 		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);

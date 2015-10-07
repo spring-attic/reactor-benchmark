@@ -24,7 +24,7 @@ import reactor.Processors;
 import reactor.bus.Event;
 import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
-import reactor.core.processor.rb.disruptor.YieldingWaitStrategy;
+import reactor.core.support.wait.YieldingWaitStrategy;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
