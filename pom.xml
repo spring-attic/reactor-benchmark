@@ -13,6 +13,7 @@
 		<spring.version>4.0.3.RELEASE</spring.version>
 		<reactor.version>2.1.0.BUILD-SNAPSHOT</reactor.version>
 		<reactor.data.version>1.0.0.BUILD-SNAPSHOT</reactor.data.version>
+        <jmh.version>1.1</jmh.version>
 	</properties>
 
 	<dependencies>
@@ -28,13 +29,13 @@
 		<dependency>
 			<groupId>org.openjdk.jmh</groupId>
 			<artifactId>jmh-core</artifactId>
-			<version>1.1</version>
+			<version>${jmh.version}</version>
 		</dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.1</version>
+            <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>
 
