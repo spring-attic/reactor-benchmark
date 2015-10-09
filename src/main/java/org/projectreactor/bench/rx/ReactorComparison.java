@@ -29,6 +29,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.Processors;
@@ -57,10 +58,10 @@ public class ReactorComparison {
 //    Observable<Integer> rxJustAsync;
 //    Observable<Integer> rxRangeAsync;
 
-    Stream<Integer> rcJust;
-    Stream<Integer> rcRange;
-    Stream<Integer> rcJustAsync;
-    Stream<Integer> rcRangeAsync;
+    Publisher<Integer> rcJust;
+    Publisher<Integer> rcRange;
+    Publisher<Integer> rcJustAsync;
+    Publisher<Integer> rcRangeAsync;
     ProcessorGroup<Object> processor;
 
     @Setup(Level.Iteration)
@@ -78,8 +79,8 @@ public class ReactorComparison {
 
         processor = Processors.asyncGroup("processor", 1024 * 64, 1, null, null, false);
 
-        rcJustAsync = rcJust.dispatchOn(processor);
-        rcRangeAsync = rcRange.dispatchOn(processor);
+        rcJustAsync = Streams.wrap(rcJust).dispatchOn(processor);
+        rcRangeAsync = Streams.wrap(rcRange).dispatchOn(processor);
     }
 
     @TearDown(Level.Iteration)
