@@ -40,11 +40,11 @@ public class MapBenchmarks {
 			return size;
 		}
 
-		public Supplier<Action<Long, Long>> map;
+		public Supplier<Action<Integer, Integer>> map;
 
 		@Override
 		protected void postSetup() {
-			map = () -> new MapAction<Long, Long>(IDENTITY_FUNCTION
+			map = () -> new MapAction<Integer, Integer>(IDENTITY_FUNCTION
 			);
 		}
 	}
@@ -56,7 +56,7 @@ public class MapBenchmarks {
 
 	@Benchmark
 	public void mapInstance(Input input) {
-		Streams.just(1l).map(IDENTITY_FUNCTION);
+		Streams.just(1).map(IDENTITY_FUNCTION);
 	}
 
 	@Benchmark
@@ -64,9 +64,9 @@ public class MapBenchmarks {
 		input.observable.map(IDENTITY_FUNCTION).subscribe(input.observer);
 	}
 
-	private static final Function<Long, Long> IDENTITY_FUNCTION = new Function<Long, Long>() {
+	private static final Function<Integer, Integer> IDENTITY_FUNCTION = new Function<Integer, Integer>() {
 		@Override
-		public Long apply(Long value) {
+		public Integer apply(Integer value) {
 			return value;
 		}
 	};

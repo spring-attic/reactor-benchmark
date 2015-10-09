@@ -38,23 +38,23 @@ public class MergeBenchmarks {
 
 	@Benchmark
 	public void merge1StreamOfN(final Input input) throws InterruptedException {
-		Publisher<Long> stream =
+		Publisher<Integer> stream =
 				Streams.just(1)
 						.flatMap(i -> Streams.range(0, input.size));
 
-		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
+		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
 	}
 
 
 	@Benchmark
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
-		Publisher<Long> stream =
+		Publisher<Integer> stream =
 		  Streams.just(1)
 			.flatMap(i -> Streams.range(0, input.size).dispatchOn(input.processor))
 		;
 
-		LatchedCallback<Long> latchedCallback = input.newLatchedCallback();
+		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
 
 		latchedCallback.latch.await();

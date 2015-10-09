@@ -36,10 +36,10 @@ import java.util.Iterator;
 public abstract class InputWithIncrementingLong {
 
 	public Iterable<Long>   iterable;
-	public Stream<Long>     observable;
+	public Stream<Integer>     observable;
 	public Stream<Long>     firehose;
 	public Blackhole           bh;
-	public Subscriber<Long> observer;
+	public Subscriber<Integer> observer;
 
 
 	public abstract int getSize();
@@ -88,7 +88,7 @@ public abstract class InputWithIncrementingLong {
 
 		};
 
-		observer = new LongSubscriber(bh);
+		observer = new IntegerSubscriber(bh);
 
 		postSetup();
 
@@ -98,24 +98,24 @@ public abstract class InputWithIncrementingLong {
 
 	}
 
-	public LatchedCallback<Long> newLatchedCallback() {
+	public LatchedCallback<Integer> newLatchedCallback() {
 		return new LatchedCallback<>(bh);
 	}
 
-	public Subscriber<Long> newSubscriber() {
-		return new ConsumerAction<>(Long.MAX_VALUE, new Consumer<Long>() {
+	public Subscriber<Integer> newSubscriber() {
+		return new ConsumerAction<>(Long.MAX_VALUE, new Consumer<Integer>() {
 			@Override
-			public void accept(Long t) {
+			public void accept(Integer t) {
 				bh.consume(t);
 			}
 
 		}, null, null);
 	}
 
-	private static class LongSubscriber implements Subscriber<Long>, Bounded {
+	private static class IntegerSubscriber implements Subscriber<Integer>, Bounded {
 		private final Blackhole bh;
 
-		public LongSubscriber(Blackhole bh) {
+		public IntegerSubscriber(Blackhole bh) {
 			this.bh = bh;
 		}
 
@@ -125,7 +125,7 @@ public abstract class InputWithIncrementingLong {
 		}
 
 		@Override
-		public void onNext(Long integer) {
+		public void onNext(Integer integer) {
 			bh.consume(integer);
 		}
 
