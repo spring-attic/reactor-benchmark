@@ -53,6 +53,7 @@ public class StreamBenchmarks {
 	private int[]                       data;
 	private Processor<Integer, Integer> deferred;
 	private Processor<Integer, Integer> mapManydeferred;
+	private ProcessorGroup<Integer> partitionRunner;
 
 	@Setup
 	public void setup() {
@@ -74,7 +75,7 @@ public class StreamBenchmarks {
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
 						  w -> System.out.println("complete test-w"));
 
-				final ProcessorGroup<Integer> partitionRunner = Processors.asyncGroup("test", 1024, 2);
+				partitionRunner = Processors.asyncGroup("test", 1024, 2, null, v -> System.out.println("complete test inner"));
 
 				mapManydeferred = Broadcaster.passthrough();
 				Streams.wrap(mapManydeferred)
@@ -116,6 +117,7 @@ public class StreamBenchmarks {
 	public void tearDown() throws InterruptedException {
 		deferred.onComplete();
 		mapManydeferred.onComplete();
+		partitionRunner.shutdown();
 	}
 
 	@Benchmark
