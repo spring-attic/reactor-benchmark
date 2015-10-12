@@ -71,7 +71,8 @@ public class StreamBenchmarks {
 				  .process(RingBufferProcessor.create("test-w", 2048))
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
-				  .consume(i -> latch.countDown(), Throwable::printStackTrace);
+				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
+						  w -> System.out.println("complete test-w"));
 
 				final ProcessorGroup<Integer> partitionRunner = Processors.asyncGroup("test", 1024, 2);
 
@@ -81,7 +82,8 @@ public class StreamBenchmarks {
 				  .consume(substream -> substream
 					.dispatchOn(partitionRunner)
 					.map(i -> i)
-					.consume(i -> latch.countDown(), Throwable::printStackTrace));
+					.consume(i -> latch.countDown(), Throwable::printStackTrace,
+							w -> System.out.println("complete test")));
 
 				break;
 
