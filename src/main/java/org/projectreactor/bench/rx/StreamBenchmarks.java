@@ -68,14 +68,14 @@ public class StreamBenchmarks {
 								);*/
 
 				Streams.wrap(deferred)
-				  .process(RingBufferProcessor.create("test-w", 2040))
+				  .process(RingBufferProcessor.create("test-w", 2048))
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace);
 
 				final ProcessorGroup<Integer> partitionRunner = Processors.asyncGroup("test", 1024, 2);
 
-				mapManydeferred = Broadcaster.create();
+				mapManydeferred = Broadcaster.passthrough();
 				Streams.wrap(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
