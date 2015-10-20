@@ -85,7 +85,7 @@ public class ReactorComparison {
 
     @TearDown(Level.Iteration)
     public void doTeardown() {
-        processor.awaitAndShutdown();
+        processor.shutdown();
     }
 
 //    @Benchmark
