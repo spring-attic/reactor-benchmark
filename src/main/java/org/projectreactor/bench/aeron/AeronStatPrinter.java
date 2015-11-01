@@ -21,61 +21,61 @@ import java.util.concurrent.TimeUnit;
  */
 public class AeronStatPrinter {
 
-    private final String name;
-    private FileOutputStream fos;
-    private PrintStream ps;
+	private final String name;
+	private FileOutputStream fos;
+	private PrintStream ps;
 
-    public AeronStatPrinter(String name) {
-        this.name = name;
-    }
+	public AeronStatPrinter(String name) {
+		this.name = name;
+	}
 
-    public void setup(String dirName) throws FileNotFoundException {
-        final File cncFile = new File(dirName + "/cnc");
-        System.out.println("Command `n Control file " + cncFile);
+	public void setup(String dirName) throws FileNotFoundException {
+		final File cncFile = new File(dirName + "/cnc");
+		System.out.println("Command `n Control file " + cncFile);
 
-        fos = new FileOutputStream(dirName + "/" + name + ".stat.txt");
-        ps = new PrintStream(fos);
+		fos = new FileOutputStream(dirName + "/" + name + ".stat.txt");
+		ps = new PrintStream(fos);
 
-        final MappedByteBuffer cncByteBuffer = IoUtil.mapExistingFile(cncFile, "cnc");
-        final DirectBuffer metaDataBuffer = CncFileDescriptor.createMetaDataBuffer(cncByteBuffer);
-        final int cncVersion = metaDataBuffer.getInt(CncFileDescriptor.cncVersionOffset(0));
+		final MappedByteBuffer cncByteBuffer = IoUtil.mapExistingFile(cncFile, "cnc");
+		final DirectBuffer metaDataBuffer = CncFileDescriptor.createMetaDataBuffer(cncByteBuffer);
+		final int cncVersion = metaDataBuffer.getInt(CncFileDescriptor.cncVersionOffset(0));
 
-        if (CncFileDescriptor.CNC_VERSION != cncVersion)
-        {
-            throw new IllegalStateException("CNC version not supported: version=" + cncVersion);
-        }
+		if (CncFileDescriptor.CNC_VERSION != cncVersion)
+		{
+			throw new IllegalStateException("CNC version not supported: version=" + cncVersion);
+		}
 
-        final AtomicBuffer labelsBuffer = CncFileDescriptor.createCounterLabelsBuffer(cncByteBuffer, metaDataBuffer);
-        final AtomicBuffer valuesBuffer = CncFileDescriptor.createCounterValuesBuffer(cncByteBuffer, metaDataBuffer);
-        final CountersManager countersManager = new CountersManager(labelsBuffer, valuesBuffer);
+		final AtomicBuffer labelsBuffer = CncFileDescriptor.createCounterLabelsBuffer(cncByteBuffer, metaDataBuffer);
+		final AtomicBuffer valuesBuffer = CncFileDescriptor.createCounterValuesBuffer(cncByteBuffer, metaDataBuffer);
+		final CountersManager countersManager = new CountersManager(labelsBuffer, valuesBuffer);
 
-        Timers.global().schedule(new Consumer<Long>() {
-            @Override
-            public void accept(Long aLong) {
-                try {
-                    print(valuesBuffer, countersManager);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 5, TimeUnit.SECONDS);
-    }
+		Timers.global().schedule(new Consumer<Long>() {
+			@Override
+			public void accept(Long aLong) {
+				try {
+					print(valuesBuffer, countersManager);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}, 5, TimeUnit.SECONDS);
+	}
 
-    private void print(AtomicBuffer valuesBuffer, CountersManager countersManager) throws InterruptedException {
-        ps.print("\033[H\033[2J");
-        ps.format("%1$tH:%1$tM:%1$tS - %2$s - Aeron Stat\n", new Date(), name);
-        ps.println("=========================");
+	private void print(AtomicBuffer valuesBuffer, CountersManager countersManager) throws InterruptedException {
+		ps.print("\033[H\033[2J");
+		ps.format("%1$tH:%1$tM:%1$tS - %2$s - Aeron Stat\n", new Date(), name);
+		ps.println("=========================");
 
-        countersManager.forEach(
-                (id, label) ->
-                {
-                    final int offset = CountersManager.counterOffset(id);
-                    final long value = valuesBuffer.getLongVolatile(offset);
+		countersManager.forEach(
+				(id, label) ->
+				{
+					final int offset = CountersManager.counterOffset(id);
+					final long value = valuesBuffer.getLongVolatile(offset);
 
-                    ps.format("%3d: %,20d - %s\n", id, value, label);
-                });
+					ps.format("%3d: %,20d - %s\n", id, value, label);
+				});
 
-        ps.flush();
-    }
+		ps.flush();
+	}
 
 }

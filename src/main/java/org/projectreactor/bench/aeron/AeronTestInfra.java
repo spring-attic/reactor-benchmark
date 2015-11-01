@@ -32,67 +32,67 @@ class AeronTestInfra {
 
 	private final String name;
 
-    private MediaDriver.Context driverContext;
+	private MediaDriver.Context driverContext;
 
-    private MediaDriver mediaDriver;
+	private MediaDriver mediaDriver;
 
-    private Aeron aeron;
+	private Aeron aeron;
 
-    AeronTestInfra(String name) {
-        this.name = name;
-    }
+	AeronTestInfra(String name) {
+		this.name = name;
+	}
 
-    Aeron createAeron(MediaDriver mediaDriver) {
-        Aeron.Context context = new Aeron.Context();
-        context.dirName(mediaDriver.contextDirName());
-        return Aeron.connect(context);
-    }
+	Aeron createAeron(MediaDriver mediaDriver) {
+		Aeron.Context context = new Aeron.Context();
+		context.dirName(mediaDriver.contextDirName());
+		return Aeron.connect(context);
+	}
 
-    MediaDriver launchMediaDriver() throws Exception {
-        driverContext.threadingMode(ThreadingMode.SHARED);
-        String dirName = Files.createTempDirectory("aeron-").toString();
-        driverContext.dirName(dirName);
-        MediaDriver mediaDriver = MediaDriver.launch(driverContext);
+	MediaDriver launchMediaDriver() throws Exception {
+		driverContext.threadingMode(ThreadingMode.SHARED);
+		String dirName = Files.createTempDirectory("aeron-").toString();
+		driverContext.dirName(dirName);
+		MediaDriver mediaDriver = MediaDriver.launch(driverContext);
 
-        AeronStatPrinter statPrinter = new AeronStatPrinter(name);
-        statPrinter.setup(dirName);
+		AeronStatPrinter statPrinter = new AeronStatPrinter(name);
+		statPrinter.setup(dirName);
 
-        System.out.println(name + " media driver launched");
-        Thread.sleep(DELAY_MILLIS);
+		System.out.println(name + " media driver launched");
+		Thread.sleep(DELAY_MILLIS);
 
-        return mediaDriver;
-    }
+		return mediaDriver;
+	}
 
-    void initialize() throws Exception {
-        driverContext = new MediaDriver.Context();
-        mediaDriver = launchMediaDriver();
-        aeron = createAeron(mediaDriver);
+	void initialize() throws Exception {
+		driverContext = new MediaDriver.Context();
+		mediaDriver = launchMediaDriver();
+		aeron = createAeron(mediaDriver);
 
-        System.out.println("Test infrastructure: " + name + " initialized");
-    }
+		System.out.println("Test infrastructure: " + name + " initialized");
+	}
 
-    void shutdown() throws Exception {
-        aeron.close();
-        Thread.sleep(DELAY_MILLIS);
+	void shutdown() throws Exception {
+		aeron.close();
+		Thread.sleep(DELAY_MILLIS);
 
-        mediaDriver.close();
-        Thread.sleep(DELAY_MILLIS);
+		mediaDriver.close();
+		Thread.sleep(DELAY_MILLIS);
 
-        try {
-            driverContext.deleteAeronDirectory();
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
-    }
+		try {
+			driverContext.deleteAeronDirectory();
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
+		}
+	}
 
-    public Context newContext() {
-        return new Context()
-                .name(name)
-                .launchEmbeddedMediaDriver(false)
-                .publicationLingerTimeoutMillis(250)
-                .publicationTimeoutMillis(500)
-                .ringBufferSize(128 * 1024)
-                .aeron(aeron);
-    }
+	public Context newContext() {
+		return new Context()
+				.name(name)
+				.launchEmbeddedMediaDriver(false)
+				.publicationLingerTimeoutMillis(250)
+				.publicationTimeoutMillis(500)
+				.ringBufferSize(128 * 1024)
+				.aeron(aeron);
+	}
 
 }

@@ -37,23 +37,23 @@ class SubscriberForBenchmark implements Subscriber<Buffer> {
 		s.request(Long.MAX_VALUE);
 	}
 
-    @Override
+	@Override
 	public void onNext(Buffer buffer) {
-        nextSignalReceived.countDown();
+		nextSignalReceived.countDown();
 		nextSignalCounter++;
 	}
 
-    @Override
+	@Override
 	public void onError(Throwable t) {
 	}
 
-    @Override
+	@Override
 	public void onComplete() {
 	}
 
-    public boolean awaitNextSignal(long timeoutMillis) throws InterruptedException {
-        return nextSignalReceived.await(timeoutMillis, TimeUnit.MILLISECONDS);
-    }
+	public boolean awaitNextSignal(long timeoutMillis) throws InterruptedException {
+		return nextSignalReceived.await(timeoutMillis, TimeUnit.MILLISECONDS);
+	}
 
 	public int getAndResetNextSignalCounter() {
 		int counter = nextSignalCounter;
@@ -61,8 +61,8 @@ class SubscriberForBenchmark implements Subscriber<Buffer> {
 		return counter;
 	}
 
-    public int getNextSignalCounter() {
-        return nextSignalCounter;
-    }
+	public int getNextSignalCounter() {
+		return nextSignalCounter;
+	}
 
 }

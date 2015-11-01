@@ -30,7 +30,7 @@ public class AeronProcessorBenchmarkLauncher {
 	private static final String MULTICAST_CHANNEL = "udp://224.0.0.251:12001";
 
 	private void run() throws Exception {
-        AeronBenchmark bench = new AeronProcessorBenchmark(N, SIGNAL_LENGTH_BYTES, MULTICAST_CHANNEL, false);
+		AeronBenchmark bench = new AeronProcessorBenchmark(N, SIGNAL_LENGTH_BYTES, MULTICAST_CHANNEL, false);
 		bench.runAndPrintResults();
 	}
 

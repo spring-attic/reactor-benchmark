@@ -71,19 +71,19 @@ class BuffersFactory {
 		}
 	}
 
-    Buffer[] populateBuffers(int n, int signalLengthBytes) {
-        Buffer[] buffers = new Buffer[n];
+	Buffer[] populateBuffers(int n, int signalLengthBytes) {
+		Buffer[] buffers = new Buffer[n];
 
 		byte[] message = createMessage(signalLengthBytes);
 
-        System.out.println("Signal length in bytes: " + message.length);
+		System.out.println("Signal length in bytes: " + message.length);
 
-        new ForkJoinPool(Runtime.getRuntime().availableProcessors()).invoke(
-                new PopulateSubarrayTask(buffers, 0, n - 1, message));
+		new ForkJoinPool(Runtime.getRuntime().availableProcessors()).invoke(
+				new PopulateSubarrayTask(buffers, 0, n - 1, message));
 
-        System.out.println("Number of buffers created: " + n);
-        return buffers;
-    }
+		System.out.println("Number of buffers created: " + n);
+		return buffers;
+	}
 
 	private byte[] createMessage(int length) {
 		StringBuilder msgBuilder = new StringBuilder();

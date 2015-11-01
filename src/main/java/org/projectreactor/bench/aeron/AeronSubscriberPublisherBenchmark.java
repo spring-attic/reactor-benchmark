@@ -25,46 +25,46 @@ import reactor.io.buffer.Buffer;
  */
 public class AeronSubscriberPublisherBenchmark extends AeronBenchmark {
 
-    private AeronSubscriber subscriber;
+	private AeronSubscriber subscriber;
 
-    private AeronPublisher publisher;
+	private AeronPublisher publisher;
 
-    public AeronSubscriberPublisherBenchmark(int n, int signalLengthBytes, boolean useSingleDriverInstance) {
-        super(n, signalLengthBytes, useSingleDriverInstance);
-    }
+	public AeronSubscriberPublisherBenchmark(int n, int signalLengthBytes, boolean useSingleDriverInstance) {
+		super(n, signalLengthBytes, useSingleDriverInstance);
+	}
 
-    @Override
-    protected void doSubscribeClient(SubscriberForBenchmark clientSubscriber) {
-        publisher.subscribe(clientSubscriber);
-    }
+	@Override
+	protected void doSubscribeClient(SubscriberForBenchmark clientSubscriber) {
+		publisher.subscribe(clientSubscriber);
+	}
 
-    @Override
-    protected void doSendInitialSignal() {
-        subscriber.onNext(Buffer.wrap("Hello, world!!!"));
-    }
+	@Override
+	protected void doSendInitialSignal() {
+		subscriber.onNext(Buffer.wrap("Hello, world!!!"));
+	}
 
-    @Override
-    protected void doLaunchClient(AeronTestInfra clientInfra) {
-        publisher = AeronPublisher.create(clientInfra.newContext());
-    }
+	@Override
+	protected void doLaunchClient(AeronTestInfra clientInfra) {
+		publisher = AeronPublisher.create(clientInfra.newContext());
+	}
 
-    @Override
-    protected void doLaunchServer(AeronTestInfra serverInfra) {
-        subscriber = AeronSubscriber.create(serverInfra.newContext());
-    }
+	@Override
+	protected void doLaunchServer(AeronTestInfra serverInfra) {
+		subscriber = AeronSubscriber.create(serverInfra.newContext());
+	}
 
-    @Override
-    protected void doTearDownServer() {
-    }
+	@Override
+	protected void doTearDownServer() {
+	}
 
-    @Override
-    protected void doTearDownClient() {
-        subscriber.onComplete();
-    }
+	@Override
+	protected void doTearDownClient() {
+		subscriber.onComplete();
+	}
 
-    @Override
-    protected void doOnNext(Buffer buffer) {
-        subscriber.onNext(buffer);
-    }
+	@Override
+	protected void doOnNext(Buffer buffer) {
+		subscriber.onNext(buffer);
+	}
 
 }

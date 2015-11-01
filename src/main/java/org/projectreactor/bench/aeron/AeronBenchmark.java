@@ -25,124 +25,124 @@ import java.util.concurrent.TimeUnit;
  */
 abstract public class AeronBenchmark {
 
-    private final int n;
+	private final int n;
 
 	private final int signalLengthBytes;
 
 	private final boolean useSingleDriverInstance;
 
-    private static final int DELAY_MILLIS = 1000;
+	private static final int DELAY_MILLIS = 1000;
 
-    private AeronTestInfra serverInfra;
+	private AeronTestInfra serverInfra;
 
-    private AeronTestInfra clientInfra;
+	private AeronTestInfra clientInfra;
 
-    private Buffer[] buffers;
+	private Buffer[] buffers;
 
 	private SubscriberForBenchmark subscriber;
 
-    private int i = 0;
+	private int i = 0;
 
-    public AeronBenchmark(int n, int signalLengthBytes, boolean useSingleDriverInstance) {
-        this.n = n;
+	public AeronBenchmark(int n, int signalLengthBytes, boolean useSingleDriverInstance) {
+		this.n = n;
 		this.signalLengthBytes = signalLengthBytes;
 		this.useSingleDriverInstance = useSingleDriverInstance;
 	}
 
-    public void setup() throws Exception {
-        buffers = new BuffersFactory().populateBuffers(n, signalLengthBytes);
-        launchServer();
-        launchClient();
-        createClientSubscriberAndSubscribe();
-        sendAndReceiveInitialSignals();
-    }
+	public void setup() throws Exception {
+		buffers = new BuffersFactory().populateBuffers(n, signalLengthBytes);
+		launchServer();
+		launchClient();
+		createClientSubscriberAndSubscribe();
+		sendAndReceiveInitialSignals();
+	}
 
-    private void createClientSubscriberAndSubscribe() throws InterruptedException {
-        subscriber = new SubscriberForBenchmark();
-        doSubscribeClient(subscriber);
-        Thread.sleep(DELAY_MILLIS);
-    }
+	private void createClientSubscriberAndSubscribe() throws InterruptedException {
+		subscriber = new SubscriberForBenchmark();
+		doSubscribeClient(subscriber);
+		Thread.sleep(DELAY_MILLIS);
+	}
 
-    protected abstract void doSubscribeClient(SubscriberForBenchmark clientSubscriber);
+	protected abstract void doSubscribeClient(SubscriberForBenchmark clientSubscriber);
 
-    private void sendAndReceiveInitialSignals() throws InterruptedException {
-        doSendInitialSignal();
+	private void sendAndReceiveInitialSignals() throws InterruptedException {
+		doSendInitialSignal();
 
-        System.out.println("Initial signal sent");
-        if (!subscriber.awaitNextSignal(5000)) {
-            throw new IllegalStateException("The client didn't receive initial signal");
-        }
-        System.out.println("Initial signal received");
-    }
+		System.out.println("Initial signal sent");
+		if (!subscriber.awaitNextSignal(5000)) {
+			throw new IllegalStateException("The client didn't receive initial signal");
+		}
+		System.out.println("Initial signal received");
+	}
 
-    protected abstract void doSendInitialSignal();
+	protected abstract void doSendInitialSignal();
 
-    private void launchClient() throws Exception {
-        if (useSingleDriverInstance) {
-            clientInfra = serverInfra;
-        } else {
-            clientInfra = new AeronTestInfra("client");
-            clientInfra.initialize();
-        }
+	private void launchClient() throws Exception {
+		if (useSingleDriverInstance) {
+			clientInfra = serverInfra;
+		} else {
+			clientInfra = new AeronTestInfra("client");
+			clientInfra.initialize();
+		}
 
-        doLaunchClient(clientInfra);
-    }
+		doLaunchClient(clientInfra);
+	}
 
-    abstract protected void doLaunchClient(AeronTestInfra clientInfra);
+	abstract protected void doLaunchClient(AeronTestInfra clientInfra);
 
-    private void launchServer() throws Exception {
-        serverInfra = new AeronTestInfra("server");
-        serverInfra.initialize();
+	private void launchServer() throws Exception {
+		serverInfra = new AeronTestInfra("server");
+		serverInfra.initialize();
 
-        doLaunchServer(serverInfra);
-    }
+		doLaunchServer(serverInfra);
+	}
 
-    abstract protected void doLaunchServer(AeronTestInfra serverInfra);
+	abstract protected void doLaunchServer(AeronTestInfra serverInfra);
 
-    public void tearDownServer() throws Exception {
-        doTearDownServer();
-        Thread.sleep(DELAY_MILLIS);
+	public void tearDownServer() throws Exception {
+		doTearDownServer();
+		Thread.sleep(DELAY_MILLIS);
 
-        serverInfra.shutdown();
-    }
+		serverInfra.shutdown();
+	}
 
-    abstract protected void doTearDownServer();
+	abstract protected void doTearDownServer();
 
-    public void tearDownClient() throws Exception {
-        doTearDownClient();
-        Thread.sleep(DELAY_MILLIS);
+	public void tearDownClient() throws Exception {
+		doTearDownClient();
+		Thread.sleep(DELAY_MILLIS);
 
-        if (clientInfra != serverInfra) {
-            clientInfra.shutdown();
-        }
-    }
+		if (clientInfra != serverInfra) {
+			clientInfra.shutdown();
+		}
+	}
 
-    abstract protected void doTearDownClient();
+	abstract protected void doTearDownClient();
 
-    public void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		awaitTillAllEventsAreReceived();
 
-        tearDownClient();
-        tearDownServer();
-    }
+		tearDownClient();
+		tearDownServer();
+	}
 
-    public void awaitTillAllEventsAreReceived() throws InterruptedException {
-        System.out.println("Signals received: " + subscriber.getAndResetNextSignalCounter());
+	public void awaitTillAllEventsAreReceived() throws InterruptedException {
+		System.out.println("Signals received: " + subscriber.getAndResetNextSignalCounter());
 
-        do {
-            Thread.sleep(100);
-        } while (subscriber.getAndResetNextSignalCounter() > 0);
-    }
+		do {
+			Thread.sleep(100);
+		} while (subscriber.getAndResetNextSignalCounter() > 0);
+	}
 
-    public void onNext() {
-        doOnNext(buffers[i++]);
-    }
+	public void onNext() {
+		doOnNext(buffers[i++]);
+	}
 
-    abstract protected void doOnNext(Buffer buffer);
+	abstract protected void doOnNext(Buffer buffer);
 
-    public int getNEventsReceived() {
-        return subscriber.getNextSignalCounter();
-    }
+	public int getNEventsReceived() {
+		return subscriber.getNextSignalCounter();
+	}
 
 	public void runAndPrintResults() throws Exception {
 		setup();

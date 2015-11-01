@@ -25,47 +25,47 @@ import reactor.io.buffer.Buffer;
  */
 public class AeronProcessorBenchmark extends AeronBenchmark {
 
-    private AeronProcessor serverProcessor;
+	private AeronProcessor serverProcessor;
 
-    private AeronProcessor clientProcessor;
+	private AeronProcessor clientProcessor;
 
-    private final String channel;
+	private final String channel;
 
-    public AeronProcessorBenchmark(int n, int signalLengthBytes, String channel, boolean useSingleDriverInstance) {
-        super(n, signalLengthBytes, useSingleDriverInstance);
-        this.channel = channel;
-    }
+	public AeronProcessorBenchmark(int n, int signalLengthBytes, String channel, boolean useSingleDriverInstance) {
+		super(n, signalLengthBytes, useSingleDriverInstance);
+		this.channel = channel;
+	}
 
-    protected void doSubscribeClient(SubscriberForBenchmark clientSubscriber) {
-        clientProcessor.subscribe(clientSubscriber);
-    }
+	protected void doSubscribeClient(SubscriberForBenchmark clientSubscriber) {
+		clientProcessor.subscribe(clientSubscriber);
+	}
 
-    protected void doSendInitialSignal() {
-        serverProcessor.onNext(Buffer.wrap("Event"));
-    }
+	protected void doSendInitialSignal() {
+		serverProcessor.onNext(Buffer.wrap("Event"));
+	}
 
-    protected void doLaunchClient(AeronTestInfra clientInfra) {
-        Context context = clientInfra.newContext();
-        context.channel(channel);
-        clientProcessor = AeronProcessor.create(context);
-    }
+	protected void doLaunchClient(AeronTestInfra clientInfra) {
+		Context context = clientInfra.newContext();
+		context.channel(channel);
+		clientProcessor = AeronProcessor.create(context);
+	}
 
-    protected void doLaunchServer(AeronTestInfra serverInfra) {
-        Context context = serverInfra.newContext();
-        context.channel(channel);
-        serverProcessor = AeronProcessor.create(context);
-    }
+	protected void doLaunchServer(AeronTestInfra serverInfra) {
+		Context context = serverInfra.newContext();
+		context.channel(channel);
+		serverProcessor = AeronProcessor.create(context);
+	}
 
-    protected void doTearDownServer() {
-        serverProcessor.awaitAndShutdown();
-    }
+	protected void doTearDownServer() {
+		serverProcessor.awaitAndShutdown();
+	}
 
-    protected void doTearDownClient() {
-        clientProcessor.awaitAndShutdown();
-    }
+	protected void doTearDownClient() {
+		clientProcessor.awaitAndShutdown();
+	}
 
-    protected void doOnNext(Buffer buffer) {
-        serverProcessor.onNext(buffer);
-    }
+	protected void doOnNext(Buffer buffer) {
+		serverProcessor.onNext(buffer);
+	}
 
 }
