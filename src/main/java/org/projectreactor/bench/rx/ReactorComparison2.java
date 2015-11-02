@@ -85,7 +85,7 @@ public class ReactorComparison2 {
 		rcJustAsync = Processors.emitter(256);
 		//rcJustAsync = Broadcaster.create();
 		Streams.wrap(rcJustAsync)
-		       .dispatchOn(Processors.asyncGroup("processor", 1024 * 64, 1))
+		       .dispatchOn(Processors.singleGroup("processor"))
 		       .subscribe(asyncObserver);
 		rcJustAsync.start();
 	}
