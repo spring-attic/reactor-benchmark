@@ -66,8 +66,8 @@ public class ReactorComparison2 {
 		//  Timers.global();
 
 		rxJust = PublishSubject.create();
-		rxJust.subscribe(new LatchedRxObserver(bh));
-		rxJust.subscribe(new LatchedRxObserver(bh));
+		rxJust.onBackpressureBuffer().subscribe(new LatchedRxObserver(bh));
+		rxJust.onBackpressureBuffer().subscribe(new LatchedRxObserver(bh));
 
 		rxJustAsync = PublishSubject.create();
 		asyncRxObserver = new LatchedRxObserver(bh);
@@ -76,16 +76,14 @@ public class ReactorComparison2 {
 		           .subscribe(asyncRxObserver);
 
 		rcJust = Processors.emitter(256);
-		//rcJust = Broadcaster.create();
 		rcJust.subscribe(new LatchedObserver(bh));
 		rcJust.subscribe(new LatchedObserver(bh));
 		rcJust.start();
 
 		asyncObserver = new LatchedObserver(bh);
 		rcJustAsync = Processors.emitter(256);
-		//rcJustAsync = Broadcaster.create();
-		Streams.wrap(rcJustAsync)
-		       .dispatchOn(Processors.singleGroup("processor"))
+		rcJustAsync
+		       .process(Processors.singleGroup().get())
 		       .subscribe(asyncObserver);
 		rcJustAsync.start();
 	}
@@ -141,6 +139,8 @@ public class ReactorComparison2 {
 
 		final Blackhole bh;
 
+		Subscription s;
+
 		public LatchedObserver(Blackhole bh) {
 			cdl = new CountDownLatch(1);
 			this.bh = bh;
@@ -148,12 +148,14 @@ public class ReactorComparison2 {
 
 		@Override
 		public void onSubscribe(Subscription s) {
-			s.request(Long.MAX_VALUE);
+			this.s = s;
+			s.request(1L);
 		}
 
 		@Override
 		public void onNext(Object t) {
 			bh.consume(t);
+			s.request(1L);
 		}
 
 		@Override
@@ -181,8 +183,14 @@ public class ReactorComparison2 {
 		}
 
 		@Override
+		public void onStart() {
+			request(1L);
+		}
+
+		@Override
 		public void onNext(Object t) {
 			bh.consume(t);
+			request(1L);
 		}
 
 		@Override
