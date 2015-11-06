@@ -26,6 +26,7 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -47,6 +48,9 @@ import rx.subjects.PublishSubject;
 @State(Scope.Thread)
 public class ReactorComparison2 {
 
+	@Param({ "1", "2", "4"})
+	public int subscribers;
+
 	PublishSubject<Integer> rxJust;
 	PublishSubject<Integer> rxJustAsync;
 
@@ -61,10 +65,10 @@ public class ReactorComparison2 {
 		//  Timers.global();
 
 		rxJust = PublishSubject.create();
-		rxJust.onBackpressureBuffer()
-		      .subscribe(new LatchedRxObserver(bh));
-		rxJust.onBackpressureBuffer()
-		      .subscribe(new LatchedRxObserver(bh));
+		for(int i = 0; i < subscribers; i++) {
+			rxJust.onBackpressureBuffer()
+			      .subscribe(new LatchedRxObserver(bh));
+		}
 
 		rxJustAsync = PublishSubject.create();
 		asyncRxObserver = new LatchedRxObserver(bh);
@@ -72,9 +76,16 @@ public class ReactorComparison2 {
 		           .observeOn(Schedulers.computation())
 		           .subscribe(asyncRxObserver);
 
+		for(int i = 1; i < subscribers; i++) {
+			rxJustAsync.onBackpressureBuffer()
+			           .observeOn(Schedulers.computation())
+			           .subscribe(new LatchedRxObserver(bh));
+		}
+
 		rcJust = Processors.emitter(256);
-		rcJust.subscribe(new LatchedObserver(bh));
-		rcJust.subscribe(new LatchedObserver(bh));
+		for(int i = 0; i < subscribers; i++) {
+			rcJust.subscribe(new LatchedObserver(bh));
+		}
 		rcJust.start();
 
 		asyncObserver = new LatchedObserver(bh);
@@ -82,6 +93,12 @@ public class ReactorComparison2 {
 		rcJustAsync.process(Processors.singleGroup()
 		                              .get())
 		           .subscribe(asyncObserver);
+
+		for(int i = 1; i < subscribers; i++) {
+			rcJustAsync.process(Processors.singleGroup()
+			                              .get())
+			           .subscribe(new LatchedObserver(bh));
+		}
 		rcJustAsync.start();
 	}
 
