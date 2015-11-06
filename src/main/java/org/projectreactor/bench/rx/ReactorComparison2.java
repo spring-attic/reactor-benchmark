@@ -26,21 +26,16 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.Processors;
 import reactor.core.processor.BaseProcessor;
-import reactor.core.processor.EmitterProcessor;
-import reactor.rx.Streams;
-import reactor.rx.broadcast.Broadcaster;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -56,18 +51,20 @@ public class ReactorComparison2 {
 	PublishSubject<Integer> rxJustAsync;
 
 	BaseProcessor<Integer, Integer> rcJust;
-	BaseProcessor<Integer, Integer>     rcJustAsync;
+	BaseProcessor<Integer, Integer> rcJustAsync;
 
 	LatchedRxObserver asyncRxObserver;
 	LatchedObserver   asyncObserver;
 
 	@Setup(Level.Iteration)
-	public void setup(Blackhole bh) {
+	public void setup(Blackhole bh) throws InterruptedException {
 		//  Timers.global();
 
 		rxJust = PublishSubject.create();
-		rxJust.onBackpressureBuffer().subscribe(new LatchedRxObserver(bh));
-		rxJust.onBackpressureBuffer().subscribe(new LatchedRxObserver(bh));
+		rxJust.onBackpressureBuffer()
+		      .subscribe(new LatchedRxObserver(bh));
+		rxJust.onBackpressureBuffer()
+		      .subscribe(new LatchedRxObserver(bh));
 
 		rxJustAsync = PublishSubject.create();
 		asyncRxObserver = new LatchedRxObserver(bh);
@@ -82,9 +79,9 @@ public class ReactorComparison2 {
 
 		asyncObserver = new LatchedObserver(bh);
 		rcJustAsync = Processors.emitter(256);
-		rcJustAsync
-		       .process(Processors.singleGroup().get())
-		       .subscribe(asyncObserver);
+		rcJustAsync.process(Processors.singleGroup()
+		                              .get())
+		           .subscribe(asyncObserver);
 		rcJustAsync.start();
 	}
 
