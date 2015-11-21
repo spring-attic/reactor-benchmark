@@ -15,18 +15,17 @@
  */
 package org.projectreactor.bench.rx.support;
 
+import java.util.Iterator;
+
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.support.Bounded;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.action.terminal.ConsumerAction;
-
-import java.util.Iterator;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/jmh/InputWithIncrementingInteger.java
@@ -112,7 +111,7 @@ public abstract class InputWithIncrementingLong {
 		}, null, null);
 	}
 
-	private static class IntegerSubscriber implements Subscriber<Integer>, Bounded {
+	private static class IntegerSubscriber implements Subscriber<Integer> {
 		private final Blackhole bh;
 
 		public IntegerSubscriber(Blackhole bh) {
@@ -137,14 +136,5 @@ public abstract class InputWithIncrementingLong {
 		public void onComplete() {
 		}
 
-		@Override
-		public boolean isExposedToOverflow(Bounded b) {
-			return false;
-		}
-
-		@Override
-		public long getCapacity() {
-			return Long.MAX_VALUE;
-		}
 	}
 }

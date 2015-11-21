@@ -15,17 +15,16 @@
  */
 package org.projectreactor.bench.rx.support;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.support.Bounded;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Stephane Maldini
  */
-public class LatchedCallback<T> implements Subscriber<T>, Bounded {
+public class LatchedCallback<T> implements Subscriber<T> {
 
 	public final CountDownLatch latch = new CountDownLatch(1);
 	private final Blackhole bh;
@@ -49,17 +48,8 @@ public class LatchedCallback<T> implements Subscriber<T>, Bounded {
 	}
 
 	@Override
-	public boolean isExposedToOverflow(Bounded bounded) {
-		return false;
-	}
-
-	@Override
 	public void onNext(T t) {
 		bh.consume(t);
 	}
 
-	@Override
-	public long getCapacity() {
-		return Long.MAX_VALUE;
-	}
 }

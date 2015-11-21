@@ -15,15 +15,19 @@
  */
 package org.projectreactor.bench.rx;
 
-import org.openjdk.jmh.annotations.*;
-import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
-import reactor.fn.Function;
-import reactor.fn.Supplier;
-import reactor.rx.Streams;
-import reactor.rx.action.Action;
-import reactor.rx.action.transformation.MapAction;
-
 import java.util.concurrent.TimeUnit;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
+import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
+import reactor.core.publisher.operator.MapOperator;
+import reactor.fn.Function;
+import reactor.rx.Streams;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -40,18 +44,17 @@ public class MapBenchmarks {
 			return size;
 		}
 
-		public Supplier<Action<Integer, Integer>> map;
+		public MapOperator<Integer, Integer> map;
 
 		@Override
 		protected void postSetup() {
-			map = () -> new MapAction<Integer, Integer>(IDENTITY_FUNCTION
-			);
+			map = new MapOperator<>(IDENTITY_FUNCTION);
 		}
 	}
 
 	@Benchmark
 	public void mapPassThruViaConnect(Input input) throws InterruptedException {
-		input.observable.liftAction(input.map).subscribe(input.observer);
+		input.observable.lift(input.map).subscribe(input.observer);
 	}
 
 	@Benchmark

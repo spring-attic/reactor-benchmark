@@ -59,7 +59,7 @@ public class StreamBenchmarks {
 	public void setup() {
 		switch (dispatcher) {
 			case "raw":
-				deferred = Broadcaster.create();
+				deferred = Broadcaster.from(RingBufferProcessor.create("test-w", 2048));
 				/*deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
@@ -69,7 +69,6 @@ public class StreamBenchmarks {
 								);*/
 
 				Streams.wrap(deferred)
-				  .process(RingBufferProcessor.create("test-w", 2048))
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
@@ -77,7 +76,7 @@ public class StreamBenchmarks {
 
 				partitionRunner = Processors.asyncGroup("test", 1024, 2, null, v -> System.out.println("complete test inner"));
 
-				mapManydeferred = Broadcaster.passthrough();
+				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().get());
 				Streams.wrap(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
@@ -93,16 +92,14 @@ public class StreamBenchmarks {
 				  Processors.asyncGroup() :
 				  ProcessorGroup.sync();
 
-				deferred = Broadcaster.create();
+				deferred = Broadcaster.from(deferredDispatcher.get());
 				Streams.wrap(deferred)
-				  .dispatchOn(deferredDispatcher)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown());
 
-				mapManydeferred = Broadcaster.create();
+				mapManydeferred = Broadcaster.from(deferredDispatcher.get());
 				Streams.wrap(mapManydeferred)
-				  .dispatchOn(deferredDispatcher)
 				  .flatMap(Streams::just)
 				  .consume(i -> latch.countDown());
 		}
@@ -117,7 +114,9 @@ public class StreamBenchmarks {
 	public void tearDown() throws InterruptedException {
 		deferred.onComplete();
 		mapManydeferred.onComplete();
-		partitionRunner.shutdown();
+		if(partitionRunner != null) {
+			partitionRunner.shutdown();
+		}
 	}
 
 	@Benchmark
