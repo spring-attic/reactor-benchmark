@@ -33,12 +33,14 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
+import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.Processors;
 import reactor.core.processor.BaseProcessor;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -138,12 +140,18 @@ public class ReactorComparison2 {
 
 	@Benchmark
 	public void rx() throws Exception {
-		PublishSubject.create();
+		Subject<Integer, Integer> s = PublishSubject.create();
+		for(int i = 0; i < subscribers; i++){
+			s.onBackpressureBuffer().subscribe(new LatchedRxObserver(null));
+		}
 	}
 
 	@Benchmark
 	public void rc() throws Exception {
-		Processors.emitter();
+		Processor<Integer, Integer> p = Processors.emitter();
+		for(int i = 0; i < subscribers; i++){
+			p.subscribe(new LatchedObserver(null));
+		}
 	}
 
 	static final class LatchedObserver implements Subscriber<Object> {
