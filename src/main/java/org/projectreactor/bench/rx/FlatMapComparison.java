@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = { "-Xmx1024m" })
 @State(Scope.Thread)
-public class ReactorComparison {
+public class FlatMapComparison {
 
     @Param({ "1000000" })
     public int times;

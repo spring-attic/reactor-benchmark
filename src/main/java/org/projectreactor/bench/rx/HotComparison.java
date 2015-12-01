@@ -48,7 +48,7 @@ import rx.subjects.Subject;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = {"-Xmx1024m"})
 @State(Scope.Thread)
-public class ReactorComparison2 {
+public class HotComparison {
 
 	@Param({ "1", "2", "4"})
 	public int subscribers;
