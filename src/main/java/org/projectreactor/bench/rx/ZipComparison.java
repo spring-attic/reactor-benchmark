@@ -71,8 +71,8 @@ public class ZipComparison {
 
 	ProcessorGroup<Object> processor;
 
-	static final Publisher<Integer>  p1 = Publishers.just(1);
-	static final Publisher<Integer>  p2 = Publishers.just(2);
+	static final Publisher<Integer>  p1 = Streams.just(1);//.map(d -> d);
+	static final Publisher<Integer>  p2 = Streams.just(2);//.map(d -> d);
 	static final Observable<Integer> o1 = Observable.just(1);
 	static final Observable<Integer> o2 = Observable.just(2);
 
@@ -84,7 +84,7 @@ public class ZipComparison {
 		rcJust = Publishers.zip(p1, p2, (t1, t2) -> t2);
 		rcRange = Publishers.zip(Streams.range(0, times), Streams.range(0, times), (t1, t2) -> t2);
 
-		processor = Processors.asyncGroup("processor", 1024 * 64, 1, null, null, false);
+		processor = Processors.asyncGroup("processor", 1024 * 64, 1, Throwable::printStackTrace, null, false);
 
 		rcJustAsync = Streams.wrap(rcJust).dispatchOn(processor);
 		rcRangeAsync = Streams.wrap(rcRange).dispatchOn(processor);
