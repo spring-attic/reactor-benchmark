@@ -22,10 +22,10 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import reactor.Subscribers;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
-import reactor.rx.action.terminal.ConsumerAction;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/jmh/InputWithIncrementingInteger.java
@@ -102,13 +102,12 @@ public abstract class InputWithIncrementingLong {
 	}
 
 	public Subscriber<Integer> newSubscriber() {
-		return new ConsumerAction<>(Long.MAX_VALUE, new Consumer<Integer>() {
+		return Subscribers.consumer(new Consumer<Integer>() {
 			@Override
-			public void accept(Integer t) {
-				bh.consume(t);
+			public void accept(Integer integer) {
+				bh.consume(integer);
 			}
-
-		}, null, null);
+		});
 	}
 
 	private static class IntegerSubscriber implements Subscriber<Integer> {
