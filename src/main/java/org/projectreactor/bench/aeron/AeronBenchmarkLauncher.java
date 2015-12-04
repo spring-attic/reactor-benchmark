@@ -19,23 +19,13 @@ package org.projectreactor.bench.aeron;
 /**
  * @author Anatoly Kadyshev
  */
-public class AeronProcessorBenchmarkLauncher {
+public class AeronBenchmarkLauncher {
 
 	private static final int N = 1_000_000;
 
-	public static final int SIGNAL_LENGTH_BYTES = 1024;
-
-	private static final String UNICAST_CHANNEL = "udp://127.0.0.1:12001";
-
-	private static final String MULTICAST_CHANNEL = "udp://224.0.0.251:12001";
-
-	private void run() throws Exception {
-		AeronBenchmark bench = new AeronProcessorBenchmark(N, SIGNAL_LENGTH_BYTES, MULTICAST_CHANNEL, false);
-		bench.runAndPrintResults();
-	}
-
 	public static void main(String[] args) throws Exception {
-		new AeronProcessorBenchmarkLauncher().run();
+		AeronBenchmark bench = new AeronBenchmark(N, 1024, false);
+		bench.runAndPrintResults();
 	}
 
 }

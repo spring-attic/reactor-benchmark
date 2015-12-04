@@ -16,14 +16,24 @@
 
 package org.projectreactor.bench.aeron;
 
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+import reactor.aeron.publisher.AeronPublisher;
+import reactor.aeron.subscriber.AeronSubscriber;
+import reactor.core.subscriber.test.TestSubscriber;
 import reactor.io.buffer.Buffer;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Anatoly Kadyshev
  */
-abstract public class AeronBenchmark {
+public class AeronBenchmark {
+
+	private static final int DELAY_MILLIS = 1000;
 
 	private final int n;
 
@@ -31,17 +41,21 @@ abstract public class AeronBenchmark {
 
 	private final boolean useSingleDriverInstance;
 
-	private static final int DELAY_MILLIS = 1000;
-
 	private AeronTestInfra serverInfra;
 
 	private AeronTestInfra clientInfra;
 
 	private Buffer[] buffers;
 
-	private SubscriberForBenchmark subscriber;
+	protected Subscriber<Buffer> subscriber;
 
-	private int i = 0;
+	protected Publisher<Buffer> publisher;
+
+	protected TestSubscriber testSubscriber;
+
+	private final CountDownLatch requestReceived = new CountDownLatch(1);
+
+	protected final AtomicLong demand = new AtomicLong(0);
 
 	public AeronBenchmark(int n, int signalLengthBytes, boolean useSingleDriverInstance) {
 		this.n = n;
@@ -58,96 +72,92 @@ abstract public class AeronBenchmark {
 	}
 
 	private void createClientSubscriberAndSubscribe() throws InterruptedException {
-		subscriber = new SubscriberForBenchmark();
-		doSubscribeClient(subscriber);
+		testSubscriber = TestSubscriber.createWithTimeoutSecs(5);
+		publisher.subscribe(testSubscriber);
 		Thread.sleep(DELAY_MILLIS);
 	}
 
-	protected abstract void doSubscribeClient(SubscriberForBenchmark clientSubscriber);
-
 	private void sendAndReceiveInitialSignals() throws InterruptedException {
-		doSendInitialSignal();
+		testSubscriber.request(1);
+
+		sendInitialSignal();
 
 		System.out.println("Initial signal sent");
-		if (!subscriber.awaitNextSignal(5000)) {
-			throw new IllegalStateException("The client didn't receive initial signal");
-		}
+
+		testSubscriber.assertNumNextSignalsReceived(1);
+
 		System.out.println("Initial signal received");
 	}
 
-	protected abstract void doSendInitialSignal();
+	protected void sendInitialSignal() {
+		try {
+			if (!requestReceived.await(5, TimeUnit.SECONDS)) {
+				throw new RuntimeException("No request received");
+			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		subscriber.onNext(Buffer.wrap("Hello, world!!!"));
+	}
 
 	private void launchClient() throws Exception {
 		if (useSingleDriverInstance) {
 			clientInfra = serverInfra;
 		} else {
-			clientInfra = new AeronTestInfra("client");
+			clientInfra = new AeronTestInfra("publisher");
 			clientInfra.initialize();
 		}
 
-		doLaunchClient(clientInfra);
-	}
+		publisher = AeronPublisher.create(clientInfra.newContext());
 
-	abstract protected void doLaunchClient(AeronTestInfra clientInfra);
+		Publisher<Buffer> publisher = new Publisher<Buffer>() {
+			@Override
+			public void subscribe(Subscriber<? super Buffer> s) {
+				s.onSubscribe(new Subscription() {
+					@Override
+					public void request(long n) {
+						System.out.printf("[%s] - upstream subscription.request: %d\n",
+								Thread.currentThread().getName(), n);
+
+						demand.addAndGet(n);
+						requestReceived.countDown();
+					}
+
+					@Override
+					public void cancel() {
+					}
+				});
+			}
+		};
+		publisher.subscribe(subscriber);
+	}
 
 	private void launchServer() throws Exception {
-		serverInfra = new AeronTestInfra("server");
+		serverInfra = new AeronTestInfra("subscriber");
 		serverInfra.initialize();
 
-		doLaunchServer(serverInfra);
-	}
-
-	abstract protected void doLaunchServer(AeronTestInfra serverInfra);
-
-	public void tearDownServer() throws Exception {
-		doTearDownServer();
+		subscriber = AeronSubscriber.create(serverInfra.newContext());
 		Thread.sleep(DELAY_MILLIS);
-
-		serverInfra.shutdown();
 	}
 
-	abstract protected void doTearDownServer();
+	public void tearDown() throws Exception {
+		subscriber.onComplete();
 
-	public void tearDownClient() throws Exception {
-		doTearDownClient();
 		Thread.sleep(DELAY_MILLIS);
 
 		if (clientInfra != serverInfra) {
 			clientInfra.shutdown();
 		}
-	}
+		Thread.sleep(DELAY_MILLIS);
 
-	abstract protected void doTearDownClient();
-
-	public void tearDown() throws Exception {
-		awaitTillAllEventsAreReceived();
-
-		tearDownClient();
-		tearDownServer();
-	}
-
-	public void awaitTillAllEventsAreReceived() throws InterruptedException {
-		System.out.println("Signals received: " + subscriber.getAndResetNextSignalCounter());
-
-		do {
-			Thread.sleep(100);
-		} while (subscriber.getAndResetNextSignalCounter() > 0);
-	}
-
-	public void onNext() {
-		doOnNext(buffers[i++]);
-	}
-
-	abstract protected void doOnNext(Buffer buffer);
-
-	public int getNEventsReceived() {
-		return subscriber.getNextSignalCounter();
+		serverInfra.shutdown();
 	}
 
 	public void runAndPrintResults() throws Exception {
 		setup();
 
 		long start = System.nanoTime();
+		testSubscriber.request(n);
 		sendAllSignals();
 		awaitAllSignalsAreReceived();
 		long durationMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
@@ -168,25 +178,36 @@ abstract public class AeronBenchmark {
 
 	private void awaitAllSignalsAreReceived() {
 		long spinStart = System.nanoTime();
-		while (getNEventsReceived() < n) {
+		while (testSubscriber.getNumNextSignalsReceived() < n + 1) {
 			if (System.nanoTime() - spinStart >= TimeUnit.SECONDS.toNanos(1)) {
-				System.out.println("Waiting for all signals, received: " + getNEventsReceived());
+				System.out.println("Waiting for all signals, received: " + testSubscriber.getNumNextSignalsReceived());
 				spinStart = System.nanoTime();
 			}
 		}
 	}
 
 	private void sendAllSignals() {
-		for(int i = 0; i < n; i++) {
+		int to = 0;
+		int from;
+		do {
+			from = to;
+			to = (int) Math.min(demand.get() - 1, n);
 
-			if (i % 100_000 == 0) {
-				int nSignalsReceived = subscriber.getNextSignalCounter();
-				System.out.printf("Signals sent: %d, received: %d, completed: %.0f%%%n",
-						i, nSignalsReceived, (double) nSignalsReceived / n * 100);
+			for (int i = from; i < to; i++) {
+
+				if (i % 100_000 == 0) {
+					long numSignalsReceived = testSubscriber.getNumNextSignalsReceived();
+					System.out.printf("Signals sent: %d, received: %d, completed: %.0f%%%n",
+							i, numSignalsReceived, (double) numSignalsReceived / n * 100);
+				}
+
+				try {
+					subscriber.onNext(buffers[i]);
+				} catch (Exception e) {
+					System.out.println("from="+from+",to="+to+",demand="+demand.get());
+				}
 			}
-
-			onNext();
-		}
+		} while(to < n);
 	}
 
 }
