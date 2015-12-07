@@ -88,9 +88,8 @@ class AeronTestInfra {
 	public Context newContext() {
 		return new Context()
 				.name(name)
-				.launchEmbeddedMediaDriver(false)
-				.publicationLingerTimeoutMillis(250)
-				.publicationTimeoutMillis(500)
+				.publicationLingerMillis(250)
+				.publicationRetryMillis(500)
 				.ringBufferSize(128 * 1024)
 				.aeron(aeron);
 	}
