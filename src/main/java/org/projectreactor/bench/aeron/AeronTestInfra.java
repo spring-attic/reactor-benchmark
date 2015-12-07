@@ -16,7 +16,7 @@
 
 package org.projectreactor.bench.aeron;
 
-import reactor.aeron.processor.Context;
+import reactor.aeron.Context;
 import uk.co.real_logic.aeron.Aeron;
 import uk.co.real_logic.aeron.driver.MediaDriver;
 import uk.co.real_logic.aeron.driver.ThreadingMode;
@@ -44,14 +44,14 @@ class AeronTestInfra {
 
 	Aeron createAeron(MediaDriver mediaDriver) {
 		Aeron.Context context = new Aeron.Context();
-		context.dirName(mediaDriver.contextDirName());
+		context.aeronDirectoryName(mediaDriver.aeronDirectoryName());
 		return Aeron.connect(context);
 	}
 
 	MediaDriver launchMediaDriver() throws Exception {
 		driverContext.threadingMode(ThreadingMode.SHARED);
 		String dirName = Files.createTempDirectory("aeron-").toString();
-		driverContext.dirName(dirName);
+		driverContext.aeronDirectoryName(dirName);
 		MediaDriver mediaDriver = MediaDriver.launch(driverContext);
 
 		AeronStatPrinter statPrinter = new AeronStatPrinter(name);
@@ -88,9 +88,8 @@ class AeronTestInfra {
 	public Context newContext() {
 		return new Context()
 				.name(name)
-				.launchEmbeddedMediaDriver(false)
-				.publicationLingerTimeoutMillis(250)
-				.publicationTimeoutMillis(500)
+				.publicationLingerMillis(250)
+				.publicationRetryMillis(500)
 				.ringBufferSize(128 * 1024)
 				.aeron(aeron);
 	}
