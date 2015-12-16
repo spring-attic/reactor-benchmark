@@ -51,7 +51,7 @@ public class AeronBenchmark {
 
 	protected Publisher<Buffer> publisher;
 
-	protected TestSubscriber testSubscriber;
+	protected TestSubscriber<String> testSubscriber;
 
 	private final CountDownLatch requestReceived = new CountDownLatch(1);
 
