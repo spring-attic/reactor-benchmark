@@ -88,7 +88,6 @@ class AeronTestInfra {
 	public Context newContext() {
 		return new Context()
 				.name(name)
-				.publicationLingerMillis(250)
 				.publicationRetryMillis(500)
 				.ringBufferSize(128 * 1024)
 				.aeron(aeron);
