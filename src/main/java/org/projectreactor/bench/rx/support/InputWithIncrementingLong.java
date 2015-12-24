@@ -19,10 +19,10 @@ import java.util.Iterator;
 
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.Subscribers;
+import reactor.core.subscription.ReactiveSession;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
@@ -48,10 +48,9 @@ public abstract class InputWithIncrementingLong {
 		this.bh = bh;
 		observable = Streams.range(0, getSize());
 
-		firehose = Streams.withOverflowSupport(new Publisher<Long>() {
-
+		firehose = Streams.yield(new Consumer<ReactiveSession<Long>>() {
 			@Override
-			public void subscribe(Subscriber<? super Long> s) {
+			public void accept(ReactiveSession<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
 					s.onNext(i);
 				}
