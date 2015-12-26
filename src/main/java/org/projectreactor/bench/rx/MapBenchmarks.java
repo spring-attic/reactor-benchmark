@@ -25,7 +25,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
-import reactor.core.publisher.operator.MapOperator;
+import reactor.core.publisher.PublisherMap;
 import reactor.fn.Function;
 import reactor.rx.Streams;
 
@@ -43,18 +43,11 @@ public class MapBenchmarks {
 		public int getSize() {
 			return size;
 		}
-
-		public MapOperator<Integer, Integer> map;
-
-		@Override
-		protected void postSetup() {
-			map = new MapOperator<>(IDENTITY_FUNCTION);
-		}
 	}
 
 	@Benchmark
 	public void mapPassThruViaConnect(Input input) throws InterruptedException {
-		input.observable.lift(input.map).subscribe(input.observer);
+		new PublisherMap<>(input.observable, IDENTITY_FUNCTION).subscribe(input.observer);
 	}
 
 	@Benchmark
