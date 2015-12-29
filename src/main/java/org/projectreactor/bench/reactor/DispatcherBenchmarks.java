@@ -16,7 +16,20 @@
 
 package org.projectreactor.bench.reactor;
 
-import org.openjdk.jmh.annotations.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -24,10 +37,7 @@ import reactor.Processors;
 import reactor.bus.Event;
 import reactor.core.processor.RingBufferProcessor;
 import reactor.core.processor.RingBufferWorkProcessor;
-import reactor.core.support.wait.YieldingWaitStrategy;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import reactor.core.support.WaitStrategy;
 
 /**
  * @author Jon Brisbin
@@ -56,13 +66,13 @@ public class DispatcherBenchmarks {
 		ringBufferDispatcher = RingBufferProcessor.create(
 		  "ringBufferDispatcher",
 		  BACKLOG,
-		  new YieldingWaitStrategy()
+		  new WaitStrategy.Yielding()
 		);
 
 		workQueueDispatcher = RingBufferWorkProcessor.create(
 		  "workQueueDispatcher",
 		  BACKLOG,
-		  new YieldingWaitStrategy()
+		  new WaitStrategy.Yielding()
 		);
 
 		Subscriber<Event<?>> sharedCounter = new Subscriber<Event<?>>() {
