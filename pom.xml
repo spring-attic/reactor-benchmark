@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<reactor.version>2.1.0.BUILD-SNAPSHOT</reactor.version>
+		<reactor.version>2.5.0.BUILD-SNAPSHOT</reactor.version>
 		<reactor.data.version>1.0.0.BUILD-SNAPSHOT</reactor.data.version>
         <jmh.version>1.11.1</jmh.version>
 	</properties>
