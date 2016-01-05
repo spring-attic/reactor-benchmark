@@ -36,8 +36,8 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import reactor.Flux;
 import reactor.Processors;
-import reactor.Publishers;
 import reactor.core.processor.ProcessorGroup;
 import reactor.rx.Streams;
 import rx.Observable;
@@ -81,8 +81,8 @@ public class ZipComparison {
 		//  Timers.global();
 
 
-		rcJust = Publishers.zip(p1, p2, (t1, t2) -> t2);
-		rcRange = Publishers.zip(Streams.range(0, times), Streams.range(0, times), (t1, t2) -> t2);
+		rcJust = Flux.zip(p1, p2, (t1, t2) -> t2);
+		rcRange = Flux.zip(Streams.range(0, times), Streams.range(0, times), (t1, t2) -> t2);
 
 		processor = Processors.asyncGroup("processor", 1024 * 64, 1, Throwable::printStackTrace, null, false);
 
@@ -119,7 +119,7 @@ public class ZipComparison {
 
 	@Benchmark
 	public void rc(Blackhole bh) {
-		Publishers.zip(p1, p2, (t1, t2) -> t2).subscribe(createObserver(bh));
+		Flux.zip(p1, p2, (t1, t2) -> t2).subscribe(createObserver(bh));
 	}
 
 	@Benchmark

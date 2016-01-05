@@ -16,18 +16,28 @@
 
 package org.projectreactor.bench.rx;
 
-import org.openjdk.jmh.annotations.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OperationsPerInvocation;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
 import reactor.Processors;
 import reactor.core.processor.ProcessorGroup;
 import reactor.core.processor.RingBufferProcessor;
-import reactor.core.processor.RingBufferWorkProcessor;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
 import reactor.rx.broadcast.Broadcaster;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Jon Brisbin
@@ -72,9 +82,10 @@ public class StreamBenchmarks {
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
-						  w -> System.out.println("complete test-w"));
+						  () -> System.out.println("complete test-w"));
 
-				partitionRunner = Processors.asyncGroup("test", 1024, 2, null, v -> System.out.println("complete test inner"));
+				partitionRunner = Processors.asyncGroup("test", 1024, 2, null, () -> System.out.println("complete test" +
+					" inner"));
 
 				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().get());
 				Streams.wrap(mapManydeferred)
@@ -83,7 +94,7 @@ public class StreamBenchmarks {
 					.dispatchOn(partitionRunner)
 					.map(i -> i)
 					.consume(i -> latch.countDown(), Throwable::printStackTrace,
-							w -> System.out.println("complete test")));
+							() -> System.out.println("complete test")));
 
 				break;
 

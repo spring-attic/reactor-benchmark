@@ -95,7 +95,7 @@ public class StreamBatchingBenchmarks {
 						  }
 						  for (CountDownLatch latch : batch) latch.countDown();
 
-					  }, null, nothing -> latch.countDown())
+					  }, null, () -> latch.countDown())
 				);
 	}
 

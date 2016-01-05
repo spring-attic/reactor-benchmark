@@ -24,9 +24,7 @@ import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
 import reactor.Processors;
-import reactor.Publishers;
 import reactor.core.processor.ProcessorGroup;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
 
 /**

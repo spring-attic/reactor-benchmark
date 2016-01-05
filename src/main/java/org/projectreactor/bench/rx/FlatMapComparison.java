@@ -15,6 +15,9 @@
  */
 package org.projectreactor.bench.rx;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -32,15 +35,10 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import reactor.Flux;
 import reactor.Processors;
-import reactor.Publishers;
-import reactor.Timers;
 import reactor.core.processor.ProcessorGroup;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -74,7 +72,7 @@ public class FlatMapComparison {
 //        rxJustAsync = rxJust.observeOn(Schedulers.single());
 //        rxRangeAsync = rxRange.observeOn(Schedulers.single());
 
-        rcJust = Streams.range(0, times).flatMap(Publishers::just);
+        rcJust = Streams.range(0, times).flatMap(Flux::just);
         rcRange = Streams.range(0, times).flatMap(v -> Streams.range(v, 2));
 
         processor = Processors.asyncGroup("processor", 1024 * 64, 1, null, null, false);
