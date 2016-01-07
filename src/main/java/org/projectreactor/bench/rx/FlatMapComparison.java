@@ -77,8 +77,8 @@ public class FlatMapComparison {
 
         processor = Processors.asyncGroup("processor", 1024 * 64, 1, null, null, false);
 
-        rcJustAsync = Streams.wrap(rcJust).dispatchOn(processor);
-        rcRangeAsync = Streams.wrap(rcRange).dispatchOn(processor);
+        rcJustAsync = Streams.from(rcJust).dispatchOn(processor);
+        rcRangeAsync = Streams.from(rcRange).dispatchOn(processor);
     }
 
     @TearDown(Level.Iteration)

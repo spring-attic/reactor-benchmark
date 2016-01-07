@@ -78,7 +78,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 
-				Streams.wrap(deferred)
+				Streams.from(deferred)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
@@ -88,7 +88,7 @@ public class StreamBenchmarks {
 					" inner"));
 
 				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().get());
-				Streams.wrap(mapManydeferred)
+				Streams.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
 					.dispatchOn(partitionRunner)
@@ -104,13 +104,13 @@ public class StreamBenchmarks {
 				  ProcessorGroup.sync();
 
 				deferred = Broadcaster.from(deferredDispatcher.get());
-				Streams.wrap(deferred)
+				Streams.from(deferred)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown());
 
 				mapManydeferred = Broadcaster.from(deferredDispatcher.get());
-				Streams.wrap(mapManydeferred)
+				Streams.from(mapManydeferred)
 				  .flatMap(Streams::just)
 				  .consume(i -> latch.countDown());
 		}
