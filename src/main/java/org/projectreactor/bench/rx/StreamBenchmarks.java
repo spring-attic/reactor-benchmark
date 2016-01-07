@@ -36,7 +36,7 @@ import org.reactivestreams.Processor;
 import reactor.Processors;
 import reactor.core.processor.ProcessorGroup;
 import reactor.core.processor.RingBufferProcessor;
-import reactor.rx.Streams;
+import reactor.rx.Stream;
 import reactor.rx.broadcast.Broadcaster;
 
 /**
@@ -78,7 +78,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 
-				Streams.from(deferred)
+				Stream.from(deferred)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
@@ -88,7 +88,7 @@ public class StreamBenchmarks {
 					" inner"));
 
 				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().get());
-				Streams.from(mapManydeferred)
+				Stream.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
 					.dispatchOn(partitionRunner)
@@ -104,14 +104,14 @@ public class StreamBenchmarks {
 				  ProcessorGroup.sync();
 
 				deferred = Broadcaster.from(deferredDispatcher.get());
-				Streams.from(deferred)
+				Stream.from(deferred)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown());
 
 				mapManydeferred = Broadcaster.from(deferredDispatcher.get());
-				Streams.from(mapManydeferred)
-				  .flatMap(Streams::just)
+				Stream.from(mapManydeferred)
+				  .flatMap(Stream::just)
 				  .consume(i -> latch.countDown());
 		}
 

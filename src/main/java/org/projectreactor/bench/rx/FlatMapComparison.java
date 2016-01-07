@@ -38,7 +38,7 @@ import org.reactivestreams.Subscription;
 import reactor.Flux;
 import reactor.Processors;
 import reactor.core.processor.ProcessorGroup;
-import reactor.rx.Streams;
+import reactor.rx.Stream;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -72,13 +72,13 @@ public class FlatMapComparison {
 //        rxJustAsync = rxJust.observeOn(Schedulers.single());
 //        rxRangeAsync = rxRange.observeOn(Schedulers.single());
 
-        rcJust = Streams.range(0, times).flatMap(Flux::just);
-        rcRange = Streams.range(0, times).flatMap(v -> Streams.range(v, 2));
+        rcJust = Stream.range(0, times).flatMap(Flux::just);
+        rcRange = Stream.range(0, times).flatMap(v -> Stream.range(v, 2));
 
         processor = Processors.asyncGroup("processor", 1024 * 64, 1, null, null, false);
 
-        rcJustAsync = Streams.from(rcJust).dispatchOn(processor);
-        rcRangeAsync = Streams.from(rcRange).dispatchOn(processor);
+        rcJustAsync = Stream.from(rcJust).dispatchOn(processor);
+        rcRangeAsync = Stream.from(rcRange).dispatchOn(processor);
     }
 
     @TearDown(Level.Iteration)

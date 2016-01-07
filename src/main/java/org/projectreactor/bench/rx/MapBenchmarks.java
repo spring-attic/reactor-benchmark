@@ -27,7 +27,7 @@ import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import reactor.core.publisher.FluxMap;
 import reactor.fn.Function;
-import reactor.rx.Streams;
+import reactor.rx.Stream;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -52,7 +52,7 @@ public class MapBenchmarks {
 
 	@Benchmark
 	public void mapInstance(Input input) {
-		Streams.just(1).map(IDENTITY_FUNCTION);
+		Stream.just(1).map(IDENTITY_FUNCTION);
 	}
 
 	@Benchmark

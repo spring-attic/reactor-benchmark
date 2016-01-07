@@ -25,7 +25,7 @@ import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
 import reactor.Processors;
 import reactor.core.processor.ProcessorGroup;
-import reactor.rx.Streams;
+import reactor.rx.Stream;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/operators/OperatorMergePerf.java
@@ -37,8 +37,8 @@ public class MergeBenchmarks {
 	@Benchmark
 	public void merge1StreamOfN(final Input input) throws InterruptedException {
 		Publisher<Integer> stream =
-				Streams.just(1)
-						.flatMap(i -> Streams.range(0, input.size));
+				Stream.just(1)
+						.flatMap(i -> Stream.range(0, input.size));
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
@@ -48,8 +48,8 @@ public class MergeBenchmarks {
 	@Benchmark
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
 		Publisher<Integer> stream =
-		  Streams.just(1)
-			.flatMap(i -> Streams.range(0, input.size).dispatchOn(input.processor))
+		  Stream.just(1)
+			.flatMap(i -> Stream.range(0, input.size).dispatchOn(input.processor))
 		;
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();

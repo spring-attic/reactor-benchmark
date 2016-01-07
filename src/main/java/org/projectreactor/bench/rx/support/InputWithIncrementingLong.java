@@ -25,7 +25,6 @@ import reactor.Subscribers;
 import reactor.core.subscription.ReactiveSession;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
-import reactor.rx.Streams;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/jmh/InputWithIncrementingInteger.java
@@ -46,9 +45,9 @@ public abstract class InputWithIncrementingLong {
 	@Setup
 	public void setup(final Blackhole bh) {
 		this.bh = bh;
-		observable = Streams.range(0, getSize());
+		observable = Stream.range(0, getSize());
 
-		firehose = Streams.yield(new Consumer<ReactiveSession<Long>>() {
+		firehose = Stream.yield(new Consumer<ReactiveSession<Long>>() {
 			@Override
 			public void accept(ReactiveSession<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
