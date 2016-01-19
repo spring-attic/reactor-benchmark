@@ -34,8 +34,8 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
-import reactor.core.publisher.TopicProcessor;
-import reactor.core.publisher.WorkQueueProcessor;
+import reactor.core.publisher.ProcessorTopic;
+import reactor.core.publisher.ProcessorWorkQueue;
 
 import static reactor.bus.selector.Selectors.$;
 
@@ -64,10 +64,10 @@ public class EventBusBenchmarks {
 	public void setup() {
 		switch(dispatcher){
 			case "ringBuffer":
-				reactor = EventBus.create(TopicProcessor.create());
+				reactor = EventBus.create(ProcessorTopic.create());
 				break;
 			case "workQueue":
-				reactor = EventBus.create(WorkQueueProcessor.create(), 4);
+				reactor = EventBus.create(ProcessorWorkQueue.create(), 4);
 				break;
 			default:
 				reactor = EventBus.create();
