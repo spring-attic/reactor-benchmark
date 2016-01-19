@@ -38,7 +38,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.Flux;
 import reactor.Processors;
-import reactor.core.processor.ProcessorGroup;
+import reactor.core.publisher.ProcessorGroup;
 import reactor.rx.Stream;
 import rx.Observable;
 import rx.schedulers.Schedulers;

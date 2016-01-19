@@ -1,14 +1,27 @@
 package org.projectreactor.bench.rx;
 
-import org.openjdk.jmh.annotations.*;
-import reactor.Processors;
-import reactor.Timers;
-import reactor.core.processor.ProcessorGroup;
-import reactor.rx.broadcast.Broadcaster;
-
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OperationsPerInvocation;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Warmup;
+import reactor.Processors;
+import reactor.Timers;
+import reactor.core.publisher.ProcessorGroup;
+import reactor.rx.broadcast.Broadcaster;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d

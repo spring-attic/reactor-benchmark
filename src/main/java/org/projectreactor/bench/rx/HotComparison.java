@@ -37,7 +37,7 @@ import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.Processors;
-import reactor.core.processor.FluxProcessor;
+import reactor.core.publisher.FluxProcessor;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;

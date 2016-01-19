@@ -34,8 +34,8 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
 import reactor.Processors;
-import reactor.core.processor.ProcessorGroup;
-import reactor.core.processor.RingBufferProcessor;
+import reactor.core.publisher.ProcessorGroup;
+import reactor.core.publisher.TopicProcessor;
 import reactor.rx.Stream;
 import reactor.rx.broadcast.Broadcaster;
 
@@ -69,7 +69,7 @@ public class StreamBenchmarks {
 	public void setup() {
 		switch (dispatcher) {
 			case "raw":
-				deferred = Broadcaster.from(RingBufferProcessor.create("test-w", 2048));
+				deferred = Broadcaster.from(TopicProcessor.create("test-w", 2048));
 				/*deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
