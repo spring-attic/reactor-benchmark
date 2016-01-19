@@ -18,9 +18,9 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
-import reactor.Processors;
-import reactor.Timers;
 import reactor.core.publisher.ProcessorGroup;
+import reactor.core.publisher.Processors;
+import reactor.core.timer.Timers;
 import reactor.rx.broadcast.Broadcaster;
 
 /**

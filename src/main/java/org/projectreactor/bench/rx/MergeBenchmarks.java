@@ -23,8 +23,8 @@ import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
-import reactor.Processors;
 import reactor.core.publisher.ProcessorGroup;
+import reactor.core.publisher.Processors;
 import reactor.rx.Stream;
 
 /**

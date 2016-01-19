@@ -15,14 +15,6 @@
  */
 package org.projectreactor.bench.aeron;
 
-import reactor.Timers;
-import reactor.fn.Consumer;
-import uk.co.real_logic.aeron.CncFileDescriptor;
-import uk.co.real_logic.agrona.DirectBuffer;
-import uk.co.real_logic.agrona.IoUtil;
-import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
-import uk.co.real_logic.agrona.concurrent.CountersManager;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,6 +22,14 @@ import java.io.PrintStream;
 import java.nio.MappedByteBuffer;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import reactor.core.timer.Timers;
+import reactor.fn.Consumer;
+import uk.co.real_logic.aeron.CncFileDescriptor;
+import uk.co.real_logic.agrona.DirectBuffer;
+import uk.co.real_logic.agrona.IoUtil;
+import uk.co.real_logic.agrona.concurrent.AtomicBuffer;
+import uk.co.real_logic.agrona.concurrent.CountersManager;
 
 /**
  * Based on <a href="https://github.com/real-logic/Aeron/blob/master/aeron-samples/src/main/java/uk/co/real_logic/aeron/samples/AeronStat.java">AeronStat.java from Aeron</a>

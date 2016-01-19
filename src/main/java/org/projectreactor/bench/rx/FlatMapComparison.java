@@ -35,9 +35,9 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.Flux;
-import reactor.Processors;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.ProcessorGroup;
+import reactor.core.publisher.Processors;
 import reactor.rx.Stream;
 
 @BenchmarkMode(Mode.Throughput)
