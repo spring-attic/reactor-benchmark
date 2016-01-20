@@ -25,9 +25,9 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
-import reactor.core.publisher.FluxMap;
 import reactor.fn.Function;
 import reactor.rx.Stream;
+import reactor.rx.stream.StreamMap;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -47,7 +47,7 @@ public class MapBenchmarks {
 
 	@Benchmark
 	public void mapPassThruViaConnect(Input input) throws InterruptedException {
-		new FluxMap<>(input.observable, IDENTITY_FUNCTION).subscribe(input.observer);
+		new StreamMap<>(input.observable, IDENTITY_FUNCTION).subscribe(input.observer);
 	}
 
 	@Benchmark
