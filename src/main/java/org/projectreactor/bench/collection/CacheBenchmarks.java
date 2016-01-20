@@ -16,20 +16,30 @@
 
 package org.projectreactor.bench.collection;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.gs.collections.api.multimap.list.MutableListMultimap;
-import com.gs.collections.impl.multimap.list.FastListMultimap;
-import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
-import reactor.core.support.Assert;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.gs.collections.api.multimap.list.MutableListMultimap;
+import com.gs.collections.impl.multimap.list.FastListMultimap;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.infra.Blackhole;
+import reactor.core.util.Assert;
 
 /**
  * @author Jon Brisbin

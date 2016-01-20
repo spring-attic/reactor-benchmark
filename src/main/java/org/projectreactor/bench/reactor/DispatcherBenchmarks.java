@@ -37,7 +37,7 @@ import reactor.bus.Event;
 import reactor.core.publisher.ProcessorTopic;
 import reactor.core.publisher.ProcessorWorkQueue;
 import reactor.core.publisher.Processors;
-import reactor.core.support.WaitStrategy;
+import reactor.core.util.WaitStrategy;
 
 /**
  * @author Jon Brisbin
