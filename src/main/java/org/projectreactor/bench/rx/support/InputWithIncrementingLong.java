@@ -21,8 +21,8 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import reactor.core.subscriber.ReactiveSession;
 import reactor.core.subscriber.Subscribers;
-import reactor.core.subscription.ReactiveSession;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
 
