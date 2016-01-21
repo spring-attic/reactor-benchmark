@@ -16,18 +16,17 @@
 
 package org.projectreactor.bench.aeron;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.aeron.publisher.AeronPublisher;
 import reactor.aeron.subscriber.AeronSubscriber;
 import reactor.core.subscriber.test.TestSubscriber;
-import reactor.io.IO;
 import reactor.io.buffer.Buffer;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Anatoly Kadyshev
@@ -74,7 +73,7 @@ public class AeronBenchmark {
 
 	private void createClientSubscriberAndSubscribe() throws InterruptedException {
 		testSubscriber = TestSubscriber.createWithTimeoutSecs(5);
-		IO.bufferToString(publisher).subscribe(testSubscriber);
+		Buffer.bufferToString(publisher).subscribe(testSubscriber);
 		Thread.sleep(DELAY_MILLIS);
 	}
 
