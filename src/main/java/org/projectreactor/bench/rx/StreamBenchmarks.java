@@ -37,7 +37,7 @@ import reactor.core.publisher.ProcessorGroup;
 import reactor.core.publisher.ProcessorTopic;
 import reactor.core.publisher.Processors;
 import reactor.rx.Stream;
-import reactor.rx.broadcast.Broadcaster;
+import reactor.rx.Broadcaster;
 
 /**
  * @author Jon Brisbin

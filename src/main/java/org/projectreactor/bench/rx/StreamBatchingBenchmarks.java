@@ -21,7 +21,7 @@ import org.openjdk.jmh.annotations.Warmup;
 import reactor.core.publisher.ProcessorGroup;
 import reactor.core.publisher.Processors;
 import reactor.core.timer.Timers;
-import reactor.rx.broadcast.Broadcaster;
+import reactor.rx.Broadcaster;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d

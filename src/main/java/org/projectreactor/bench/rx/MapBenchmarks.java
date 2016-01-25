@@ -27,7 +27,6 @@ import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import reactor.fn.Function;
 import reactor.rx.Stream;
-import reactor.rx.stream.StreamMap;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -43,11 +42,6 @@ public class MapBenchmarks {
 		public int getSize() {
 			return size;
 		}
-	}
-
-	@Benchmark
-	public void mapPassThruViaConnect(Input input) throws InterruptedException {
-		new StreamMap<>(input.observable, IDENTITY_FUNCTION).subscribe(input.observer);
 	}
 
 	@Benchmark
