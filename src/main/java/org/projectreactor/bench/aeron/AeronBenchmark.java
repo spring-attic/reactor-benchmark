@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2011-2016 Pivotal Software, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 Pivotal Software Inc, All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.aeron.publisher.AeronPublisher;
 import reactor.aeron.subscriber.AeronSubscriber;
-import reactor.core.subscriber.test.TestSubscriber;
+import reactor.core.test.TestSubscriber;
 import reactor.io.buffer.Buffer;
 
 /**
@@ -72,7 +72,7 @@ public class AeronBenchmark {
 	}
 
 	private void createClientSubscriberAndSubscribe() throws InterruptedException {
-		testSubscriber = TestSubscriber.createWithTimeoutSecs(5);
+		testSubscriber = new TestSubscriber<String>(5).configureValuesStorage(false);
 		Buffer.bufferToString(publisher).subscribe(testSubscriber);
 		Thread.sleep(DELAY_MILLIS);
 	}
@@ -84,7 +84,7 @@ public class AeronBenchmark {
 
 		System.out.println("Initial signal sent");
 
-		testSubscriber.assertNumNextSignalsReceived(1);
+		testSubscriber.assertValueCount(1);
 
 		System.out.println("Initial signal received");
 	}
