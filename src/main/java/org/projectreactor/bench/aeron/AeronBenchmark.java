@@ -177,13 +177,7 @@ public class AeronBenchmark {
 	}
 
 	private void awaitAllSignalsAreReceived() {
-		long spinStart = System.nanoTime();
-		while (testSubscriber.getNumNextSignalsReceived() < n + 1) {
-			if (System.nanoTime() - spinStart >= TimeUnit.SECONDS.toNanos(1)) {
-				System.out.println("Waiting for all signals, received: " + testSubscriber.getNumNextSignalsReceived());
-				spinStart = System.nanoTime();
-			}
-		}
+		testSubscriber.awaitAndAssertValueCount(n + 1);
 	}
 
 	private void sendAllSignals() {
@@ -196,9 +190,7 @@ public class AeronBenchmark {
 			for (int i = from; i < to; i++) {
 
 				if (i % 100_000 == 0) {
-					long numSignalsReceived = testSubscriber.getNumNextSignalsReceived();
-					System.out.printf("Signals sent: %d, received: %d, completed: %.0f%%%n",
-							i, numSignalsReceived, (double) numSignalsReceived / n * 100);
+					System.out.printf("Signals sent: %d", i);
 				}
 
 				try {
