@@ -21,7 +21,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.subscriber.ReactiveSession;
+import reactor.core.subscriber.SignalEmitter;
 import reactor.core.subscriber.Subscribers;
 import reactor.fn.Consumer;
 import reactor.rx.Stream;
@@ -47,9 +47,9 @@ public abstract class InputWithIncrementingLong {
 		this.bh = bh;
 		observable = Stream.range(0, getSize());
 
-		firehose = Stream.yield(new Consumer<ReactiveSession<Long>>() {
+		firehose = Stream.yield(new Consumer<SignalEmitter<Long>>() {
 			@Override
-			public void accept(ReactiveSession<Long> s) {
+			public void accept(SignalEmitter<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
 					s.onNext(i);
 				}
