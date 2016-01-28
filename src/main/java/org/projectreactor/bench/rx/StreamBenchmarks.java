@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
 import reactor.core.publisher.ProcessorGroup;
 import reactor.core.publisher.TopicProcessor;
-import reactor.core.publisher.Processors;
+;
 import reactor.rx.Stream;
 import reactor.rx.Broadcaster;
 
@@ -84,7 +84,7 @@ public class StreamBenchmarks {
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
-				partitionRunner = Processors.asyncGroup("test", 1024, 2, null, () -> System.out.println("complete test" +
+				partitionRunner = ProcessorGroup.async("test", 1024, 2, null, () -> System.out.println("complete test" +
 					" inner"));
 
 				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().get());
@@ -100,7 +100,7 @@ public class StreamBenchmarks {
 
 			default:
 				final ProcessorGroup<Integer> deferredDispatcher = dispatcher.equals("shared") ?
-				  Processors.asyncGroup() :
+				  ProcessorGroup.async() :
 				  ProcessorGroup.sync();
 
 				deferred = Broadcaster.from(deferredDispatcher.get());

@@ -38,7 +38,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.ProcessorGroup;
-import reactor.core.publisher.Processors;
+;
 import reactor.rx.Stream;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -84,7 +84,7 @@ public class ZipComparison {
 		rcJust = Flux.zip(p1, p2, (t1, t2) -> t2);
 		rcRange = Flux.zip(Stream.range(0, times), Stream.range(0, times), (t1, t2) -> t2);
 
-		processor = Processors.asyncGroup("processor", 1024 * 64, 1, Throwable::printStackTrace, null, false);
+		processor = ProcessorGroup.async("processor", 1024 * 64, 1, Throwable::printStackTrace, null, false);
 
 		rcJustAsync = Stream.from(rcJust).dispatchOn(processor);
 		rcRangeAsync = Stream.from(rcRange).dispatchOn(processor);
