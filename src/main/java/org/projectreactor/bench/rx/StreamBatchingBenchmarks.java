@@ -53,7 +53,7 @@ public class StreamBatchingBenchmarks {
 
 	@Setup
 	public void setup() {
-		Timers.global();
+		Timer.global();
 		generateStream();
 
 		//env.getRootTimer().schedule(i -> System.out.println(deferred.debug()), 200, TimeUnit.MILLISECONDS);

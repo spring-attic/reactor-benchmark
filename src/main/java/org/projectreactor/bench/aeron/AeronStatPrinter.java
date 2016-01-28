@@ -64,7 +64,7 @@ public class AeronStatPrinter {
 		final AtomicBuffer valuesBuffer = CncFileDescriptor.createCounterValuesBuffer(cncByteBuffer, metaDataBuffer);
 		final CountersManager countersManager = new CountersManager(labelsBuffer, valuesBuffer);
 
-		Timers.global().schedule(new Consumer<Long>() {
+		Timer.global().schedule(new Consumer<Long>() {
 			@Override
 			public void accept(Long aLong) {
 				try {
