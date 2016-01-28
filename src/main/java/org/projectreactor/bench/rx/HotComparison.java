@@ -84,14 +84,14 @@ public class HotComparison {
 			           .subscribe(new LatchedRxObserver(bh));
 		}
 
-		rcJust = Processors.emitter(256);
+		rcJust = EmitterProcessor.create(256);
 		for(int i = 0; i < subscribers; i++) {
 			rcJust.subscribe(new LatchedObserver(bh));
 		}
 		rcJust.start();
 
 		asyncObserver = new LatchedObserver(bh);
-		rcJustAsync = Processors.emitter(256);
+		rcJustAsync = EmitterProcessor.create(256);
 		rcJustAsync.subscribeWith(ProcessorGroup.single().get())
 		           .subscribe(asyncObserver);
 
@@ -148,7 +148,7 @@ public class HotComparison {
 
 	@Benchmark
 	public void rc() throws Exception {
-		Processor<Integer, Integer> p = Processors.emitter();
+		Processor<Integer, Integer> p = EmitterProcessor.create();
 		for(int i = 0; i < subscribers; i++){
 			p.subscribe(new LatchedObserver(null));
 		}
