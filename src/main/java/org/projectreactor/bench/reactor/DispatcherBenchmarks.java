@@ -66,13 +66,13 @@ public class DispatcherBenchmarks {
 		ringBufferDispatcher = ProcessorTopic.create(
 		  "ringBufferDispatcher",
 		  BACKLOG,
-		  new WaitStrategy.Yielding()
+		  WaitStrategy.yielding()
 		);
 
 		workQueueDispatcher = ProcessorWorkQueue.create(
 		  "workQueueDispatcher",
 		  BACKLOG,
-		  new WaitStrategy.Yielding()
+		  WaitStrategy.yielding()
 		);
 
 		Subscriber<Event<?>> sharedCounter = new Subscriber<Event<?>>() {
