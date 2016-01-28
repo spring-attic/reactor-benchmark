@@ -34,8 +34,8 @@ import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.bus.Event;
-import reactor.core.publisher.ProcessorTopic;
-import reactor.core.publisher.ProcessorWorkQueue;
+import reactor.core.publisher.TopicProcessor;
+import reactor.core.publisher.WorkQueueProcessor;
 import reactor.core.publisher.Processors;
 import reactor.core.util.WaitStrategy;
 
@@ -53,8 +53,8 @@ public class DispatcherBenchmarks {
 
 	static int BACKLOG = 2048;
 
-	ProcessorTopic<Event<?>>     ringBufferDispatcher;
-	ProcessorWorkQueue<Event<?>> workQueueDispatcher;
+	TopicProcessor<Event<?>>     ringBufferDispatcher;
+	WorkQueueProcessor<Event<?>> workQueueDispatcher;
 	Event<?>                          event;
 	AtomicLong                        counter;
 
@@ -63,13 +63,13 @@ public class DispatcherBenchmarks {
 		event = Event.wrap("Hello World!");
 		counter = new AtomicLong(0);
 
-		ringBufferDispatcher = ProcessorTopic.create(
+		ringBufferDispatcher = TopicProcessor.create(
 		  "ringBufferDispatcher",
 		  BACKLOG,
 		  WaitStrategy.yielding()
 		);
 
-		workQueueDispatcher = ProcessorWorkQueue.create(
+		workQueueDispatcher = WorkQueueProcessor.create(
 		  "workQueueDispatcher",
 		  BACKLOG,
 		  WaitStrategy.yielding()
