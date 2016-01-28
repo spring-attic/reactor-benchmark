@@ -19,8 +19,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import reactor.core.publisher.ProcessorGroup;
-;
-import reactor.core.timer.Timers;
+import reactor.core.timer.Timer;
 import reactor.rx.Broadcaster;
 
 /**

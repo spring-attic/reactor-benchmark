@@ -23,7 +23,7 @@ import java.nio.MappedByteBuffer;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import reactor.core.timer.Timers;
+import reactor.core.timer.Timer;
 import reactor.fn.Consumer;
 import uk.co.real_logic.aeron.CncFileDescriptor;
 import uk.co.real_logic.agrona.DirectBuffer;
