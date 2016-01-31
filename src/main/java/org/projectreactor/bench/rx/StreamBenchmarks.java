@@ -35,9 +35,8 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
 import reactor.core.publisher.ProcessorGroup;
 import reactor.core.publisher.TopicProcessor;
-;
-import reactor.rx.Stream;
 import reactor.rx.Broadcaster;
+import reactor.rx.Stream;
 
 /**
  * @author Jon Brisbin
@@ -63,7 +62,7 @@ public class StreamBenchmarks {
 	private int[]                       data;
 	private Processor<Integer, Integer> deferred;
 	private Processor<Integer, Integer> mapManydeferred;
-	private ProcessorGroup<Integer> partitionRunner;
+	private ProcessorGroup              partitionRunner;
 
 	@Setup
 	public void setup() {
@@ -87,7 +86,7 @@ public class StreamBenchmarks {
 				partitionRunner = ProcessorGroup.async("test", 1024, 2, null, () -> System.out.println("complete test" +
 					" inner"));
 
-				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().get());
+				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().processor());
 				Stream.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
@@ -99,17 +98,18 @@ public class StreamBenchmarks {
 				break;
 
 			default:
-				final ProcessorGroup<Integer> deferredDispatcher = dispatcher.equals("shared") ?
+				final ProcessorGroup deferredDispatcher = dispatcher.equals("shared") ?
 				  ProcessorGroup.async() :
 				  ProcessorGroup.sync();
 
-				deferred = Broadcaster.from(deferredDispatcher.get());
+				deferred = Broadcaster.from(ProcessorGroup.<Integer>sync().processor());
 				Stream.from(deferred)
-				  .map(i -> i)
-				  .scan(1, (last, next) -> last + next)
-				  .consume(i -> latch.countDown());
+				      .dispatchOn(deferredDispatcher)
+				      .map(i -> i)
+				      .scan(1, (last, next) -> last + next)
+				      .consume(i -> latch.countDown());
 
-				mapManydeferred = Broadcaster.from(deferredDispatcher.get());
+				mapManydeferred = Broadcaster.from(deferredDispatcher.processor());
 				Stream.from(mapManydeferred)
 				  .flatMap(Stream::just)
 				  .consume(i -> latch.countDown());

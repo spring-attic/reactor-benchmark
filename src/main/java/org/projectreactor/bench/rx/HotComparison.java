@@ -93,12 +93,12 @@ public class HotComparison {
 
 		asyncObserver = new LatchedObserver(bh);
 		rcJustAsync = EmitterProcessor.create(256);
-		rcJustAsync.subscribeWith(ProcessorGroup.single().get())
+		rcJustAsync.subscribeWith(ProcessorGroup.single().processor())
 		           .subscribe(asyncObserver);
 
 		for(int i = 1; i < subscribers; i++) {
 			rcJustAsync.subscribeWith(ProcessorGroup.single()
-			                              .get())
+			                              .processor())
 			           .subscribe(new LatchedObserver(bh));
 		}
 		rcJustAsync.start();

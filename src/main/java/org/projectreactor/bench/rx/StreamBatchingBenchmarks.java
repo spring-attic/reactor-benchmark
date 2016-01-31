@@ -86,7 +86,7 @@ public class StreamBatchingBenchmarks {
 
 
 		//((WaitingMood)deferred.getDispatcher()).nervous();
-		ProcessorGroup<CountDownLatch> dispatcherSupplier = ProcessorGroup.async("batch-stream", 2048, 9);
+		ProcessorGroup dispatcherSupplier = ProcessorGroup.async("batch-stream", 2048, 9);
 
 		deferred = Broadcaster.<CountDownLatch>create();
 		deferred

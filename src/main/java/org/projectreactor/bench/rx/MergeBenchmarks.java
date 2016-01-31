@@ -24,7 +24,6 @@ import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.ProcessorGroup;
-;
 import reactor.rx.Stream;
 
 /**
@@ -70,7 +69,7 @@ public class MergeBenchmarks {
 			return size;
 		}
 
-		public ProcessorGroup<Long> processor;
+		public ProcessorGroup processor;
 
 		@Param({"sync", "ringBuffer"})
 		public String dispatcherName;
