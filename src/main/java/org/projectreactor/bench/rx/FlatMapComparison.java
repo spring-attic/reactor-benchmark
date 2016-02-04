@@ -74,9 +74,10 @@ public class FlatMapComparison {
         rcJust = Stream.range(0, times).flatMap(Flux::just);
         rcRange = Stream.range(0, times).flatMap(v -> Stream.range(v, 2));
 
-        processor = SchedulerGroup.single("processor", 1024 * 32);
+        processor = SchedulerGroup.async("processor", 1024 * 32, 1, null, null, false);
 
-        rcJustAsync = Stream.range(0, times).flatMap(Flux::just).dispatchOn(processor);
+        rcJustAsync = Stream.range(0, times).flatMap(Flux::just)
+                            .dispatchOn(processor);
         rcRangeAsync = Stream.from(rcRange).dispatchOn(processor);
     }
 
