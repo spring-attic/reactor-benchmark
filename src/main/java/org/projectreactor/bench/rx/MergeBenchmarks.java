@@ -23,7 +23,7 @@ import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.ProcessorGroup;
+import reactor.core.publisher.SchedulerGroup;
 import reactor.rx.Stream;
 
 /**
@@ -69,14 +69,14 @@ public class MergeBenchmarks {
 			return size;
 		}
 
-		public ProcessorGroup processor;
+		public SchedulerGroup processor;
 
 		@Param({"sync", "ringBuffer"})
 		public String dispatcherName;
 
 		@Override
 		protected void postSetup() {
-			processor = "sync".equalsIgnoreCase(dispatcherName) ? ProcessorGroup.sync() : ProcessorGroup.async();
+			processor = "sync".equalsIgnoreCase(dispatcherName) ? SchedulerGroup.sync() : SchedulerGroup.async();
 		}
 	}
 }

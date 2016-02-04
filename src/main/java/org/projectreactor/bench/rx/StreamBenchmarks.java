@@ -33,7 +33,8 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
-import reactor.core.publisher.ProcessorGroup;
+import reactor.core.publisher.FluxProcessor;
+import reactor.core.publisher.SchedulerGroup;
 import reactor.core.publisher.TopicProcessor;
 import reactor.rx.Broadcaster;
 import reactor.rx.Stream;
@@ -62,7 +63,7 @@ public class StreamBenchmarks {
 	private int[]                       data;
 	private Processor<Integer, Integer> deferred;
 	private Processor<Integer, Integer> mapManydeferred;
-	private ProcessorGroup              partitionRunner;
+	private SchedulerGroup              partitionRunner;
 
 	@Setup
 	public void setup() {
@@ -83,10 +84,10 @@ public class StreamBenchmarks {
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
-				partitionRunner = ProcessorGroup.async("test", 1024, 2, null, () -> System.out.println("complete test" +
+				partitionRunner = SchedulerGroup.async("test", 1024, 2, null, () -> System.out.println("complete test" +
 					" inner"));
 
-				mapManydeferred = Broadcaster.from(ProcessorGroup.<Integer>sync().processor());
+				mapManydeferred = FluxProcessor.blocking();
 				Stream.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
@@ -98,18 +99,14 @@ public class StreamBenchmarks {
 				break;
 
 			default:
-				final ProcessorGroup deferredDispatcher = dispatcher.equals("shared") ?
-				  ProcessorGroup.async() :
-				  ProcessorGroup.sync();
-
-				deferred = Broadcaster.from(ProcessorGroup.<Integer>sync().processor());
+				deferred = dispatcher.equals("shared") ? Broadcaster.async(SchedulerGroup.async()) : Broadcaster.blocking();
 				Stream.from(deferred)
-				      .dispatchOn(deferredDispatcher)
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
 				      .consume(i -> latch.countDown());
 
-				mapManydeferred = Broadcaster.from(deferredDispatcher.processor());
+				mapManydeferred =
+						dispatcher.equals("shared") ? Broadcaster.async(SchedulerGroup.async()) : Broadcaster.blocking();
 				Stream.from(mapManydeferred)
 				  .flatMap(Stream::just)
 				  .consume(i -> latch.countDown());
