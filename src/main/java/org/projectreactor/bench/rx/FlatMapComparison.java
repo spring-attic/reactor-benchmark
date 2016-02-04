@@ -38,6 +38,8 @@ import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SchedulerGroup;
 import reactor.rx.Stream;
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -50,10 +52,10 @@ public class FlatMapComparison {
     @Param({ "1000000" })
     public int times;
 
-//    Observable<Integer> rxJust;
-//    Observable<Integer> rxRange;
-//    Observable<Integer> rxJustAsync;
-//    Observable<Integer> rxRangeAsync;
+    Observable<Integer> rxJust;
+    Observable<Integer> rxRange;
+    Observable<Integer> rxJustAsync;
+    Observable<Integer> rxRangeAsync;
 
     Publisher<Integer> rcJust;
     Publisher<Integer> rcRange;
@@ -65,16 +67,16 @@ public class FlatMapComparison {
     public void setup() {
       //  Timer.global();
 
-//        rxJust = Observable.range(0, times).flatMap(v -> Observable.just(1, v));
-//        rxRange = Observable.range(0, times).flatMap(v -> Observable.range(v, 2));
+        rxJust = Observable.range(0, times).flatMap(v -> Observable.just(1, v));
+        rxRange = Observable.range(0, times).flatMap(v -> Observable.range(v, 2));
 
-//        rxJustAsync = rxJust.observeOn(Schedulers.single());
-//        rxRangeAsync = rxRange.observeOn(Schedulers.single());
+        rxJustAsync = rxJust.observeOn(Schedulers.single());
+        rxRangeAsync = rxRange.observeOn(Schedulers.single());
 
         rcJust = Stream.range(0, times).flatMap(Flux::just);
         rcRange = Stream.range(0, times).flatMap(v -> Stream.range(v, 2));
 
-        processor = SchedulerGroup.async("processor", 1024 * 32, 1, null, null, false);
+        processor = SchedulerGroup.single("processor", 1024 * 32);
 
         rcJustAsync = Stream.range(0, times).flatMap(Flux::just).dispatchOn(processor);
         rcRangeAsync = Stream.from(rcRange).dispatchOn(processor);
@@ -85,15 +87,15 @@ public class FlatMapComparison {
         processor.shutdown();
     }
 
-//    @Benchmark
-//    public void rxJust(Blackhole bh) {
-//        rxJust.subscribe(createObserver(bh));
-//    }
-//
-//    @Benchmark
-//    public void rxRange(Blackhole bh) {
-//        rxRange.subscribe(createObserver(bh));
-//    }
+    @Benchmark
+    public void rxJust(Blackhole bh) {
+        rxJust.subscribe(createObserver(bh));
+    }
+
+    @Benchmark
+    public void rxRange(Blackhole bh) {
+        rxRange.subscribe(createObserver(bh));
+    }
 
     @Benchmark
     public void rcJust(Blackhole bh) {
@@ -105,19 +107,19 @@ public class FlatMapComparison {
         rcRange.subscribe(createObserver(bh));
     }
 
-//    @Benchmark
-//    public void rxJustAsync(Blackhole bh) throws Exception {
-//        LatchedObserver o = new LatchedObserver(bh);
-//        rxJustAsync.subscribe(o);
-//        o.cdl.await();
-//    }
-//
-//    @Benchmark
-//    public void rxRangeAsync(Blackhole bh) throws Exception {
-//        LatchedObserver o = new LatchedObserver(bh);
-//        rxRangeAsync.subscribe(o);
-//        o.cdl.await();
-//    }
+    @Benchmark
+    public void rxJustAsync(Blackhole bh) throws Exception {
+        LatchedObserver o = new LatchedObserver(bh);
+        rxJustAsync.subscribe(o);
+        o.cdl.await();
+    }
+
+    @Benchmark
+    public void rxRangeAsync(Blackhole bh) throws Exception {
+        LatchedObserver o = new LatchedObserver(bh);
+        rxRangeAsync.subscribe(o);
+        o.cdl.await();
+    }
 
     @Benchmark
     public void rcJustAsync(Blackhole bh) throws Exception {
