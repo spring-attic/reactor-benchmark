@@ -86,7 +86,7 @@ class AeronTestInfra {
 	}
 
 	public Context newContext() {
-		return new Context()
+		return Context.create()
 				.name(name)
 				.publicationRetryMillis(500)
 				.ringBufferSize(128 * 1024)

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.aeron.publisher.AeronPublisher;
+import reactor.aeron.publisher.AeronFlux;
 import reactor.aeron.subscriber.AeronSubscriber;
 import reactor.core.test.TestSubscriber;
 import reactor.io.buffer.Buffer;
@@ -72,7 +72,7 @@ public class AeronBenchmark {
 	}
 
 	private void createClientSubscriberAndSubscribe() throws InterruptedException {
-		testSubscriber = new TestSubscriber<String>(5).configureValuesStorage(false);
+		testSubscriber = new TestSubscriber<String>(0).configureValuesStorage(false).configureValuesTimeout(10);
 		Buffer.bufferToString(publisher).subscribe(testSubscriber);
 		Thread.sleep(DELAY_MILLIS);
 	}
@@ -84,7 +84,7 @@ public class AeronBenchmark {
 
 		System.out.println("Initial signal sent");
 
-		testSubscriber.assertValueCount(1);
+		testSubscriber.awaitAndAssertValueCount(1);
 
 		System.out.println("Initial signal received");
 	}
@@ -108,9 +108,19 @@ public class AeronBenchmark {
 			clientInfra.initialize();
 		}
 
-		publisher = AeronPublisher.create(clientInfra.newContext());
+		publisher = AeronFlux.listenOn(clientInfra.newContext()
+				.senderChannel("udp://localhost:12000")
+				.receiverChannel("udp://localhost:12001"));
+	}
 
-		Publisher<Buffer> publisher = new Publisher<Buffer>() {
+	private void launchServer() throws Exception {
+		serverInfra = new AeronTestInfra("subscriber");
+		serverInfra.initialize();
+
+		subscriber = AeronSubscriber.create(serverInfra.newContext()
+				.senderChannel("udp://localhost:12000"));
+
+		Publisher<Buffer> sourcePublisher = new Publisher<Buffer>() {
 			@Override
 			public void subscribe(Subscriber<? super Buffer> s) {
 				s.onSubscribe(new Subscription() {
@@ -129,14 +139,8 @@ public class AeronBenchmark {
 				});
 			}
 		};
-		publisher.subscribe(subscriber);
-	}
+		sourcePublisher.subscribe(subscriber);
 
-	private void launchServer() throws Exception {
-		serverInfra = new AeronTestInfra("subscriber");
-		serverInfra.initialize();
-
-		subscriber = AeronSubscriber.create(serverInfra.newContext());
 		Thread.sleep(DELAY_MILLIS);
 	}
 
@@ -177,7 +181,7 @@ public class AeronBenchmark {
 	}
 
 	private void awaitAllSignalsAreReceived() {
-		testSubscriber.awaitAndAssertValueCount(n + 1);
+		testSubscriber.awaitAndAssertValueCount(n);
 	}
 
 	private void sendAllSignals() {
@@ -190,7 +194,7 @@ public class AeronBenchmark {
 			for (int i = from; i < to; i++) {
 
 				if (i % 100_000 == 0) {
-					System.out.printf("Signals sent: %d", i);
+					System.out.printf("Signals sent: %d\n", i);
 				}
 
 				try {
