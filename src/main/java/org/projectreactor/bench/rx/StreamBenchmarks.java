@@ -37,7 +37,8 @@ import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.SchedulerGroup;
 import reactor.core.publisher.TopicProcessor;
 import reactor.rx.Broadcaster;
-import reactor.rx.Stream;
+import reactor.rx.Fluxion;
+import reactor.rx.FluxionProcessor;
 
 /**
  * @author Jon Brisbin
@@ -69,7 +70,7 @@ public class StreamBenchmarks {
 	public void setup() {
 		switch (dispatcher) {
 			case "raw":
-				deferred = Broadcaster.from(TopicProcessor.create("test-w", 2048));
+				deferred = Fluxion.fromProcessor(TopicProcessor.create("test-w", 2048));
 				/*deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
@@ -78,7 +79,7 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 
-				Stream.from(deferred)
+				Fluxion.from(deferred)
 				  .map(i -> i)
 				  .scan(1, (last, next) -> last + next)
 				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
@@ -88,7 +89,7 @@ public class StreamBenchmarks {
 					" inner"));
 
 				mapManydeferred = FluxProcessor.blocking();
-				Stream.from(mapManydeferred)
+				Fluxion.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
 					.dispatchOn(partitionRunner)
@@ -100,15 +101,15 @@ public class StreamBenchmarks {
 
 			default:
 				deferred = dispatcher.equals("shared") ? Broadcaster.async(SchedulerGroup.async()) : Broadcaster.blocking();
-				Stream.from(deferred)
+				Fluxion.from(deferred)
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
 				      .consume(i -> latch.countDown());
 
 				mapManydeferred =
 						dispatcher.equals("shared") ? Broadcaster.async(SchedulerGroup.async()) : Broadcaster.blocking();
-				Stream.from(mapManydeferred)
-				  .flatMap(Stream::just)
+				Fluxion.from(mapManydeferred)
+				  .flatMap(Fluxion::just)
 				  .consume(i -> latch.countDown());
 		}
 

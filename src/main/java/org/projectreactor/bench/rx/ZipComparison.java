@@ -38,7 +38,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SchedulerGroup;
-import reactor.rx.Stream;
+import reactor.rx.Fluxion;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -70,8 +70,8 @@ public class ZipComparison {
 
 	SchedulerGroup processor;
 
-	static final Publisher<Integer>  p1 = Stream.just(1);//.map(d -> d);
-	static final Publisher<Integer>  p2 = Stream.just(2);//.map(d -> d);
+	static final Publisher<Integer>  p1 = Fluxion.just(1);//.map(d -> d);
+	static final Publisher<Integer>  p2 = Fluxion.just(2);//.map(d -> d);
 	static final Observable<Integer> o1 = Observable.just(1);
 	static final Observable<Integer> o2 = Observable.just(2);
 
@@ -81,12 +81,12 @@ public class ZipComparison {
 
 
 		rcJust = Flux.zip(p1, p2, (t1, t2) -> t2);
-		rcRange = Flux.zip(Stream.range(0, times), Stream.range(0, times), (t1, t2) -> t2);
+		rcRange = Flux.zip(Fluxion.range(0, times), Fluxion.range(0, times), (t1, t2) -> t2);
 
 		processor = SchedulerGroup.async("processor", 1024 * 64, 1, Throwable::printStackTrace, null, false);
 
-		rcJustAsync = Stream.from(rcJust).dispatchOn(processor);
-		rcRangeAsync = Stream.from(rcRange).dispatchOn(processor);
+		rcJustAsync = Fluxion.from(rcJust).dispatchOn(processor);
+		rcRangeAsync = Fluxion.from(rcRange).dispatchOn(processor);
 
 		rxJust = Observable.zip(o1, o2, (t1, t2) -> t2);
 		rxRange = Observable.zip(Observable.range(0, times), Observable.range(0, times), (t1, t2) -> t2);

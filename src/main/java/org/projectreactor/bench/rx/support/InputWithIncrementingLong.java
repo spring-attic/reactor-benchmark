@@ -24,7 +24,7 @@ import org.reactivestreams.Subscription;
 import reactor.core.subscriber.SignalEmitter;
 import reactor.core.subscriber.Subscribers;
 import reactor.fn.Consumer;
-import reactor.rx.Stream;
+import reactor.rx.Fluxion;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/jmh/InputWithIncrementingInteger.java
@@ -34,8 +34,8 @@ import reactor.rx.Stream;
 public abstract class InputWithIncrementingLong {
 
 	public Iterable<Long>   iterable;
-	public Stream<Integer>     observable;
-	public Stream<Long>     firehose;
+	public Fluxion<Integer>     observable;
+	public Fluxion<Long>     firehose;
 	public Blackhole           bh;
 	public Subscriber<Integer> observer;
 
@@ -45,9 +45,9 @@ public abstract class InputWithIncrementingLong {
 	@Setup
 	public void setup(final Blackhole bh) {
 		this.bh = bh;
-		observable = Stream.range(0, getSize());
+		observable = Fluxion.range(0, getSize());
 
-		firehose = Stream.yield(new Consumer<SignalEmitter<Long>>() {
+		firehose = Fluxion.yield(new Consumer<SignalEmitter<Long>>() {
 			@Override
 			public void accept(SignalEmitter<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
