@@ -42,7 +42,7 @@
 		<!-- Reactor -->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-fluxion</artifactId>
+			<artifactId>reactor-stream</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
