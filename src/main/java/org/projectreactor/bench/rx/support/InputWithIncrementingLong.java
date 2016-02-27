@@ -16,6 +16,7 @@
 package org.projectreactor.bench.rx.support;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
@@ -23,7 +24,6 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.subscriber.SignalEmitter;
 import reactor.core.subscriber.Subscribers;
-import reactor.fn.Consumer;
 import reactor.rx.Fluxion;
 
 /**

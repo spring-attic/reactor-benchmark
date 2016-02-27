@@ -16,6 +16,7 @@
 package org.projectreactor.bench.rx;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -25,7 +26,6 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
-import reactor.fn.Function;
 import reactor.rx.Fluxion;
 
 @BenchmarkMode(Mode.Throughput)

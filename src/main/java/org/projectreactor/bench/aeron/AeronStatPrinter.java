@@ -22,9 +22,9 @@ import java.io.PrintStream;
 import java.nio.MappedByteBuffer;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import reactor.core.timer.Timer;
-import reactor.fn.Consumer;
 import uk.co.real_logic.aeron.CncFileDescriptor;
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.IoUtil;
