@@ -1,0 +1,46 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "me.champeau.gradle:jmh-gradle-plugin:0.2.0"
+  }
+}
+
+apply plugin: 'java'
+
+apply plugin: "me.champeau.gradle.jmh"
+
+
+group = 'org.projectreactor.bench'
+version = '1.1.0.BUILD-SNAPSHOT'
+
+description = "Reactor-benchmark"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+repositories {
+  maven { url "https://repo.spring.io/libs-milestone" }
+  maven { url "https://repo.spring.io/libs-snapshot" }
+  maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+  jmh group: 'ch.qos.logback', name: 'logback-classic', version:"${logbackVersion}"
+  jmh group: 'io.projectreactor', name: 'reactor-stream', version:"${reactorVersion}"
+  jmh group: 'io.projectreactor', name: 'reactor-bus', version:"${reactorVersion}"
+  jmh group: 'io.projectreactor', name: 'reactor-aeron', version:"${reactorVersion}"
+  jmh group: 'com.goldmansachs', name: 'gs-collections', version:"${goldmansachsVersion}"
+  jmh group: 'io.reactivex', name: 'rxjava', version:"${reactivexVersion}"
+  jmh group: 'com.google.guava', name: 'guava', version:"${guavaVersion}"
+}
+
+
+jmh {
+  jmhVersion = '1.11.1'
+  include = '.*Benchmarks.*'
+}
