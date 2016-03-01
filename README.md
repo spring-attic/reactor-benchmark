@@ -8,7 +8,7 @@ The benchmarks are [JMH](http://openjdk.java.net/projects/code-tools/jmh/) based
 
 		> git clone https://github.com/reactor/reactor-benchmark.git
 		> cd reactor-benchmark
-		> mvn package && java -jar target/microbenchmarks.jar ".*ReactorBenchmarks.*"
+		> mvn package && java -jar target/microbenchmarks.jar ".*Benchmarks.*"
 
 Sensible defaults are placed as annotations on the benchmark classes themselves. In many cases, those can be overridden by passing the appropriate CLI parameter. Refer to the JMH documentation for more information on what options are available and what effect they have on the benchmark runs.
 
