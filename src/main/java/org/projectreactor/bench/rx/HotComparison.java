@@ -89,7 +89,7 @@ public class HotComparison {
 		for(int i = 0; i < subscribers; i++) {
 			rcJust.subscribe(new LatchedObserver(bh));
 		}
-		rcJust.start();
+		rcJust.connect();
 
 		asyncObserver = new LatchedObserver(bh);
 		rcJustAsync = FluxProcessor.async(SchedulerGroup.single());
@@ -98,7 +98,7 @@ public class HotComparison {
 		for(int i = 1; i < subscribers; i++) {
 			rcJustAsync.subscribe(new LatchedObserver(bh));
 		}
-		rcJustAsync.start();
+		rcJustAsync.connect();
 	}
 
 	@TearDown(Level.Iteration)
