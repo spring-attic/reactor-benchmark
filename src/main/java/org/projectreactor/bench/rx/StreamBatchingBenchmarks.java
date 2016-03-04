@@ -98,7 +98,7 @@ public class StreamBatchingBenchmarks {
 					  stream.dispatchOn(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
 					  stream.dispatchOn(dispatcherSupplier)
 					)
-					  .buffer(elements / 8, 1000, TimeUnit.MILLISECONDS)
+					  .buffer(elements / 8, 1000)
 					  .consume(batch -> {
 						  try {
 							  Thread.sleep(random.nextInt(400) + 100);

@@ -23,8 +23,8 @@ import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.SchedulerGroup;
-import reactor.rx.Fluxion;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/operators/OperatorMergePerf.java
@@ -36,8 +36,8 @@ public class MergeBenchmarks {
 	@Benchmark
 	public void merge1StreamOfN(final Input input) throws InterruptedException {
 		Publisher<Integer> stream =
-				Fluxion.just(1)
-						.flatMap(i -> Fluxion.range(0, input.size));
+				Flux.just(1)
+						.flatMap(i -> Flux.range(0, input.size));
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
@@ -47,8 +47,8 @@ public class MergeBenchmarks {
 	@Benchmark
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
 		Publisher<Integer> stream =
-		  Fluxion.just(1)
-			.flatMap(i -> Fluxion.range(0, input.size).dispatchOn(input.processor))
+		  Flux.just(1)
+			.flatMap(i -> Flux.range(0, input.size).dispatchOn(input.processor))
 		;
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();

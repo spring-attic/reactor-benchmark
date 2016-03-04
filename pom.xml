@@ -42,11 +42,6 @@
 		<!-- Reactor -->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-stream</artifactId>
-			<version>${reactor.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-bus</artifactId>
 			<version>${reactor.version}</version>
 		</dependency>

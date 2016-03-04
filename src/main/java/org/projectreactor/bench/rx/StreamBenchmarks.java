@@ -33,12 +33,11 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.reactivestreams.Processor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.SchedulerGroup;
 import reactor.core.publisher.TopicProcessor;
 import reactor.rx.Broadcaster;
-import reactor.rx.Fluxion;
-import reactor.rx.FluxionProcessor;
 
 /**
  * @author Jon Brisbin
@@ -70,7 +69,7 @@ public class StreamBenchmarks {
 	public void setup() {
 		switch (dispatcher) {
 			case "raw":
-				deferred = Fluxion.fromProcessor(TopicProcessor.create("test-w", 2048));
+				deferred = TopicProcessor.create("test-w", 2048);
 				/*deferred.partition(2).consume(
 						stream -> stream
 								.dispatchOn(env.getCachedDispatcher())
@@ -79,17 +78,17 @@ public class StreamBenchmarks {
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 
-				Fluxion.from(deferred)
-				  .map(i -> i)
-				  .scan(1, (last, next) -> last + next)
-				  .consume(i -> latch.countDown(), Throwable::printStackTrace,
+				Flux.from(deferred)
+				    .map(i -> i)
+				    .scan(1, (last, next) -> last + next)
+				    .consume(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
 				partitionRunner = SchedulerGroup.async("test", 1024, 2, null, () -> System.out.println("complete test" +
 					" inner"));
 
 				mapManydeferred = FluxProcessor.blocking();
-				Fluxion.from(mapManydeferred)
+				Flux.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
 					.dispatchOn(partitionRunner)
@@ -101,15 +100,15 @@ public class StreamBenchmarks {
 
 			default:
 				deferred = dispatcher.equals("shared") ? Broadcaster.async(SchedulerGroup.async()) : Broadcaster.blocking();
-				Fluxion.from(deferred)
+				Flux.from(deferred)
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
 				      .consume(i -> latch.countDown());
 
 				mapManydeferred =
 						dispatcher.equals("shared") ? Broadcaster.async(SchedulerGroup.async()) : Broadcaster.blocking();
-				Fluxion.from(mapManydeferred)
-				  .flatMap(Fluxion::just)
+				Flux.from(mapManydeferred)
+				  .flatMap(Flux::just)
 				  .consume(i -> latch.countDown());
 		}
 

@@ -26,7 +26,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
-import reactor.rx.Fluxion;
+import reactor.core.publisher.Flux;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -46,7 +46,7 @@ public class MapBenchmarks {
 
 	@Benchmark
 	public void mapInstance(Input input) {
-		Fluxion.just(1).map(IDENTITY_FUNCTION);
+		Flux.just(1).map(IDENTITY_FUNCTION);
 	}
 
 	@Benchmark

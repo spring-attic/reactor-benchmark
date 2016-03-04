@@ -16,6 +16,7 @@
 
 package org.projectreactor.bench.aeron;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -72,7 +73,8 @@ public class AeronBenchmark {
 	}
 
 	private void createClientSubscriberAndSubscribe() throws InterruptedException {
-		testSubscriber = new TestSubscriber<String>(0).configureValuesStorage(false).configureValuesTimeout(10);
+		testSubscriber = new TestSubscriber<String>(0).configureValuesStorage(false).configureValuesTimeout(Duration
+				.ofSeconds(10L));
 		Buffer.bufferToString(publisher).subscribe(testSubscriber);
 		Thread.sleep(DELAY_MILLIS);
 	}
@@ -84,7 +86,7 @@ public class AeronBenchmark {
 
 		System.out.println("Initial signal sent");
 
-		testSubscriber.awaitAndAssertValueCount(1);
+		testSubscriber.awaitAndAssertNextValueCount(1);
 
 		System.out.println("Initial signal received");
 	}
@@ -181,7 +183,7 @@ public class AeronBenchmark {
 	}
 
 	private void awaitAllSignalsAreReceived() {
-		testSubscriber.awaitAndAssertValueCount(n);
+		testSubscriber.awaitAndAssertNextValueCount(n);
 	}
 
 	private void sendAllSignals() {

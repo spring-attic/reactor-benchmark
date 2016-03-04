@@ -73,7 +73,7 @@ public class AeronStatPrinter {
 					e.printStackTrace();
 				}
 			}
-		}, 5, TimeUnit.SECONDS);
+		}, 5_000);
 	}
 
 	private void print(AtomicBuffer valuesBuffer, CountersManager countersManager) throws InterruptedException {
