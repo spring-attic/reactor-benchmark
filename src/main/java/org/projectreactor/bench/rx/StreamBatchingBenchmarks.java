@@ -18,9 +18,10 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
+import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.SchedulerGroup;
 import reactor.core.timer.Timer;
-import reactor.rx.Broadcaster;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d
@@ -47,7 +48,7 @@ public class StreamBatchingBenchmarks {
 	public boolean filter;
 
 	private String[]                    data;
-	private Broadcaster<CountDownLatch> deferred;
+	private EmitterProcessor<CountDownLatch> deferred;
 	private CountDownLatch latch = new CountDownLatch(8);
 
 	@Setup
@@ -88,7 +89,7 @@ public class StreamBatchingBenchmarks {
 		//((WaitingMood)deferred.getDispatcher()).nervous();
 		SchedulerGroup dispatcherSupplier = SchedulerGroup.async("batch-stream", 2048, 9);
 
-		deferred = Broadcaster.<CountDownLatch>create();
+		deferred = EmitterProcessor.<CountDownLatch>create().connect();
 		deferred
 		        .dispatchOn(dispatcherSupplier)
 				.partition(8)
