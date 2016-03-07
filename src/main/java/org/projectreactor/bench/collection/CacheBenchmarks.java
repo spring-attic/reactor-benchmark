@@ -39,7 +39,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.core.util.Assert;
 
 /**
  * @author Jon Brisbin
@@ -102,7 +101,6 @@ public class CacheBenchmarks {
 	public void concurrentHashMap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
-		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 
@@ -110,7 +108,6 @@ public class CacheBenchmarks {
 	public void gsMultimap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = gsMap.get(key);
-		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 
@@ -118,7 +115,6 @@ public class CacheBenchmarks {
 	public void guavaMultimap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = guavaMap.get(key);
-		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 

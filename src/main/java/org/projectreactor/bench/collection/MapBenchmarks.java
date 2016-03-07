@@ -32,7 +32,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
-import reactor.core.util.Assert;
 
 /**
  * Benchmarks around various kinds of Map interactions.
@@ -90,7 +89,6 @@ public class MapBenchmarks {
 	public void getRandomIntKey(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
-		Assert.notNull(obj, "No object found for key " + key);
 		bh.consume(obj);
 	}
 
@@ -98,7 +96,6 @@ public class MapBenchmarks {
 	public void entrySetIteration(Blackhole bh) {
 		for (Map.Entry<Integer, Object> entry : intMap.entrySet()) {
 			Object obj = entry.getValue();
-			Assert.notNull(obj, "No object found for key " + entry.getKey());
 			bh.consume(obj);
 		}
 	}
