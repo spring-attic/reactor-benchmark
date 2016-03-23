@@ -38,24 +38,23 @@ class AeronTestInfra {
 
 	private Aeron aeron;
 
-	AeronTestInfra(String name) {
+	private AeronStatPrinter statPrinter;
+
+	public AeronTestInfra(String name) {
 		this.name = name;
 	}
 
-	Aeron createAeron(MediaDriver mediaDriver) {
+	private Aeron createAeron(MediaDriver mediaDriver) {
 		Aeron.Context context = new Aeron.Context();
 		context.aeronDirectoryName(mediaDriver.aeronDirectoryName());
 		return Aeron.connect(context);
 	}
 
-	MediaDriver launchMediaDriver() throws Exception {
+	private MediaDriver launchMediaDriver() throws Exception {
 		driverContext.threadingMode(ThreadingMode.SHARED);
 		String dirName = Files.createTempDirectory("aeron-").toString();
 		driverContext.aeronDirectoryName(dirName);
 		MediaDriver mediaDriver = MediaDriver.launch(driverContext);
-
-		AeronStatPrinter statPrinter = new AeronStatPrinter(name);
-		statPrinter.setup(dirName);
 
 		System.out.println(name + " media driver launched");
 		Thread.sleep(DELAY_MILLIS);
@@ -63,15 +62,20 @@ class AeronTestInfra {
 		return mediaDriver;
 	}
 
-	void initialize() throws Exception {
+	public void initialize() throws Exception {
 		driverContext = new MediaDriver.Context();
 		mediaDriver = launchMediaDriver();
 		aeron = createAeron(mediaDriver);
 
+		statPrinter = new AeronStatPrinter(name, mediaDriver.aeronDirectoryName());
+		statPrinter.initialise();
+
 		System.out.println("Test infrastructure: " + name + " initialized");
 	}
 
-	void shutdown() throws Exception {
+	public void shutdown() throws Exception {
+		statPrinter.shutdown();
+
 		aeron.close();
 		Thread.sleep(DELAY_MILLIS);
 
