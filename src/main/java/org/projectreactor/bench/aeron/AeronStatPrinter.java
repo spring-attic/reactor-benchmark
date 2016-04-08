@@ -17,7 +17,7 @@ package org.projectreactor.bench.aeron;
 
 import reactor.aeron.utils.AeronCounters;
 import reactor.core.state.Pausable;
-import reactor.core.timer.Timer;
+import reactor.core.scheduler.Timer;
 
 import java.io.File;
 import java.io.FileNotFoundException;

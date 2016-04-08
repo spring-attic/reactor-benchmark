@@ -21,7 +21,7 @@ import org.openjdk.jmh.annotations.Warmup;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.SchedulerGroup;
-import reactor.core.timer.Timer;
+import reactor.core.scheduler.Timer;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d

@@ -46,10 +46,12 @@ public class MergeBenchmarks {
 
 	@Benchmark
 	public void merge1StreamOfNPooledinputDispatcher(final Input input) throws InterruptedException {
-		Publisher<Integer> stream =
+		Flux<Integer> stream =
 		  Flux.just(1)
-			.flatMap(i -> Flux.range(0, input.size).dispatchOn(input.processor))
-		;
+			.flatMap(i -> Flux.range(0, input.size));
+		if(input.processor != null) {
+			stream = stream.dispatchOn(input.processor);
+		}
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();
 		stream.subscribe(latchedCallback);
@@ -76,7 +78,7 @@ public class MergeBenchmarks {
 
 		@Override
 		protected void postSetup() {
-			processor = "sync".equalsIgnoreCase(dispatcherName) ? SchedulerGroup.sync() : SchedulerGroup.async();
+			processor = "sync".equalsIgnoreCase(dispatcherName) ? null : SchedulerGroup.async();
 		}
 	}
 }
