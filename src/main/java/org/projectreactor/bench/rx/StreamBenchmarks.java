@@ -98,14 +98,14 @@ public class StreamBenchmarks {
 				break;
 
 			default:
-				deferred = dispatcher.equals("shared") ? FluxProcessor.async(SchedulerGroup.async()) : FluxProcessor.blocking();
+				deferred = dispatcher.equals("shared") ? EmitterProcessor.async(SchedulerGroup.async()) : FluxProcessor.blocking();
 				Flux.from(deferred)
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
 				      .consume(i -> latch.countDown());
 
 				mapManydeferred =
-						dispatcher.equals("shared") ? FluxProcessor.async(SchedulerGroup.async()) : FluxProcessor.blocking();
+						dispatcher.equals("shared") ? EmitterProcessor.async(SchedulerGroup.async()) : FluxProcessor.blocking();
 				Flux.from(mapManydeferred)
 				  .flatMap(Flux::just)
 				  .consume(i -> latch.countDown());

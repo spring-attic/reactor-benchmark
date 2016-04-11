@@ -92,7 +92,7 @@ public class HotComparison {
 		rcJust.connect();
 
 		asyncObserver = new LatchedObserver(bh);
-		rcJustAsync = FluxProcessor.async(SchedulerGroup.single());
+		rcJustAsync = EmitterProcessor.async(SchedulerGroup.single());
 		rcJustAsync.subscribe(asyncObserver);
 
 		for(int i = 1; i < subscribers; i++) {
