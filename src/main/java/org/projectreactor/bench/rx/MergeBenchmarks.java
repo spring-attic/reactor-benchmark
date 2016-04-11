@@ -50,7 +50,7 @@ public class MergeBenchmarks {
 		  Flux.just(1)
 			.flatMap(i -> Flux.range(0, input.size));
 		if(input.processor != null) {
-			stream = stream.dispatchOn(input.processor);
+			stream = stream.publishOn(input.processor);
 		}
 
 		LatchedCallback<Integer> latchedCallback = input.newLatchedCallback();

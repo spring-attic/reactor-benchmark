@@ -91,13 +91,13 @@ public class StreamBatchingBenchmarks {
 
 		deferred = EmitterProcessor.<CountDownLatch>create().connect();
 		deferred
-		        .dispatchOn(dispatcherSupplier)
+		        .publishOn(dispatcherSupplier)
 				.partition(8)
 				.consume(
 				  stream ->
 					(filter ?
-					  stream.dispatchOn(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
-					  stream.dispatchOn(dispatcherSupplier)
+					  stream.publishOn(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
+					  stream.publishOn(dispatcherSupplier)
 					)
 					  .buffer(elements / 8, 1000)
 					  .consume(batch -> {

@@ -84,8 +84,8 @@ public class ZipComparison {
 
 		processor = SchedulerGroup.async("processor", 1024 * 64, 1, Throwable::printStackTrace, null, false);
 
-		rcJustAsync = Flux.from(rcJust).dispatchOn(processor);
-		rcRangeAsync = Flux.from(rcRange).dispatchOn(processor);
+		rcJustAsync = Flux.from(rcJust).publishOn(processor);
+		rcRangeAsync = Flux.from(rcRange).publishOn(processor);
 
 		rxJust = Observable.zip(o1, o2, (t1, t2) -> t2);
 		rxRange = Observable.zip(Observable.range(0, times), Observable.range(0, times), (t1, t2) -> t2);

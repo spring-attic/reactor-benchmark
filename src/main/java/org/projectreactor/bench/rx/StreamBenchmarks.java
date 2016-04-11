@@ -71,7 +71,7 @@ public class StreamBenchmarks {
 				deferred = TopicProcessor.create("test-w", 2048);
 				/*deferred.partition(2).consume(
 						stream -> stream
-								.dispatchOn(env.getCachedDispatcher())
+								.publishOn(env.getCachedDispatcher())
 								.map(i -> i)
 								.scan(1, (last, next) -> last + next)
 								.consume(i -> latch.countDown(), Throwable::printStackTrace)
@@ -90,7 +90,7 @@ public class StreamBenchmarks {
 				Flux.from(mapManydeferred)
 				  .partition(2)
 				  .consume(substream -> substream
-					.dispatchOn(partitionRunner)
+					.publishOn(partitionRunner)
 					.map(i -> i)
 					.consume(i -> latch.countDown(), Throwable::printStackTrace,
 							() -> System.out.println("complete test")));

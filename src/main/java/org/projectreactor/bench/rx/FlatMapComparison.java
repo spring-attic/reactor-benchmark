@@ -76,8 +76,8 @@ public class FlatMapComparison {
         processor = SchedulerGroup.async("processor", 1024 * 32, 1, null, null, false);
 
         rcJustAsync = Flux.range(0, times).flatMap(Flux::just)
-                            .dispatchOn(processor);
-        rcRangeAsync = Flux.from(rcRange).dispatchOn(processor);
+                            .publishOn(processor);
+        rcRangeAsync = Flux.from(rcRange).publishOn(processor);
     }
 
     @TearDown(Level.Iteration)
