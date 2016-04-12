@@ -16,6 +16,7 @@
 package org.projectreactor.bench.aeron;
 
 import reactor.aeron.utils.AeronCounters;
+import reactor.core.flow.Cancellation;
 import reactor.core.scheduler.Timer;
 
 import java.io.File;
@@ -23,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class AeronStatPrinter {
 
@@ -32,7 +34,7 @@ public class AeronStatPrinter {
 
 	private final AeronCounters counters;
 
-	private Runnable pausable;
+	private Cancellation pausable;
 
 	public AeronStatPrinter(String name, String dirName) throws FileNotFoundException {
 		this.name = name;
@@ -50,18 +52,18 @@ public class AeronStatPrinter {
 		if (pausable != null) {
 			throw new IllegalStateException("Already initialised");
 		}
-		pausable = Timer.global().schedule(aLong -> {
+		pausable = Timer.global().schedule(() -> {
 			ps.format("%1$tH:%1$tM:%1$tS - %2$s - Aeron Stat\n", new Date(), this.name);
 
 			counters.forEach((id, label) ->
 					ps.format("%3d: %,20d - %s\n", id, counters.getCounterValue(id), label));
 
 			ps.flush();
-		}, 5_000);
+		}, 5_000L, TimeUnit.MILLISECONDS);
 	}
 
 	public void shutdown() {
-		pausable.run();
+		pausable.dispose();
 		counters.shutdown();
 		ps.close();
 	}
