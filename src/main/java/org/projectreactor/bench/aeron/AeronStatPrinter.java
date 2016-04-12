@@ -16,7 +16,6 @@
 package org.projectreactor.bench.aeron;
 
 import reactor.aeron.utils.AeronCounters;
-import reactor.core.state.Pausable;
 import reactor.core.scheduler.Timer;
 
 import java.io.File;
@@ -33,7 +32,7 @@ public class AeronStatPrinter {
 
 	private final AeronCounters counters;
 
-	private Pausable pausable;
+	private Runnable pausable;
 
 	public AeronStatPrinter(String name, String dirName) throws FileNotFoundException {
 		this.name = name;
@@ -62,7 +61,7 @@ public class AeronStatPrinter {
 	}
 
 	public void shutdown() {
-		pausable.cancel();
+		pausable.run();
 		counters.shutdown();
 		ps.close();
 	}
