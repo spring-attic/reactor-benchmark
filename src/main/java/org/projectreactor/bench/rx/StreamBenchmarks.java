@@ -38,6 +38,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.SchedulerGroup;
 import reactor.core.publisher.TopicProcessor;
+import reactor.core.scheduler.Scheduler;
 
 /**
  * @author Jon Brisbin
@@ -63,7 +64,7 @@ public class StreamBenchmarks {
 	private int[]                       data;
 	private Processor<Integer, Integer> deferred;
 	private Processor<Integer, Integer> mapManydeferred;
-	private SchedulerGroup              partitionRunner;
+	private Scheduler                   partitionRunner;
 
 	@Setup
 	public void setup() {

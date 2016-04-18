@@ -37,6 +37,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SchedulerGroup;
+import reactor.core.scheduler.Scheduler;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -58,7 +59,7 @@ public class FlatMapComparison {
     Publisher<Integer> rcRange;
     Publisher<Integer> rcJustAsync;
     Publisher<Integer> rcRangeAsync;
-    SchedulerGroup processor;
+    Scheduler          processor;
 
     @Setup(Level.Iteration)
     public void setup() {

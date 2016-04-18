@@ -25,6 +25,7 @@ import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SchedulerGroup;
+import reactor.core.scheduler.Scheduler;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/operators/OperatorMergePerf.java
@@ -71,7 +72,7 @@ public class MergeBenchmarks {
 			return size;
 		}
 
-		public SchedulerGroup processor;
+		public Scheduler processor;
 
 		@Param({"sync", "ringBuffer"})
 		public String dispatcherName;

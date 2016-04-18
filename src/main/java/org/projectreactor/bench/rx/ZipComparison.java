@@ -38,6 +38,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SchedulerGroup;
+import reactor.core.scheduler.Scheduler;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -67,7 +68,7 @@ public class ZipComparison {
 	Observable<Integer>     rxJustAsync;
 	Observable<Integer>     rxRangeAsync;
 
-	SchedulerGroup processor;
+	Scheduler processor;
 
 	static final Publisher<Integer>  p1 = Flux.just(1);//.map(d -> d);
 	static final Publisher<Integer>  p2 = Flux.just(2);//.map(d -> d);
