@@ -19,7 +19,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import reactor.core.publisher.EmitterProcessor;
-import reactor.core.publisher.SchedulerGroup;
+import reactor.core.publisher.Computations;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Timer;
 
@@ -87,7 +87,7 @@ public class StreamBatchingBenchmarks {
 
 
 		//((WaitingMood)deferred.getDispatcher()).nervous();
-		Scheduler dispatcherSupplier = SchedulerGroup.async("batch-stream", 2048, 9);
+		Scheduler dispatcherSupplier = Computations.parallel("batch-stream", 2048, 9);
 
 		deferred = EmitterProcessor.<CountDownLatch>create().connect();
 		deferred

@@ -36,7 +36,7 @@ import org.reactivestreams.Processor;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
-import reactor.core.publisher.SchedulerGroup;
+import reactor.core.publisher.Computations;
 import reactor.core.publisher.TopicProcessor;
 import reactor.core.scheduler.Scheduler;
 
@@ -85,7 +85,7 @@ public class StreamBenchmarks {
 				    .consume(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
-				partitionRunner = SchedulerGroup.async("test", 1024, 2, null, () -> System.out.println("complete test" +
+				partitionRunner = Computations.parallel("test", 1024, 2, null, () -> System.out.println("complete test" +
 					" inner"));
 
 				mapManydeferred = FluxProcessor.blocking();
@@ -100,14 +100,14 @@ public class StreamBenchmarks {
 				break;
 
 			default:
-				deferred = dispatcher.equals("shared") ? EmitterProcessor.async(SchedulerGroup.async()) : FluxProcessor.blocking();
+				deferred = dispatcher.equals("shared") ? EmitterProcessor.async(Computations.parallel()) : FluxProcessor.blocking();
 				Flux.from(deferred)
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
 				      .consume(i -> latch.countDown());
 
 				mapManydeferred =
-						dispatcher.equals("shared") ? EmitterProcessor.async(SchedulerGroup.async()) : FluxProcessor.blocking();
+						dispatcher.equals("shared") ? EmitterProcessor.async(Computations.parallel()) : FluxProcessor.blocking();
 				Flux.from(mapManydeferred)
 				  .flatMap(Flux::just)
 				  .consume(i -> latch.countDown());

@@ -38,7 +38,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.FluxProcessor;
-import reactor.core.publisher.SchedulerGroup;
+import reactor.core.publisher.Computations;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -92,7 +92,7 @@ public class HotComparison {
 		rcJust.connect();
 
 		asyncObserver = new LatchedObserver(bh);
-		rcJustAsync = EmitterProcessor.async(SchedulerGroup.single());
+		rcJustAsync = EmitterProcessor.async(Computations.single());
 		rcJustAsync.subscribe(asyncObserver);
 
 		for(int i = 1; i < subscribers; i++) {

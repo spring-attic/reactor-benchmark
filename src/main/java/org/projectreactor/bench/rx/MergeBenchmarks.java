@@ -24,7 +24,7 @@ import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.SchedulerGroup;
+import reactor.core.publisher.Computations;
 import reactor.core.scheduler.Scheduler;
 
 /**
@@ -79,7 +79,7 @@ public class MergeBenchmarks {
 
 		@Override
 		protected void postSetup() {
-			processor = "sync".equalsIgnoreCase(dispatcherName) ? null : SchedulerGroup.async();
+			processor = "sync".equalsIgnoreCase(dispatcherName) ? null : Computations.parallel();
 		}
 	}
 }
