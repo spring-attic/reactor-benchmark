@@ -90,7 +90,7 @@ public class EventBusBenchmarks {
 	public void reactorThroughput(Blackhole bh) throws InterruptedException {
 		for (int i = 0; i < numOfSelectors; i++) {
 			reactor.notify(keys[i], event);
-			bh.consume(i);
+			bh.subscribe(i);
 		}
 
 		assert latch.await(30, TimeUnit.SECONDS);

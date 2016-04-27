@@ -55,7 +55,7 @@ public class OptimizedForLoopBenchmarks {
 
 	@Benchmark
 	public void forLoopWithSideEffect(Blackhole bh) {
-		for(Integer i : list) { bh.consume(i); }
+		for(Integer i : list) { bh.subscribe(i); }
 	}
 
 	@Benchmark
@@ -67,7 +67,7 @@ public class OptimizedForLoopBenchmarks {
 
 	@Benchmark
 	public void arrayForLoopWithSideEffect(Blackhole bh) {
-		for(int i = 0; i < length; i++) { bh.consume(array[i]); }
+		for(int i = 0; i < length; i++) { bh.subscribe(array[i]); }
 	}
 
 }

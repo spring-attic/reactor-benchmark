@@ -86,7 +86,7 @@ public class RegistryBenchmarks {
 				if (!reg.isCancelled()) {
 					reg.getObject().accept(null);
 				}
-				bh.consume(reg);
+				bh.subscribe(reg);
 			}
 		}
 

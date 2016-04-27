@@ -89,14 +89,14 @@ public class MapBenchmarks {
 	public void getRandomIntKey(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
-		bh.consume(obj);
+		bh.subscribe(obj);
 	}
 
 	@Benchmark
 	public void entrySetIteration(Blackhole bh) {
 		for (Map.Entry<Integer, Object> entry : intMap.entrySet()) {
 			Object obj = entry.getValue();
-			bh.consume(obj);
+			bh.subscribe(obj);
 		}
 	}
 

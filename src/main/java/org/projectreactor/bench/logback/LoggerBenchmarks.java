@@ -61,7 +61,7 @@ public class LoggerBenchmarks {
 	public void asyncAppenderToFile(Blackhole bh) throws InterruptedException {
 		long l = counter.incrementAndGet();
 		logger.info("count: {}", l);
-		bh.consume(l);
+		bh.subscribe(l);
 	}
 
 }

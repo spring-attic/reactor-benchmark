@@ -93,14 +93,14 @@ public class StreamBatchingBenchmarks {
 		deferred
 		        .publishOn(dispatcherSupplier)
 				.partition(8)
-				.consume(
+				.subscribe(
 				  stream ->
 					(filter ?
 					  stream.publishOn(dispatcherSupplier).filter(i -> i.hashCode() != 0 ? true : true) :
 					  stream.publishOn(dispatcherSupplier)
 					)
 					  .buffer(elements / 8, 1000)
-					  .consume(batch -> {
+					  .subscribe(batch -> {
 						  try {
 							  Thread.sleep(random.nextInt(400) + 100);
 						  } catch (InterruptedException e) {

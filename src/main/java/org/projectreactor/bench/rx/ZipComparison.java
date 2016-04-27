@@ -168,7 +168,7 @@ public class ZipComparison {
 
 			@Override
 			public void onNext(Object t) {
-				bh.consume(t);
+				bh.subscribe(t);
 			}
 
 			@Override
@@ -186,7 +186,7 @@ public class ZipComparison {
 		return new rx.Subscriber<Object>() {
 			@Override
 			public void onNext(Object t) {
-				bh.consume(t);
+				bh.subscribe(t);
 			}
 
 			@Override
@@ -218,7 +218,7 @@ public class ZipComparison {
 
 		@Override
 		public void onNext(Object t) {
-			bh.consume(t);
+			bh.subscribe(t);
 		}
 
 		@Override
@@ -247,7 +247,7 @@ public class ZipComparison {
 
 		@Override
 		public void onNext(Object t) {
-			bh.consume(t);
+			bh.subscribe(t);
 		}
 
 		@Override

@@ -71,18 +71,18 @@ public class StreamBenchmarks {
 		switch (dispatcher) {
 			case "raw":
 				deferred = TopicProcessor.create("test-w", 2048);
-				/*deferred.partition(2).consume(
+				/*deferred.partition(2).subscribe(
 						stream -> stream
 								.publishOn(env.getCachedDispatcher())
 								.map(i -> i)
 								.scan(1, (last, next) -> last + next)
-								.consume(i -> latch.countDown(), Throwable::printStackTrace)
+								.subscribe(i -> latch.countDown(), Throwable::printStackTrace)
 								);*/
 
 				Flux.from(deferred)
 				    .map(i -> i)
 				    .scan(1, (last, next) -> last + next)
-				    .consume(i -> latch.countDown(), Throwable::printStackTrace,
+				    .subscribe(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
 				partitionRunner = Computations.parallel("test", 1024, 2, null, () -> System.out.println("complete test" +
@@ -91,10 +91,10 @@ public class StreamBenchmarks {
 				mapManydeferred = FluxProcessor.blocking();
 				Flux.from(mapManydeferred)
 				  .partition(2)
-				  .consume(substream -> substream
+				  .subscribe(substream -> substream
 					.publishOn(partitionRunner)
 					.map(i -> i)
-					.consume(i -> latch.countDown(), Throwable::printStackTrace,
+					.subscribe(i -> latch.countDown(), Throwable::printStackTrace,
 							() -> System.out.println("complete test")));
 
 				break;
@@ -104,13 +104,13 @@ public class StreamBenchmarks {
 				Flux.from(deferred)
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
-				      .consume(i -> latch.countDown());
+				      .subscribe(i -> latch.countDown());
 
 				mapManydeferred =
 						dispatcher.equals("shared") ? EmitterProcessor.async(Computations.parallel()) : FluxProcessor.blocking();
 				Flux.from(mapManydeferred)
 				  .flatMap(Flux::just)
-				  .consume(i -> latch.countDown());
+				  .subscribe(i -> latch.countDown());
 		}
 
 		data = new int[elements];

@@ -101,21 +101,21 @@ public class CacheBenchmarks {
 	public void concurrentHashMap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = intMap.get(key);
-		bh.consume(obj);
+		bh.subscribe(obj);
 	}
 
 	@Benchmark
 	public void gsMultimap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = gsMap.get(key);
-		bh.consume(obj);
+		bh.subscribe(obj);
 	}
 
 	@Benchmark
 	public void guavaMultimap(Blackhole bh) {
 		int key = randomKeys[index++ % length];
 		Object obj = guavaMap.get(key);
-		bh.consume(obj);
+		bh.subscribe(obj);
 	}
 
 }

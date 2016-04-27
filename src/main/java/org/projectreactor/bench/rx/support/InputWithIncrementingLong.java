@@ -103,7 +103,7 @@ public abstract class InputWithIncrementingLong {
 		return Subscribers.consumer(new Consumer<Integer>() {
 			@Override
 			public void accept(Integer integer) {
-				bh.consume(integer);
+				bh.subscribe(integer);
 			}
 		});
 	}
@@ -122,7 +122,7 @@ public abstract class InputWithIncrementingLong {
 
 		@Override
 		public void onNext(Integer integer) {
-			bh.consume(integer);
+			bh.subscribe(integer);
 		}
 
 		@Override
