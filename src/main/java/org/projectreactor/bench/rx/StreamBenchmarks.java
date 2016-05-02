@@ -32,12 +32,11 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
-import org.reactivestreams.Processor;
-import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.Computations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
-import reactor.core.publisher.Computations;
 import reactor.core.publisher.TopicProcessor;
+import reactor.core.publisher.UnicastProcessor;
 import reactor.core.scheduler.Scheduler;
 
 /**
@@ -60,11 +59,11 @@ public class StreamBenchmarks {
 	@Param({"sync", "shared", "raw"})
 	public String dispatcher;
 
-	private CountDownLatch              latch;
-	private int[]                       data;
-	private Processor<Integer, Integer> deferred;
-	private Processor<Integer, Integer> mapManydeferred;
-	private Scheduler                   partitionRunner;
+	private CountDownLatch                  latch;
+	private int[]                           data;
+	private FluxProcessor<Integer, Integer> deferred;
+	private FluxProcessor<Integer, Integer> mapManydeferred;
+	private Scheduler                       partitionRunner;
 
 	@Setup
 	public void setup() {
@@ -88,8 +87,8 @@ public class StreamBenchmarks {
 				partitionRunner = Computations.parallel("test", 1024, 2, null, () -> System.out.println("complete test" +
 					" inner"));
 
-				mapManydeferred = FluxProcessor.blocking();
-				Flux.from(mapManydeferred)
+				mapManydeferred = UnicastProcessor.create();
+				mapManydeferred
 				  .partition(2)
 				  .subscribe(substream -> substream
 					.publishOn(partitionRunner)
@@ -99,18 +98,31 @@ public class StreamBenchmarks {
 
 				break;
 
+			case "shared":
+				deferred = UnicastProcessor.create();
+				deferred.publishOn(Computations.parallel())
+				        .map(i -> i)
+				        .scan(1, (last, next) -> last + next)
+				        .subscribe(i -> latch.countDown());
+
+				mapManydeferred = UnicastProcessor.create();
+				mapManydeferred.publishOn(Computations.parallel())
+				               .flatMap(Flux::just)
+				               .subscribe(i -> latch.countDown());
+				break;
+
 			default:
-				deferred = dispatcher.equals("shared") ? EmitterProcessor.async(Computations.parallel()) : FluxProcessor.blocking();
-				Flux.from(deferred)
+				deferred = UnicastProcessor.create();
+
+				deferred
 				      .map(i -> i)
 				      .scan(1, (last, next) -> last + next)
 				      .subscribe(i -> latch.countDown());
 
-				mapManydeferred =
-						dispatcher.equals("shared") ? EmitterProcessor.async(Computations.parallel()) : FluxProcessor.blocking();
-				Flux.from(mapManydeferred)
-				  .flatMap(Flux::just)
-				  .subscribe(i -> latch.countDown());
+				mapManydeferred = UnicastProcessor.create();
+
+				mapManydeferred.flatMap(Flux::just)
+				               .subscribe(i -> latch.countDown());
 		}
 
 		data = new int[elements];
