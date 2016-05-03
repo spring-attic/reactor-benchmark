@@ -47,7 +47,7 @@ public abstract class InputWithIncrementingLong {
 		this.bh = bh;
 		observable = Flux.range(0, getSize());
 
-		firehose = Flux.yield(new Consumer<SignalEmitter<Long>>() {
+		firehose = Flux.create(new Consumer<SignalEmitter<Long>>() {
 			@Override
 			public void accept(SignalEmitter<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
