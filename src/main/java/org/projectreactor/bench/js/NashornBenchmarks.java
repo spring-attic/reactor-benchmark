@@ -57,22 +57,22 @@ public class NashornBenchmarks {
 
 	@Benchmark
 	public void javaMethodCallOverhead(Blackhole bh) {
-		bh.subscribe(pojo.helloWorld());
+		bh.consume(pojo.helloWorld());
 	}
 
 	@Benchmark
 	public void javaScriptEvalOverhead(Blackhole bh) throws ScriptException {
-		bh.subscribe(engine.eval("pojo.helloWorld()", bindings));
+		bh.consume(engine.eval("pojo.helloWorld()", bindings));
 	}
 
 	@Benchmark
 	public void wrappedJavaScriptMethodCallOverhead(Blackhole bh) throws ScriptException {
-		bh.subscribe(hw1.call(bindings));
+		bh.consume(hw1.call(bindings));
 	}
 
 	@Benchmark
 	public void directJavaScriptMethodCallOverhead(Blackhole bh) throws ScriptException {
-		bh.subscribe(hw2.call(bindings));
+		bh.consume(hw2.call(bindings));
 	}
 
 	public static class Pojo {

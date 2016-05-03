@@ -143,7 +143,7 @@ public class FlatMapComparison {
 
             @Override
             public void onNext(Object t) {
-                bh.subscribe(t);
+                bh.consume(t);
             }
 
             @Override
@@ -175,7 +175,7 @@ public class FlatMapComparison {
 
         @Override
         public void onNext(Object t) {
-            bh.subscribe(t);
+            bh.consume(t);
         }
 
         @Override

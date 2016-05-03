@@ -82,7 +82,7 @@ public class IterationBenchmarks {
 	public void listOptimizedForLoop(Blackhole bh) {
 		for (Object obj : objList) {
 			assert null != obj;
-			bh.subscribe(obj);
+			bh.consume(obj);
 		}
 	}
 
@@ -92,7 +92,7 @@ public class IterationBenchmarks {
 			//int idx = random.nextInt(numOfSelectors);
 			Object obj = objList.get(i);
 			assert null != obj;
-			bh.subscribe(obj);
+			bh.consume(obj);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class IterationBenchmarks {
 			//int idx = random.nextInt(numOfSelectors);
 			Object obj = objArray[i];
 			assert null != obj;
-			bh.subscribe(obj);
+			bh.consume(obj);
 		}
 	}
 
@@ -112,7 +112,7 @@ public class IterationBenchmarks {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objList.get(i);
 			assert null != obj;
-			bh.subscribe(obj);
+			bh.consume(obj);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class IterationBenchmarks {
 		while (iter.hasNext()) {
 			Object obj = iter.next();
 			assert null != obj;
-			bh.subscribe(obj);
+			bh.consume(obj);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class IterationBenchmarks {
 			//int idx = random.nextInt(ITEMS);
 			Object obj = objArray[i];
 			assert null != obj;
-			bh.subscribe(obj);
+			bh.consume(obj);
 		}
 	}
 
