@@ -49,7 +49,7 @@ public class LatchedCallback<T> implements Subscriber<T> {
 
 	@Override
 	public void onNext(T t) {
-		bh.subscribe(t);
+		bh.consume(t);
 	}
 
 }

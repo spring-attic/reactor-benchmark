@@ -175,7 +175,7 @@ public class HotComparison {
 
 		@Override
 		public void onNext(Object t) {
-			bh.subscribe(t);
+			bh.consume(t);
 			s.request(1L);
 		}
 
@@ -210,7 +210,7 @@ public class HotComparison {
 
 		@Override
 		public void onNext(Object t) {
-			bh.subscribe(t);
+			bh.consume(t);
 			request(1L);
 		}
 
