@@ -51,9 +51,9 @@ public abstract class InputWithIncrementingLong {
 			@Override
 			public void accept(SignalEmitter<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
-					s.onNext(i);
+					s.emit(i);
 				}
-				s.onComplete();
+				s.complete();
 			}
 		});
 
