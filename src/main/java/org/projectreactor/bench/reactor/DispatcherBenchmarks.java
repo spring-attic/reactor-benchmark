@@ -98,7 +98,7 @@ public class DispatcherBenchmarks {
 		};
 
 		ringBufferDispatcher.subscribe(sharedCounter);
-		for(int i = 0; i < Computations.DEFAULT_POOL_SIZE ; i++){
+		for(int i = 0; i < PlatformDependent.DEFAULT_POOL_SIZE ; i++){
 			workQueueDispatcher.subscribe(sharedCounter);
 		}
 	}
