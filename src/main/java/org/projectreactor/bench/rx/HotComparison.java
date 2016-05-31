@@ -66,8 +66,6 @@ public class HotComparison {
 
 	@Setup(Level.Iteration)
 	public void setup(Blackhole bh) throws InterruptedException {
-		//  Timer.global();
-
 		rxJust = PublishSubject.create();
 		for(int i = 0; i < subscribers; i++) {
 			rxJust.onBackpressureBuffer()

@@ -53,7 +53,6 @@ public class StreamBatchingBenchmarks {
 
 	@Setup
 	public void setup() {
-		Timer.global();
 		generateStream();
 
 		//env.getRootTimer().schedule(i -> System.out.println(deferred.debug()), 200, TimeUnit.MILLISECONDS);
@@ -86,7 +85,6 @@ public class StreamBatchingBenchmarks {
 		final Random random = new Random();
 
 
-		//((WaitingMood)deferred.getDispatcher()).nervous();
 		Scheduler dispatcherSupplier = Computations.parallel("batch-stream", 2048, 9);
 
 		deferred = EmitterProcessor.<CountDownLatch>create().connect();

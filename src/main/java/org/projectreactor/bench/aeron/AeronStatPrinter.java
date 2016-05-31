@@ -15,16 +15,15 @@
  */
 package org.projectreactor.bench.aeron;
 
-import reactor.aeron.utils.AeronCounters;
-import reactor.core.flow.Cancellation;
-import reactor.core.scheduler.Timer;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import reactor.aeron.utils.AeronCounters;
+import reactor.core.flow.Cancellation;
 
 public class AeronStatPrinter {
 
@@ -52,7 +51,7 @@ public class AeronStatPrinter {
 		if (pausable != null) {
 			throw new IllegalStateException("Already initialised");
 		}
-		pausable = Timer.global().schedule(() -> {
+		pausable = Schedulers.timer().schedule(() -> {
 			ps.format("%1$tH:%1$tM:%1$tS - %2$s - Aeron Stat\n", new Date(), this.name);
 
 			counters.forEach((id, label) ->

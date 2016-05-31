@@ -77,9 +77,6 @@ public class ZipComparison {
 
 	@Setup(Level.Iteration)
 	public void setup() {
-		//  Timer.global();
-
-
 		rcJust = Flux.zip(p1, p2, (t1, t2) -> t2);
 		rcRange = Flux.zip(Flux.range(0, times), Flux.range(0, times), (t1, t2) -> t2);
 

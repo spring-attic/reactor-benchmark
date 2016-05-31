@@ -63,8 +63,6 @@ public class FlatMapComparison {
 
     @Setup(Level.Iteration)
     public void setup() {
-      //  Timer.global();
-
 //        rxJust = Observable.range(0, times).flatMap(v -> Observable.just(1, v));
 //        rxRange = Observable.range(0, times).flatMap(v -> Observable.range(v, 2));
 
