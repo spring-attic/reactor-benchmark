@@ -36,7 +36,6 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.core.publisher.Computations;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
@@ -92,7 +91,8 @@ public class HotComparison {
 
 		asyncObserver = new LatchedObserver(bh);
 		rcJustAsync = EmitterProcessor.create();
-		Flux<Integer> f = rcJustAsync.publishOn(Computations.single());
+		Flux<Integer> f = rcJustAsync.publishOn(reactor.core.scheduler.Schedulers
+				.single());
 		f.subscribe(asyncObserver);
 
 		for(int i = 1; i < subscribers; i++) {

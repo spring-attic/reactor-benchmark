@@ -19,8 +19,8 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import reactor.core.publisher.EmitterProcessor;
-import reactor.core.publisher.Computations;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * from https://gist.github.com/oiavorskyi/a949aa6ef3556246c42d
@@ -84,7 +84,7 @@ public class StreamBatchingBenchmarks {
 		final Random random = new Random();
 
 
-		Scheduler dispatcherSupplier = Computations.parallel("batch-stream", 2048, 9);
+		Scheduler dispatcherSupplier = Schedulers.newComputation("batch-stream", 9, 2048);
 
 		deferred = EmitterProcessor.<CountDownLatch>create().connect();
 		deferred

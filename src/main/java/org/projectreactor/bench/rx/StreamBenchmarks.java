@@ -32,12 +32,12 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
-import reactor.core.publisher.Computations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.TopicProcessor;
 import reactor.core.publisher.UnicastProcessor;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author Jon Brisbin
@@ -84,8 +84,7 @@ public class StreamBenchmarks {
 				    .subscribe(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
-				partitionRunner = Computations.parallel("test", 1024, 2, null, () -> System.out.println("complete test" +
-					" inner"));
+				partitionRunner = Schedulers.newComputation("test", 2, 2048);
 
 				mapManydeferred = UnicastProcessor.create();
 				mapManydeferred
@@ -100,13 +99,13 @@ public class StreamBenchmarks {
 
 			case "shared":
 				deferred = UnicastProcessor.create();
-				deferred.publishOn(Computations.parallel())
+				deferred.publishOn(Schedulers.newComputation("test-deferred"))
 				        .map(i -> i)
 				        .scan(1, (last, next) -> last + next)
 				        .subscribe(i -> latch.countDown());
 
 				mapManydeferred = UnicastProcessor.create();
-				mapManydeferred.publishOn(Computations.parallel())
+				mapManydeferred.publishOn(Schedulers.newComputation("test-flatmap"))
 				               .flatMap(Flux::just)
 				               .subscribe(i -> latch.countDown());
 				break;

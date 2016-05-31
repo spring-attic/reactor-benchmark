@@ -24,8 +24,8 @@ import org.projectreactor.bench.rx.support.InputWithIncrementingLong;
 import org.projectreactor.bench.rx.support.LatchedCallback;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Computations;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/operators/OperatorMergePerf.java
@@ -79,7 +79,8 @@ public class MergeBenchmarks {
 
 		@Override
 		protected void postSetup() {
-			processor = "sync".equalsIgnoreCase(dispatcherName) ? null : Computations.parallel();
+			processor = "sync".equalsIgnoreCase(dispatcherName) ? null : Schedulers
+					.parallel();
 		}
 	}
 }
