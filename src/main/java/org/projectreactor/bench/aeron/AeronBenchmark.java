@@ -73,7 +73,8 @@ public class AeronBenchmark {
 	}
 
 	private void createClientSubscriberAndSubscribe() throws InterruptedException {
-		testSubscriber = new TestSubscriber<String>(0).configureValuesStorage(false).configureValuesTimeout(Duration
+		testSubscriber = TestSubscriber.<String>create(0).configureValuesStorage(false)
+		                                          .configureValuesTimeout(Duration
 				.ofSeconds(10L));
 		Buffer.bufferToString(publisher).subscribe(testSubscriber);
 		Thread.sleep(DELAY_MILLIS);
