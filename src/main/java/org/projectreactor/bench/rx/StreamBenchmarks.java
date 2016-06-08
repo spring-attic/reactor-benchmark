@@ -88,12 +88,11 @@ public class StreamBenchmarks {
 
 				mapManydeferred = UnicastProcessor.create();
 				mapManydeferred
-				  .partition(2)
-				  .subscribe(substream -> substream
-					.publishOn(partitionRunner)
-					.map(i -> i)
-					.subscribe(i -> latch.countDown(), Throwable::printStackTrace,
-							() -> System.out.println("complete test")));
+				  .parallel(2)
+				  .runOn(partitionRunner)
+				  .map(i -> i)
+				  .subscribe(i -> latch.countDown(), Throwable::printStackTrace,
+							() -> System.out.println("complete test"));
 
 				break;
 

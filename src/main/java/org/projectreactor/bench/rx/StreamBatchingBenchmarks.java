@@ -89,7 +89,8 @@ public class StreamBatchingBenchmarks {
 		deferred = EmitterProcessor.<CountDownLatch>create().connect();
 		deferred
 		        .publishOn(dispatcherSupplier)
-				.partition(8)
+				.parallel(8)
+				.groups()
 				.subscribe(
 				  stream ->
 					(filter ?
