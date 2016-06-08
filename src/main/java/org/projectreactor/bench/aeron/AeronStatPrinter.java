@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import reactor.aeron.utils.AeronCounters;
 import reactor.core.flow.Cancellation;
+import reactor.core.scheduler.Schedulers;
 
 public class AeronStatPrinter {
 
@@ -51,7 +52,7 @@ public class AeronStatPrinter {
 		if (pausable != null) {
 			throw new IllegalStateException("Already initialised");
 		}
-		pausable = Schedulers.timer().schedule(() -> {
+		pausable = Schedulers.newTimer("aeron-stat-printer").schedule(() -> {
 			ps.format("%1$tH:%1$tM:%1$tS - %2$s - Aeron Stat\n", new Date(), this.name);
 
 			counters.forEach((id, label) ->
