@@ -26,7 +26,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.aeron.publisher.AeronFlux;
 import reactor.aeron.subscriber.AeronSubscriber;
-import reactor.core.test.TestSubscriber;
+import reactor.test.subscriber.TestSubscriber;
 import reactor.io.buffer.Buffer;
 
 /**

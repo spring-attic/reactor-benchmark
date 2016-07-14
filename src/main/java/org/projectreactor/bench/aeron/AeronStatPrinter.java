@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import reactor.aeron.utils.AeronCounters;
-import reactor.core.flow.Cancellation;
+import reactor.core.Cancellation;
 
 public class AeronStatPrinter {
 
