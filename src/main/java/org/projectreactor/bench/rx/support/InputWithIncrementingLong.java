@@ -24,7 +24,6 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
 import reactor.core.subscriber.SignalEmitter;
-import reactor.core.subscriber.Subscribers;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/jmh/InputWithIncrementingInteger.java
@@ -97,15 +96,6 @@ public abstract class InputWithIncrementingLong {
 
 	public LatchedCallback<Integer> newLatchedCallback() {
 		return new LatchedCallback<>(bh);
-	}
-
-	public Subscriber<Integer> newSubscriber() {
-		return Subscribers.consumer(new Consumer<Integer>() {
-			@Override
-			public void accept(Integer integer) {
-				bh.consume(integer);
-			}
-		});
 	}
 
 	private static class IntegerSubscriber implements Subscriber<Integer> {
