@@ -23,7 +23,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.Flux;
-import reactor.core.subscriber.SignalEmitter;
+import reactor.core.publisher.FluxSink;
 
 /**
  * Adapted from https://github.com/ReactiveX/RxJava/blob/1.x/src/perf/java/rx/jmh/InputWithIncrementingInteger.java
@@ -46,9 +46,9 @@ public abstract class InputWithIncrementingLong {
 		this.bh = bh;
 		observable = Flux.range(0, getSize());
 
-		firehose = Flux.create(new Consumer<SignalEmitter<Long>>() {
+		firehose = Flux.create(new Consumer<FluxSink<Long>>() {
 			@Override
-			public void accept(SignalEmitter<Long> s) {
+			public void accept(FluxSink<Long> s) {
 				for (long i = 0; i < getSize(); i++) {
 					s.next(i);
 				}
