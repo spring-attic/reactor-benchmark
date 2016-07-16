@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import reactor.aeron.utils.AeronCounters;
 import reactor.core.Cancellation;
+import reactor.core.scheduler.Schedulers;
 
 public class AeronStatPrinter {
 

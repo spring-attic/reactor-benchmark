@@ -67,7 +67,7 @@ public class StreamBatchingBenchmarks {
 		deferred.onComplete();
 		if (!latch.await(30, TimeUnit.SECONDS))
 			throw new RuntimeException(data.length + " elements trying to flow in, with latch count " + latch.getCount() +
-					"\n " + deferred.debug().toString());
+					"\n " + deferred.toString());
 
 		generateStream();
 
