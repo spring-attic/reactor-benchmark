@@ -34,9 +34,10 @@ import org.reactivestreams.Processor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.bus.Event;
-import reactor.core.Reactor;
+import reactor.util.Loggers;
 import reactor.core.publisher.TopicProcessor;
 import reactor.core.publisher.WorkQueueProcessor;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.concurrent.WaitStrategy;
 
 /**
@@ -98,7 +99,7 @@ public class DispatcherBenchmarks {
 		};
 
 		ringBufferDispatcher.subscribe(sharedCounter);
-		for(int i = 0; i < Reactor.DEFAULT_POOL_SIZE ; i++){
+		for(int i = 0; i < Schedulers.DEFAULT_POOL_SIZE ; i++){
 			workQueueDispatcher.subscribe(sharedCounter);
 		}
 	}
