@@ -27,7 +27,7 @@ import org.reactivestreams.Subscription;
 import reactor.aeron.publisher.AeronFlux;
 import reactor.aeron.subscriber.AeronSubscriber;
 import reactor.test.TestSubscriber;
-import reactor.io.buffer.Buffer;
+import reactor.ipc.buffer.Buffer;
 
 /**
  * @author Anatoly Kadyshev

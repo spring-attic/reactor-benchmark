@@ -16,7 +16,7 @@
 
 package org.projectreactor.bench.aeron;
 
-import reactor.io.buffer.Buffer;
+import reactor.ipc.buffer.Buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
