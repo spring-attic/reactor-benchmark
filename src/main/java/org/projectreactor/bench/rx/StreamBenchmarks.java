@@ -84,7 +84,7 @@ public class StreamBenchmarks {
 				    .subscribe(i -> latch.countDown(), Throwable::printStackTrace,
 						  () -> System.out.println("complete test-w"));
 
-				partitionRunner = Schedulers.newComputation("test", 2, 2048);
+				partitionRunner = Schedulers.newParallel("test", 2);
 
 				mapManydeferred = UnicastProcessor.create();
 				mapManydeferred
@@ -98,13 +98,13 @@ public class StreamBenchmarks {
 
 			case "shared":
 				deferred = UnicastProcessor.create();
-				deferred.publishOn(Schedulers.newComputation("test-deferred"))
+				deferred.publishOn(Schedulers.newParallel("test-deferred"))
 				        .map(i -> i)
 				        .scan(1, (last, next) -> last + next)
 				        .subscribe(i -> latch.countDown());
 
 				mapManydeferred = UnicastProcessor.create();
-				mapManydeferred.publishOn(Schedulers.newComputation("test-flatmap"))
+				mapManydeferred.publishOn(Schedulers.newParallel("test-flatmap"))
 				               .flatMap(Flux::just)
 				               .subscribe(i -> latch.countDown());
 				break;

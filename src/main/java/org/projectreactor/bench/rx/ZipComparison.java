@@ -79,9 +79,7 @@ public class ZipComparison {
 		rcJust = Flux.zip(p1, p2, (t1, t2) -> t2);
 		rcRange = Flux.zip(Flux.range(0, times), Flux.range(0, times), (t1, t2) -> t2);
 
-		processor = reactor.core.scheduler.Schedulers.newComputation("processor",
-				1,
-				1024 * 64);
+		processor = reactor.core.scheduler.Schedulers.newSingle("processor");
 
 		rcJustAsync = Flux.from(rcJust).publishOn(processor);
 		rcRangeAsync = Flux.from(rcRange).publishOn(processor);

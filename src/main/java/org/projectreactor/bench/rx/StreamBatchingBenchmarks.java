@@ -84,7 +84,7 @@ public class StreamBatchingBenchmarks {
 		final Random random = new Random();
 
 
-		Scheduler dispatcherSupplier = Schedulers.newComputation("batch-stream", 9, 2048);
+		Scheduler dispatcherSupplier = Schedulers.newParallel("batch-stream", 8);
 
 		deferred = EmitterProcessor.<CountDownLatch>create().connect();
 		deferred

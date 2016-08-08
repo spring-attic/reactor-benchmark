@@ -72,7 +72,7 @@ public class FlatMapComparison {
         rcJust = Flux.range(0, times).flatMap(Flux::just);
         rcRange = Flux.range(0, times).flatMap(v -> Flux.range(v, 2));
 
-        processor = Schedulers.newComputation("processor", 1, 1024 * 32);
+        processor = Schedulers.newSingle("processor");
 
         rcJustAsync = Flux.range(0, times).flatMap(Flux::just)
                             .publishOn(processor);
