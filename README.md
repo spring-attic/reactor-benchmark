@@ -1,3 +1,11 @@
+> :warning: **Note**: This project is using modules that are being phased out
+in Reactor 3.x. 
+
+If you have questions about Reactor 3, join the
+community (see the [reactor README](https://github.com/reactor/reactor/blob/master/README.md)).
+
+We are introducing various microbenchmarks in each project and we are taking a more end-to-end approach for meaningful scenarios such as [Brian's Benchmarks](https://github.com/bclozel/web-benchmarks).
+
 # Reactor Benchmarks
 
 These benchmarks measure the relative performance of various components of the Reactor architecture. There are also benchmarks for standard JDK components in different configurations to try and determine what's the fastest way to do various tasks.
